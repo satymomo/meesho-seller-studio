@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Product prototype architecture
+
+- The first release is intentionally frontend-only, with demo product assets and local screen state; this keeps the requested prototype clickable without adding integrations before the product flow is validated.
