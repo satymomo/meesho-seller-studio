@@ -131,6 +131,8 @@ function Index() {
     return () => { window.clearInterval(progress); window.clearTimeout(finish); };
   }, [screen]);
 
+  useEffect(() => { setVoiceOpen(false); }, [screen]);
+
   const startGeneration = () => {
     setLoadingStep(0);
     setScreen("loading");
