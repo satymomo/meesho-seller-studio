@@ -29,9 +29,11 @@ import anarkaliKurti from "@/assets/anarkali-kurti.jpg";
 
 type Screen = "home" | "studio" | "creation" | "loading" | "results" | "export" | "bulk";
 type CreationType = "Clean product photo" | "Show on a model" | "Festive / lifestyle image" | "Short product video";
+type Product = { name: string; shortName: string; price: string; image: string };
 
-const products = [
-  { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
+const defaultProduct: Product = { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti };
+const products: Product[] = [
+  defaultProduct,
   { name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
   { name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
 ];
@@ -119,21 +121,21 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [screen, setScreen] = useState<Screen>("home");
-  const [selectedProduct, setSelectedProduct] = useState(products[0]);
+  const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
   const [creationType, setCreationType] = useState<CreationType>("Clean product photo");
-  const [selectedStyle, setSelectedStyle] = useState(styles[0].name);
+  const [selectedStyle, setSelectedStyle] = useState("Simple Catalogue");
   const [listening, setListening] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [remaining, setRemaining] = useState(9);
   const [toast, setToast] = useState("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState("");
-  const [bulkSelection, setBulkSelection] = useState<string[]>([products[0].name, products[1].name]);
+  const [bulkSelection, setBulkSelection] = useState<string[]>([defaultProduct.name, "Maroon Straight Kurti"]);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const resultImages = useMemo(() => {
-    if (selectedProduct.name === products[1].name) return [maroonKurti, blueKurti, anarkaliKurti];
-    if (selectedProduct.name === products[2].name) return [anarkaliKurti, blueKurti, maroonKurti];
+    if (selectedProduct.name === "Maroon Straight Kurti") return [maroonKurti, blueKurti, anarkaliKurti];
+    if (selectedProduct.name === "Festive Anarkali Kurti") return [anarkaliKurti, blueKurti, maroonKurti];
     return [blueKurti, maroonKurti, anarkaliKurti];
   }, [selectedProduct.name]);
 
