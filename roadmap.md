@@ -1,4 +1,4 @@
-- [ ] Restore the third-step generation screen between style selection and final comparison.
-- [ ] Replace inline voice cards with a lower-right circular assistant.
-- [ ] Present four illustrative SaaS pricing tiers in the prototype.
-- [ ] Verify the mobile journey and pricing view.
+- [x] Restore the third-step generation screen between style selection and final comparison.
+- [x] Replace inline voice cards with a lower-right circular assistant.
+- [x] Present four illustrative SaaS pricing tiers in the prototype.
+- [x] Verify the mobile journey and pricing view.
