@@ -89,7 +89,6 @@ function VoiceAssistant({ listening, open, onToggle, onListen }: { listening: bo
         <p className="mt-2 text-center text-[10px] text-ink-2">Voice notes are a demo in this preview.</p>
       </div>}
       <div className="flex justify-end"><Button type="button" aria-label={open ? "Close voice assistant" : "Open voice assistant"} title="Voice assistant" onClick={onToggle} className="pointer-events-auto size-14 rounded-full bg-brand p-0 text-primary-foreground shadow-lg ring-4 ring-glass hover:bg-brand/90 active:scale-95">{listening ? <span className="flex h-5 items-end gap-[3px]">{[1, 2, 3, 4, 5].map((bar) => <span key={bar} className="mic-bar h-5 w-[3px] rounded-full bg-current" />)}</span> : <Mic size={23} />}</Button></div>
-      </div>
     </div>
   );
 }
