@@ -29,12 +29,13 @@ import anarkaliKurti from "@/assets/anarkali-kurti.jpg";
 
 type Screen = "home" | "studio" | "creation" | "loading" | "results" | "export" | "bulk";
 type CreationType = "Clean product photo" | "Show on a model" | "Festive / lifestyle image" | "Short product video";
+type Product = { name: string; shortName: string; price: string; image: string };
 
-const products = [
+const products: Product[] = [
   { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
   { name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
   { name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
-] as const;
+];
 
 const creationTypes: Array<{ label: CreationType; description: string; icon: typeof ImagePlus }> = [
   { label: "Clean product photo", description: "Clean listing shot", icon: ImagePlus },
