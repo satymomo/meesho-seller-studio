@@ -134,8 +134,8 @@ function Index() {
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const resultImages = useMemo(() => {
-    if (selectedProduct.name === products[1].name) return [maroonKurti, blueKurti, anarkaliKurti];
-    if (selectedProduct.name === products[2].name) return [anarkaliKurti, blueKurti, maroonKurti];
+    if (selectedProduct.name === "Maroon Straight Kurti") return [maroonKurti, blueKurti, anarkaliKurti];
+    if (selectedProduct.name === "Festive Anarkali Kurti") return [anarkaliKurti, blueKurti, maroonKurti];
     return [blueKurti, maroonKurti, anarkaliKurti];
   }, [selectedProduct.name]);
 
