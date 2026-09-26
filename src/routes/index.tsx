@@ -9,12 +9,12 @@ import {
   Instagram,
   LayoutGrid,
   Mic,
+  ImagePlus,
   Package,
   Plus,
   Share2,
   ShoppingBag,
   Sparkles,
-  Upload,
   UserRound,
   WandSparkles,
   X,
@@ -25,7 +25,7 @@ import maroonKurti from "@/assets/maroon-kurti.jpg";
 import anarkaliKurti from "@/assets/anarkali-kurti.jpg";
 import { Button } from "@/components/ui/button";
 
-type Screen = "home" | "studio" | "creation" | "loading" | "results" | "export" | "bulk" | "pricing";
+type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "pricing";
 type Product = { name: string; shortName: string; price: string; image: string };
 
 const defaultProduct: Product = { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti };
@@ -122,12 +122,10 @@ function Index() {
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const activeStyle = styles.find((style) => style.name === selectedStyle) ?? styles[0];
-  const resultStyles = [activeStyle, ...styles.filter((style) => style.name !== selectedStyle).slice(0, 2)];
-
   useEffect(() => {
     if (screen !== "loading") return;
     const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), 650);
-    const finish = window.setTimeout(() => setScreen("results"), 2850);
+    const finish = window.setTimeout(() => setScreen("export"), 2850);
     return () => { window.clearInterval(progress); window.clearTimeout(finish); };
   }, [screen]);
 
@@ -194,18 +192,15 @@ function Index() {
 
   const renderStudio = () => (
     <>
-      {renderHeader("Choose a product", "Seller studio", () => setScreen("home"))}
-      <main className="space-y-5 px-5 pb-28">
-        <div className="relative overflow-hidden rounded-[18px] bg-glass ring-1 ring-line">
-          <img src={currentImage} alt={selectedProduct.name} width={768} height={960} className="aspect-[4/3] w-full object-cover" />
-          <div className="pointer-events-none absolute inset-0 overflow-hidden"><div className="drift absolute -inset-y-6 -left-6 w-1/2 -rotate-[24deg] bg-glass/35 blur-[2px]" /><div className="absolute -inset-y-6 right-0 w-1/3 -rotate-[24deg] bg-brand/10 blur-[1px]" /></div>
-          <div className="absolute left-3 top-3 rounded-full bg-glass px-3 py-1.5 text-[11px] font-medium text-ink ring-1 ring-line">{uploadedName || selectedProduct.name} <span className="text-ink-2">· {selectedProduct.price}</span></div>
-          <div className="absolute bottom-3 right-3 rounded-full bg-glass px-3 py-1.5 text-[11px] font-medium text-brand ring-1 ring-line">Step 1 of 4</div>
+      {renderHeader("Select a photo", "Step 1 of 4", () => setScreen("home"))}
+      <main className="space-y-3 pb-28">
+        <div className="bg-background px-5 py-4">
+          <div className="flex items-center gap-3"><div className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft text-brand"><ShoppingBag size={18} /></div><div className="min-w-0 flex-1"><div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div><div className="text-[11px] text-ink-2">Choose a product photo</div></div><span className="text-[11px] font-semibold text-brand">1 / 4</span></div>
+          <div className="mt-4 -mx-5 bg-cool"><img src={currentImage} alt={selectedProduct.name} width={768} height={960} className="aspect-[4/3] w-full object-contain" /></div>
+          <div className="flex items-center justify-between pt-3"><div className="min-w-0"><div className="truncate text-[14px] font-semibold text-ink">{uploadedName || selectedProduct.name}</div><div className="text-[11px] text-ink-2">{uploadedImage ? "Photo from your phone" : `${selectedProduct.price} · Your catalogue`}</div></div><Check className="shrink-0 text-brand" size={18} /></div>
         </div>
-
-        <section><div className="mb-2 flex items-center justify-between"><div className="text-[11px] font-medium uppercase tracking-[0.16em] text-ink-2">Choose from your products</div><span className="text-[10px] text-ink-2">3 saved</span></div><div className="flex gap-2.5 overflow-x-auto pb-1">{products.map((product) => <button type="button" key={product.name} onClick={() => { setSelectedProduct(product); setUploadedImage(null); setUploadedName(""); }} className={`w-[86px] shrink-0 rounded-2xl bg-glass p-2 text-left ring-1 ${selectedProduct.name === product.name && !uploadedImage ? "ring-brand" : "ring-line"}`}><img src={product.image} alt={product.name} loading="lazy" width={768} height={960} className="aspect-square w-full rounded-xl object-cover" /><div className="mt-1 truncate text-[10px] font-medium text-ink">{product.shortName}</div></button>)}<label className="w-[86px] shrink-0 cursor-pointer rounded-2xl bg-glass p-2 ring-1 ring-line"><div className="grid aspect-square place-items-center rounded-xl bg-cool text-brand"><Upload size={20} /></div><div className="mt-1 text-[10px] font-medium text-ink">Upload photo</div><input type="file" accept="image/*" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) { setUploadedImage(URL.createObjectURL(file)); setUploadedName(file.name); } }} /></label></div></section>
-
-        <button type="button" onClick={() => setScreen("creation")} className="flex w-full items-center justify-between rounded-full bg-brand px-5 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-[0_16px_30px_-16px_var(--brand)] transition hover:bg-brand/90 active:scale-[0.99]">Continue <ArrowRight size={18} /></button>
+        <section className="bg-background px-5 py-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">Your photos</h2><span className="text-[11px] text-ink-2">Tap to select</span></div><div className="grid grid-cols-4 gap-2">{products.map((product) => <Button variant="ghost" type="button" key={product.name} aria-label={`Select ${product.name}`} aria-pressed={selectedProduct.name === product.name && !uploadedImage} onClick={() => { setSelectedProduct(product); setUploadedImage(null); setUploadedName(""); }} className={`relative h-auto min-w-0 flex-col gap-1 overflow-hidden rounded-md p-0 text-left ring-2 ${selectedProduct.name === product.name && !uploadedImage ? "ring-brand" : "ring-transparent"}`}><img src={product.image} alt="" loading="lazy" width={768} height={960} className="aspect-square w-full object-cover" /><span className="w-full truncate px-1 pb-1 text-[10px] text-ink">{product.shortName}</span>{selectedProduct.name === product.name && !uploadedImage && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}</Button>)}<label className={`relative flex cursor-pointer flex-col gap-1 overflow-hidden rounded-md ring-2 ${uploadedImage ? "ring-brand" : "ring-transparent"}`}><span className="grid aspect-square place-items-center bg-brand-soft text-brand">{uploadedImage ? <img src={uploadedImage} alt="Uploaded product" className="size-full object-cover" /> : <ImagePlus size={23} />}</span><span className="truncate px-1 pb-1 text-[10px] text-ink">Add photo</span><input type="file" accept="image/*" aria-label="Upload a product photo" className="absolute inset-0 cursor-pointer opacity-0" onChange={(event) => { const file = event.target.files?.[0]; if (file) { if (uploadedImage) URL.revokeObjectURL(uploadedImage); setUploadedImage(URL.createObjectURL(file)); setUploadedName(file.name); } }} />{uploadedImage && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}</label></div></section>
+        <div className="px-5 pt-2"><Button type="button" onClick={() => setScreen("creation")} className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90">Next: add a filter <ArrowRight size={18} /></Button></div>
       </main>
       <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
@@ -213,27 +208,14 @@ function Index() {
 
   const renderCreation = () => (
     <>
-      {renderHeader("Choose your look", "Step 2 of 4", () => setScreen("studio"))}
-      <main className="space-y-5 px-5 pb-28">
-        <section>
-          <div className="mb-3 flex items-end justify-between">
-            <div><h2 className="text-[17px] font-semibold text-ink">See the result instantly</h2><p className="mt-1 text-[11px] text-ink-2">Tap a style to preview it on your product.</p></div>
-            <span className="rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-semibold text-success">Product protected</span>
-          </div>
-          <div className={`relative overflow-hidden rounded-[18px] ring-1 ring-brand ${activeStyle?.frame ?? "bg-background"}`}>
-            <img src={currentImage} alt={`${selectedProduct.name} in ${selectedStyle} style`} width={768} height={960} className={`aspect-[4/3] w-full transition duration-300 ${activeStyle?.image ?? "object-cover"}`} />
-            <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-full bg-glass px-3 py-2 ring-1 ring-line backdrop-blur">
-              <span className="text-[11px] font-semibold text-ink">{selectedStyle}</span>
-              <span className="flex items-center gap-1 text-[10px] font-medium text-success"><Check size={12} /> Live preview</span>
-            </div>
-          </div>
+      {renderHeader("Add a filter", "Step 2 of 4", () => setScreen("studio"))}
+      <main className="space-y-3 pb-28">
+        <section className="bg-background pt-4"><div className="flex items-center gap-3 px-5 pb-3"><div className="grid size-10 place-items-center rounded-full bg-brand-soft text-brand"><ShoppingBag size={18} /></div><div className="min-w-0 flex-1"><div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div><div className="text-[11px] text-ink-2">{uploadedName || selectedProduct.name}</div></div><span className="text-[11px] text-ink-2">Preview</span></div>
+          <div className={`relative ${activeStyle.frame}`}><img src={currentImage} alt={`${selectedProduct.name} with ${selectedStyle} filter`} width={768} height={960} className={`aspect-[4/3] w-full transition duration-300 ${activeStyle.image}`} /><span className="absolute bottom-3 left-3 rounded-md bg-glass px-2.5 py-1.5 text-[11px] font-semibold text-ink">{selectedStyle}</span></div>
+          <div className="flex items-center justify-between px-5 py-3"><div className="flex items-center gap-2 text-[12px] font-semibold text-brand"><Sparkles size={16} /> {selectedStyle}</div><span className="text-[11px] text-ink-2">{activeStyle.note}</span></div>
         </section>
-        <section>
-          <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-2">Choose a style</div>
-          <div className="grid grid-cols-2 gap-2.5">{styles.map((style) => <button type="button" key={style.name} onClick={() => setSelectedStyle(style.name)} aria-pressed={selectedStyle === style.name} className={`overflow-hidden rounded-2xl bg-glass p-2 text-left ring-1 transition active:scale-[0.98] ${selectedStyle === style.name ? "ring-brand" : "ring-line"}`}><div className={`relative aspect-[4/3] overflow-hidden rounded-xl ${style.frame}`}><img src={currentImage} alt="" width={768} height={960} className={`size-full ${style.image}`} />{selectedStyle === style.name && <span className="absolute right-2 top-2 grid size-6 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={13} /></span>}</div><div className="mt-2 text-[11px] font-semibold text-ink">{style.name}</div><div className="text-[10px] text-ink-2">{style.note}</div></button>)}</div>
-        </section>
-        <Button type="button" onClick={() => { setRemaining((value) => Math.max(value - 1, 0)); startGeneration(); }} className="flex h-auto w-full items-center justify-between rounded-full bg-brand px-5 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-[0_16px_30px_-16px_var(--brand)] hover:bg-brand/90">Proceed <ArrowRight size={18} /></Button>
-        <p className="text-center text-[11px] text-ink-2">{remaining} product creations remaining · retry is free if the product does not match</p>
+        <section className="bg-background px-5 py-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">Filters</h2><span className="text-[11px] text-ink-2">Tap to preview</span></div><div className="-mr-5 flex gap-2.5 overflow-x-auto pb-2 pr-5">{styles.map((style) => <Button variant="ghost" type="button" key={style.name} onClick={() => setSelectedStyle(style.name)} aria-pressed={selectedStyle === style.name} className="h-auto w-[91px] shrink-0 flex-col gap-0 p-0 text-center"><span className={`relative block aspect-square w-full overflow-hidden rounded-md ring-2 ${style.frame} ${selectedStyle === style.name ? "ring-brand" : "ring-transparent"}`}><img src={currentImage} alt="" width={768} height={960} className={`size-full ${style.image}`} />{selectedStyle === style.name && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}</span><span className={`mt-2 block w-full whitespace-normal text-[10px] leading-tight ${selectedStyle === style.name ? "font-semibold text-brand" : "text-ink"}`}>{style.name}</span></Button>)}</div></section>
+        <div className="px-5 pt-2"><Button type="button" onClick={() => { setRemaining((value) => Math.max(value - 1, 0)); startGeneration(); }} className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"><Sparkles size={17} /> Generate photo</Button><p className="mt-3 text-center text-[11px] text-ink-2">{remaining} product creations remaining · retry is free</p></div>
       </main>
       <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
@@ -241,25 +223,12 @@ function Index() {
 
   const renderLoading = () => {
     const steps = ["Product checked", "Colour and print identified", "Product details protected", "Creating options"];
-    return <main className="flex min-h-screen flex-col justify-center px-5 pb-20"><div className="mx-auto w-full max-w-[350px] text-center"><div className="mx-auto grid size-20 place-items-center rounded-[24px] bg-brand-soft text-brand"><WandSparkles size={34} /></div><h1 className="mt-6 text-[24px] font-semibold text-ink">Making your options</h1><p className="mt-2 text-[13px] text-ink-2">Your {selectedProduct.shortName} is being prepared.</p><div className="mt-8 space-y-3 text-left">{steps.map((step, index) => <div key={step} className={`flex items-center gap-3 rounded-2xl bg-glass p-3.5 ring-1 ring-line transition ${index <= loadingStep ? "text-ink" : "text-ink-2/40"}`}><span className={`grid size-7 place-items-center rounded-full ${index < loadingStep ? "bg-success-soft text-success" : index === loadingStep ? "bg-brand-soft text-brand" : "bg-cool text-ink-2/50"}`}>{index < loadingStep ? <Check size={15} /> : index === loadingStep ? <span className="size-2 rounded-full bg-brand soft-pulse" /> : <span className="size-1.5 rounded-full bg-current" />}</span><span className="text-[13px] font-medium">{step}</span></div>)}</div></div></main>;
+    return <main className="flex min-h-screen flex-col justify-center px-5 pb-20"><div className="mx-auto w-full max-w-[350px] text-center"><div className="text-[11px] font-semibold uppercase tracking-widest text-brand">Step 3 of 4</div><div className="mx-auto mt-6 grid size-20 place-items-center rounded-[24px] bg-brand-soft text-brand"><WandSparkles size={34} /></div><h1 className="mt-6 text-[24px] font-semibold text-ink">Making your options</h1><p className="mt-2 text-[13px] text-ink-2">Your {selectedProduct.shortName} is being prepared.</p><div className="mt-8 space-y-3 text-left">{steps.map((step, index) => <div key={step} className={`flex items-center gap-3 rounded-2xl bg-glass p-3.5 ring-1 ring-line transition ${index <= loadingStep ? "text-ink" : "text-ink-2/40"}`}><span className={`grid size-7 place-items-center rounded-full ${index < loadingStep ? "bg-success-soft text-success" : index === loadingStep ? "bg-brand-soft text-brand" : "bg-cool text-ink-2/50"}`}>{index < loadingStep ? <Check size={15} /> : index === loadingStep ? <span className="size-2 rounded-full bg-brand soft-pulse" /> : <span className="size-1.5 rounded-full bg-current" />}</span><span className="text-[13px] font-medium">{step}</span></div>)}</div></div></main>;
   };
-
-  const renderResults = () => (
-    <>
-      {renderHeader("Your options are ready", "Step 3 of 4", () => setScreen("creation"))}
-      <main className="space-y-5 px-5 pb-32">
-        <div className="rounded-2xl bg-success-soft px-4 py-3 text-[12px] font-medium text-success ring-1 ring-success/15"><Check size={15} className="mr-2 inline" />Same product, better presentation</div>
-        <section><div className="mb-3 flex items-center justify-between"><div className="text-[11px] font-medium uppercase tracking-[0.16em] text-ink-2">Generated previews</div><span className="text-[10px] text-ink-2">3 options</span></div><div className="grid grid-cols-3 gap-2.5">{resultStyles.map((style, index) => <Button type="button" variant="ghost" key={style.name} aria-label={`Select ${style.name} preview`} aria-pressed={selectedStyle === style.name} onClick={() => setSelectedStyle(style.name)} className={`relative h-auto min-w-0 flex-col items-start overflow-hidden rounded-2xl p-0 text-left ring-1 ${selectedStyle === style.name ? "ring-brand" : "ring-line"}`}><span className={`block aspect-[3/4] w-full overflow-hidden ${style.frame}`}><img src={currentImage} alt={`${selectedProduct.name} in ${style.name} style`} width={768} height={960} className={`size-full ${style.image}`} /></span>{index === 0 && <span className="absolute left-1 top-1 rounded-full bg-brand px-1.5 py-1 text-[8px] font-semibold text-primary-foreground">Best match</span>}<span className="block w-full truncate bg-glass px-2 py-2 text-[9px] font-medium text-ink">{style.name}</span></Button>)}</div></section>
-        <section className="rounded-2xl bg-glass p-4 ring-1 ring-line"><div className="flex items-center justify-between"><div className="text-[14px] font-semibold text-ink">Product Match</div><div className="rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-semibold text-success">96% match</div></div><div className="mt-4 grid grid-cols-2 gap-2.5">{["Colour", "Print", "Shape", "Details"].map((check) => <div key={check} className="flex items-center gap-2 rounded-xl bg-cool px-3 py-2.5 text-[11px] font-medium text-ink"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-success-soft text-success"><Check size={12} /></span>{check} looks right</div>)}</div><p className="mt-3 text-[11px] text-ink-2">We kept your product’s colour, print and shape unchanged.</p></section>
-        <div className="grid grid-cols-3 gap-2"><Button type="button" variant="outline" onClick={startGeneration} className="h-auto whitespace-normal rounded-full bg-glass px-2 py-3 text-[11px] text-ink">Retry free</Button><Button type="button" variant="outline" onClick={() => setScreen("creation")} className="h-auto whitespace-normal rounded-full bg-glass px-2 py-3 text-[11px] text-ink">Try another style</Button><Button type="button" onClick={() => setScreen("export")} className="h-auto whitespace-normal rounded-full bg-brand px-2 py-3 text-[11px] text-primary-foreground hover:bg-brand/90">Use this image</Button></div>
-      </main>
-      <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
-    </>
-  );
 
   const renderExport = () => (
     <>
-      {renderHeader("Ready to use", "Step 4 of 4", () => setScreen("results"))}
+      {renderHeader("Ready to use", "Step 4 of 4", () => setScreen("creation"))}
       <main className="space-y-5 px-5 pb-28">
         <section>
           <div className="mb-3 flex items-center justify-between"><h2 className="text-[15px] font-semibold text-ink">See the improvement</h2><span className="text-[10px] font-medium text-success">96% product match</span></div>
@@ -304,5 +273,5 @@ function Index() {
     </>;
   };
 
-  return <div className="min-h-screen bg-cool font-sans text-ink"><div className="relative mx-auto min-h-screen w-full max-w-[390px] overflow-hidden bg-cool shadow-[0_0_60px_-35px_var(--ink)]">{screen === "home" && renderHome()}{screen === "studio" && renderStudio()}{screen === "creation" && renderCreation()}{screen === "loading" && renderLoading()}{screen === "results" && renderResults()}{screen === "export" && renderExport()}{screen === "bulk" && renderBulk()}{screen === "pricing" && renderPricing()}{screen !== "loading" && <VoiceAssistant listening={listening} open={voiceOpen} onToggle={() => setVoiceOpen((value) => !value)} onListen={() => { setListening((value) => !value); if (!listening) showToast("Voice note ready for later"); }} />}{toast && <div role="status" className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-4 py-3 text-[12px] font-medium text-primary-foreground shadow-lg"><Check size={15} className="text-success" />{toast}<Button variant="ghost" size="icon" type="button" onClick={() => setToast("")} aria-label="Close message" className="size-5 text-primary-foreground"><X size={14} /></Button></div>}</div></div>;
+  return <div className="min-h-screen bg-cool font-sans text-ink"><div className="relative mx-auto min-h-screen w-full max-w-[390px] overflow-hidden bg-cool shadow-[0_0_60px_-35px_var(--ink)]">{screen === "home" && renderHome()}{screen === "studio" && renderStudio()}{screen === "creation" && renderCreation()}{screen === "loading" && renderLoading()}{screen === "export" && renderExport()}{screen === "bulk" && renderBulk()}{screen === "pricing" && renderPricing()}{screen !== "loading" && <VoiceAssistant listening={listening} open={voiceOpen} onToggle={() => setVoiceOpen((value) => !value)} onListen={() => { setListening((value) => !value); if (!listening) showToast("Voice note ready for later"); }} />}{toast && <div role="status" className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-4 py-3 text-[12px] font-medium text-primary-foreground shadow-lg"><Check size={15} className="text-success" />{toast}<Button variant="ghost" size="icon" type="button" onClick={() => setToast("")} aria-label="Close message" className="size-5 text-primary-foreground"><X size={14} /></Button></div>}</div></div>;
 }

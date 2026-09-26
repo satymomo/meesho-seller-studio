@@ -2,3 +2,6 @@
 - [x] Replace inline voice cards with a lower-right circular assistant.
 - [x] Present four illustrative SaaS pricing tiers in the prototype.
 - [x] Verify the mobile journey and pricing view.
+- [x] Make the photo-selection and filter flow feel like a familiar social photo post while retaining Meesho colors.
+- [x] Make step 3 only the generation animation and transition directly to step 4.
+- [x] Verify the updated mobile journey.
