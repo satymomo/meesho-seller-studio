@@ -34,7 +34,7 @@ const products = [
   { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
   { name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
   { name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
-];
+] as const;
 
 const creationTypes: Array<{ label: CreationType; description: string; icon: typeof ImagePlus }> = [
   { label: "Clean product photo", description: "Clean listing shot", icon: ImagePlus },
