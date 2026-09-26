@@ -40,7 +40,7 @@ const styles = [
   { name: "Everyday Model", note: "Natural light", frame: "bg-sky-soft", image: "object-cover brightness-105 saturate-90" },
   { name: "Festive Look", note: "Warm celebration", frame: "bg-warning-soft", image: "object-cover contrast-110 saturate-125" },
   { name: "Modern Look", note: "Fresh and bold", frame: "bg-success-soft", image: "object-cover contrast-125 saturate-75" },
-];
+] as const;
 
 function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: ReactNode }) {
   return (
