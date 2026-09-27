@@ -5,3 +5,7 @@
 - [x] Make the photo-selection and filter flow feel like a familiar social photo post while retaining Meesho colors.
 - [x] Make step 3 only the generation animation and transition directly to step 4.
 - [x] Verify the updated mobile journey.
+
+- [x] Replace the seller homepage with a focused Seller Studio start screen and 23-point overview.
+- [x] Align the interface with Meesho’s purple, pink-adjacent, and neutral colours.
+- [x] Verify the start-to-generation journey on mobile.

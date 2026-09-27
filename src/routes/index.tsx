@@ -10,12 +10,10 @@ import {
   LayoutGrid,
   Mic,
   ImagePlus,
-  Package,
   Plus,
   Share2,
   ShoppingBag,
   Sparkles,
-  UserRound,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -70,56 +68,31 @@ function IconButton({ label, onClick, children }: { label: string; onClick?: () 
   );
 }
 
-function BottomNav({
-  active,
-  onHome,
-  onStudio,
-}: {
-  active: "home" | "studio";
-  onHome: () => void;
-  onStudio: () => void;
-}) {
-  return (
-    <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-[390px] -translate-x-1/2 px-5 pb-4">
-      <div className="flex items-center justify-between rounded-full bg-glass px-2 py-2 shadow-[0_12px_30px_-16px_var(--ink)] ring-1 ring-line backdrop-blur">
-        <button
-          type="button"
-          onClick={onHome}
-          className={`flex flex-1 flex-col items-center gap-1 rounded-full py-2 text-[10px] font-medium ${active === "home" ? "bg-brand-soft text-brand" : "text-ink-2"}`}
-        >
-          <span
-            className={`grid size-4 place-items-center rounded-full ${active === "home" ? "bg-brand" : "bg-ink-2/40"}`}
-          />
-          Home
-        </button>
-        <button
-          type="button"
-          onClick={onStudio}
-          className={`mx-1 flex flex-1 flex-col items-center gap-1 rounded-full py-2 text-[10px] font-medium ${active === "studio" ? "bg-brand-soft text-brand" : "text-ink-2"}`}
-        >
-          <Sparkles size={15} strokeWidth={2.2} />
-          Studio
-        </button>
-        <button
-          type="button"
-          onClick={() => undefined}
-          className="flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium text-ink-2"
-        >
-          <Package size={15} strokeWidth={2.2} />
-          Orders
-        </button>
-        <button
-          type="button"
-          onClick={() => undefined}
-          className="flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium text-ink-2"
-        >
-          <UserRound size={15} strokeWidth={2.2} />
-          Me
-        </button>
-      </div>
-    </div>
-  );
-}
+const studioCapabilities = [
+  "Choose a product photo from your catalogue",
+  "Add a photo from your phone",
+  "See your photo before editing",
+  "Try a clean catalogue look",
+  "Try an everyday look",
+  "Try a festive look",
+  "Try a modern look",
+  "Preview each look with one tap",
+  "Change looks whenever you like",
+  "Keep the product in focus",
+  "Make a fresh product image",
+  "Watch the image being prepared",
+  "Compare old and new side by side",
+  "Check the product colour",
+  "Check the print and pattern",
+  "Check the shape and details",
+  "Try again if it doesn't feel right",
+  "Pick another look",
+  "Use the image for your catalogue",
+  "Save a copy to your phone",
+  "Share it on WhatsApp",
+  "Share it on Instagram",
+  "Create images for several products",
+];
 
 function VoiceAssistant({
   listening,
@@ -267,133 +240,53 @@ function Index() {
 
   const renderHome = () => (
     <>
-      <div className="bg-brand px-5 pb-8 pt-7 text-primary-foreground">
-        <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.18em] text-primary-foreground/75">
-          <span>Sharma Fashion Store</span>
-          <span>Seller home</span>
+      <header className="flex items-center justify-between border-b border-line bg-background px-5 py-4">
+        <div className="flex items-center gap-2.5 text-brand">
+          <span className="grid size-9 place-items-center rounded-md bg-brand text-primary-foreground"><ShoppingBag size={20} /></span>
+          <span className="text-[22px] font-bold leading-none">meesho</span>
         </div>
-        <div className="mt-4 flex items-end justify-between">
-          <div>
-            <h1 className="text-[28px] font-semibold leading-tight">Namaste, Sharma!</h1>
-            <p className="mt-1 text-[13px] text-primary-foreground/80">Aaj apna shop aur sundar banayein.</p>
+        <span className="text-[11px] font-medium text-ink-2">Sharma Fashion Store</span>
+      </header>
+      <main className="bg-background pb-24">
+        <div className="px-5 pb-5 pt-7">
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-brand-soft px-2.5 py-1 text-[11px] font-bold text-brand"><Sparkles size={13} /> NEW FOR SELLERS</span>
+          <h1 className="mt-4 text-[32px] font-bold leading-[1.12] text-ink">Meesho<br />Seller Studio</h1>
+          <p className="mt-3 max-w-[310px] text-[14px] leading-relaxed text-ink-2">Make your product photos ready to share. Choose a photo, try a look, and see the difference.</p>
+        </div>
+        <div className="relative h-[240px] overflow-hidden bg-brand-soft sm:h-[260px]">
+          <div className="absolute inset-y-4 left-5 w-[46%] overflow-hidden rounded-md border border-line bg-background shadow-sm">
+            <img src={blueKurti} alt="Original blue kurti product photo" className="size-full object-contain" />
+            <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
           </div>
-          <div className="grid size-11 place-items-center rounded-full bg-glass/20">
-            <UserRound size={20} />
+          <div className="absolute inset-y-4 right-5 w-[46%] overflow-hidden rounded-md border-2 border-brand bg-background shadow-md">
+            <img src={blueKurti} alt="Blue kurti with a catalogue look" className="size-full object-contain p-2 brightness-105" />
+            <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">Studio look</span>
+          </div>
+          <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
+        </div>
+        <div className="px-5 pt-6">
+          <div className="grid grid-cols-3 gap-2 border-b border-line pb-6 text-center">
+            <div><ImagePlus className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Choose photo</span></div>
+            <div><Sparkles className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Try a look</span></div>
+            <div><Share2 className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Save & share</span></div>
+          </div>
+          <Button type="button" onClick={() => setScreen("studio")} className="mt-6 h-13 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
+            Start with a photo <ArrowRight size={18} />
+          </Button>
+          <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
+          <details className="group mt-8 border-t border-line pt-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold text-ink marker:hidden">What can I do with Seller Studio? <ChevronRight size={18} className="text-brand transition-transform group-open:rotate-90" /></summary>
+            <p className="mt-2 text-[12px] text-ink-2">23 simple things you can do:</p>
+            <ol className="mt-4 list-decimal space-y-3 pl-5 text-[12px] leading-relaxed text-ink-2 marker:font-semibold marker:text-brand">
+              {studioCapabilities.map((item) => <li key={item} className="pl-1">{item}</li>)}
+            </ol>
+          </details>
+          <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
+            <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
+            <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Plans & pricing <ChevronRight size={15} /></Button>
           </div>
         </div>
-      </div>
-      <main className="space-y-6 px-5 pb-28 pt-5">
-        <div className="-mt-12 rounded-[18px] bg-ink p-4 text-primary-foreground shadow-[0_18px_40px_-20px_var(--ink)]">
-          <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.16em] text-primary-foreground/65">
-            <span>This week</span>
-            <span>+18% orders</span>
-          </div>
-          <div className="mt-3 flex items-end justify-between">
-            <div>
-              <div className="text-[32px] font-semibold leading-none">₹12,480</div>
-              <div className="mt-1 text-[11px] text-primary-foreground/65">total sales</div>
-            </div>
-            <div className="rounded-full bg-success-soft px-3 py-1.5 text-[11px] font-medium text-success">
-              Good going!
-            </div>
-          </div>
-        </div>
-
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-ink">Seller tools</h2>
-            <span className="text-[10px] uppercase tracking-[0.15em] text-ink-2">Make it easy</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setScreen("studio")}
-            className="group w-full rounded-[18px] bg-glass p-4 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
-          >
-            <div className="flex items-center gap-3">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
-                <WandSparkles size={23} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[15px] font-semibold text-ink">Seller Studio</h3>
-                  <span className="rounded-full bg-success-soft px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-success">
-                    New
-                  </span>
-                </div>
-                <p className="mt-1 text-[12px] text-ink-2">Apne product ki better photo banayein</p>
-              </div>
-              <ChevronRight className="text-brand transition group-hover:translate-x-0.5" size={19} />
-            </div>
-            <div className="mt-4 flex items-center justify-between rounded-xl bg-cool px-3 py-2.5 text-[11px] text-ink-2">
-              <span>9 product creations remaining</span>
-              <span className="font-medium text-brand">Open studio</span>
-            </div>
-          </button>
-        </section>
-
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-ink">Your products</h2>
-            <button type="button" onClick={() => setScreen("studio")} className="text-[11px] font-medium text-brand">
-              See all
-            </button>
-          </div>
-          <div className="grid grid-cols-3 gap-2.5">
-            {products.map((product) => (
-              <button
-                key={product.name}
-                type="button"
-                onClick={() => {
-                  setSelectedProduct(product);
-                  setScreen("studio");
-                }}
-                className="text-left"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                  width={768}
-                  height={960}
-                  className="aspect-[3/4] w-full rounded-2xl object-cover ring-1 ring-line"
-                />
-                <div className="mt-1.5 truncate text-[11px] font-medium text-ink">{product.shortName}</div>
-                <div className="text-[10px] text-ink-2">{product.price}</div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-[18px] bg-sky-soft p-4 ring-1 ring-line">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[13px] font-semibold text-ink">Create many at once</div>
-              <div className="mt-1 text-[11px] text-ink-2">For sellers with many products</div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setScreen("bulk")}
-              aria-label="Open bulk create"
-              className="grid size-10 place-items-center rounded-full bg-glass text-sky ring-1 ring-line"
-            >
-              <LayoutGrid size={18} />
-            </button>
-          </div>
-        </section>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setScreen("pricing")}
-          className="flex h-auto w-full justify-between rounded-2xl bg-glass px-4 py-4 text-left text-ink ring-line"
-        >
-          <span>
-            <span className="block text-[13px] font-semibold">Plans & pricing</span>
-            <span className="mt-1 block text-[11px] font-normal text-ink-2">Find the right plan for your shop</span>
-          </span>
-          <ChevronRight size={18} className="text-brand" />
-        </Button>
       </main>
-      <BottomNav active="home" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
   );
 
@@ -510,7 +403,6 @@ function Index() {
           </Button>
         </div>
       </main>
-      <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
   );
 
@@ -598,7 +490,6 @@ function Index() {
           </p>
         </div>
       </main>
-      <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
   );
 
@@ -757,7 +648,6 @@ function Index() {
           Done
         </button>
       </main>
-      <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
   );
 
@@ -834,7 +724,6 @@ function Index() {
           </div>
         </div>
       </main>
-      <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
     </>
   );
 
@@ -916,7 +805,6 @@ function Index() {
             </section>
           ))}
         </main>
-        <BottomNav active="studio" onHome={() => setScreen("home")} onStudio={() => setScreen("studio")} />
       </>
     );
   };
