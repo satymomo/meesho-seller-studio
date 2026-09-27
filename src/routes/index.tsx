@@ -805,7 +805,8 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-cool font-sans text-ink">
-      <div className="relative mx-auto min-h-screen w-full max-w-[390px] overflow-hidden bg-cool shadow-[0_0_60px_-35px_var(--ink)]">
+      <div className="relative mx-auto min-h-screen w-full max-w-[390px] bg-cool shadow-[0_0_60px_-35px_var(--ink)]">
+
         {screen === "home" && renderHome()}
         {screen === "studio" && renderStudio()}
         {screen === "creation" && renderCreation()}
