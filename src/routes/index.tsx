@@ -223,12 +223,13 @@ function Index() {
         <span className="text-[11px] font-medium text-ink-2">Sharma Fashion Store</span>
       </header>
       <main className="bg-background pb-24">
-        <div className="px-5 pb-5 pt-7">
+        <div className="px-5 pb-5 pt-6">
           <span className="inline-flex items-center gap-1.5 rounded-sm bg-brand-soft px-2.5 py-1 text-[11px] font-bold text-brand"><Sparkles size={13} /> NEW FOR SELLERS</span>
           <h1 className="mt-4 text-[32px] font-bold leading-[1.12] text-ink">Meesho<br />Seller Studio</h1>
           <p className="mt-3 max-w-[310px] text-[14px] leading-relaxed text-ink-2">Make your product photos ready to share. Choose a photo, try a look, and see the difference.</p>
         </div>
-        <div className="relative h-[240px] overflow-hidden bg-brand-soft sm:h-[260px]">
+        <div className="relative h-[190px] overflow-hidden bg-brand-soft sm:h-[230px]">
+
           <div className="absolute inset-y-4 left-5 w-[46%] overflow-hidden rounded-md border border-line bg-background shadow-sm">
             <img src={blueKurti} alt="Original blue kurti product photo" className="size-full object-contain" />
             <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
