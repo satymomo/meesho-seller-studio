@@ -68,31 +68,6 @@ function IconButton({ label, onClick, children }: { label: string; onClick?: () 
   );
 }
 
-const studioCapabilities = [
-  "Choose a product photo from your catalogue",
-  "Add a photo from your phone",
-  "See your photo before editing",
-  "Try a clean catalogue look",
-  "Try an everyday look",
-  "Try a festive look",
-  "Try a modern look",
-  "Preview each look with one tap",
-  "Change looks whenever you like",
-  "Keep the product in focus",
-  "Make a fresh product image",
-  "Watch the image being prepared",
-  "Compare old and new side by side",
-  "Check the product colour",
-  "Check the print and pattern",
-  "Check the shape and details",
-  "Try again if it doesn't feel right",
-  "Pick another look",
-  "Use the image for your catalogue",
-  "Save a copy to your phone",
-  "Share it on WhatsApp",
-  "Share it on Instagram",
-  "Create images for several products",
-];
 
 function VoiceAssistant({
   listening,
@@ -274,13 +249,6 @@ function Index() {
             Start with a photo <ArrowRight size={18} />
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
-          <details className="group mt-8 border-t border-line pt-4">
-            <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold text-ink marker:hidden">What can I do with Seller Studio? <ChevronRight size={18} className="text-brand transition-transform group-open:rotate-90" /></summary>
-            <p className="mt-2 text-[12px] text-ink-2">23 simple things you can do:</p>
-            <ol className="mt-4 list-decimal space-y-3 pl-5 text-[12px] leading-relaxed text-ink-2 marker:font-semibold marker:text-brand">
-              {studioCapabilities.map((item) => <li key={item} className="pl-1">{item}</li>)}
-            </ol>
-          </details>
           <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
             <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
             <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Plans & pricing <ChevronRight size={15} /></Button>
@@ -730,35 +698,51 @@ function Index() {
   const renderPricing = () => {
     const plans = [
       {
-        name: "Free",
-        price: "₹0",
-        detail: "For your first few product photos",
-        features: ["9 product creations", "Style previews", "Standard downloads"],
-        action: "Current plan",
+        name: "Free Trial",
+        tagline: "For new sellers",
+        products: "3 products",
+        media: "9 photos · 3 videos",
+        features: ["1 style pack", "555 photo credits", "Great for trying Seller Studio"],
+        price: "Free",
+        saving: "Free for your first 3 products",
+        action: "Try it free",
+        tone: "bg-brand",
         featured: false,
       },
       {
-        name: "Starter",
-        price: "₹299",
-        detail: "For a growing catalogue",
-        features: ["30 product creations / month", "All visual styles", "HD downloads"],
-        action: "Choose Starter",
+        name: "Basic",
+        tagline: "For new sellers",
+        products: "10 products",
+        media: "30 photos · 10 videos",
+        features: ["5 style packs", "1,850 photo credits", "Works out to ₹149 per product"],
+        price: "₹1,499",
+        saving: "Saves 70–79% per photo",
+        action: "Choose Basic",
+        tone: "bg-brand",
         featured: false,
       },
       {
-        name: "Growth",
-        price: "₹799",
-        detail: "For sellers creating every week",
-        features: ["100 product creations / month", "Bulk creation", "HD downloads"],
-        action: "Choose Growth",
+        name: "Plus",
+        tagline: "For active sellers",
+        products: "100 products",
+        media: "300 photos · 100 videos",
+        features: ["50 style packs", "18,500 photo credits", "Works out to ₹105 per product"],
+        price: "₹10,499",
+        saving: "Saves 79–85% per photo",
+        action: "Choose Plus",
+        tone: "bg-brand",
         featured: true,
       },
       {
-        name: "Scale",
-        price: "Custom",
-        detail: "For larger teams and catalogues",
-        features: ["Custom creation volume", "Bulk creation", "Team support"],
-        action: "Contact us",
+        name: "Pro",
+        tagline: "For power sellers",
+        products: "1,000 products",
+        media: "3,000 photos · 1,000 videos",
+        features: ["All 500+ styles", "185,000 photo credits", "Works out to ₹75 per product"],
+        price: "₹74,999",
+        saving: "Saves 85–89% per photo",
+        action: "Choose Pro",
+        tone: "bg-tier-pro",
         featured: false,
       },
     ];
@@ -766,44 +750,54 @@ function Index() {
       <>
         {renderHeader("Plans & pricing", "Seller studio", () => setScreen("home"))}
         <main className="space-y-4 px-5 pb-32">
-          <p className="text-[12px] text-ink-2">Illustrative plans for this preview. No payment is collected.</p>
+          <section className="rounded-2xl bg-brand-soft p-4 ring-1 ring-line">
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-brand">
+              <Sparkles size={16} /> How bundles work
+            </div>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">
+              Pick a bundle for a set number of products. Bigger bundles cost less per product — start small and grow when you're ready.
+            </p>
+          </section>
           {plans.map((plan) => (
             <section
               key={plan.name}
-              className={`rounded-2xl bg-glass p-5 ring-1 ${plan.featured ? "ring-brand" : "ring-line"}`}
+              className={`overflow-hidden rounded-2xl bg-glass ring-1 ${plan.featured ? "ring-2 ring-brand" : "ring-line"}`}
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-[17px] font-semibold text-ink">{plan.name}</h2>
+              <div className={`flex items-center justify-between px-4 py-3 text-primary-foreground ${plan.tone}`}>
+                <div>
+                  <div className="text-[16px] font-bold leading-tight">{plan.name}</div>
+                  <div className="text-[11px] opacity-90">{plan.tagline}</div>
+                </div>
                 {plan.featured && (
-                  <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-semibold text-brand">
-                    Popular
-                  </span>
+                  <span className="rounded-full bg-glass px-2.5 py-1 text-[10px] font-bold text-brand">Most popular</span>
                 )}
               </div>
-              <div className="mt-2 text-[26px] font-semibold text-ink">
-                {plan.price}
-                {plan.price !== "Custom" && <span className="ml-1 text-[12px] font-normal text-ink-2">/ month</span>}
+              <div className="px-4 py-4">
+                <div className="text-[24px] font-bold leading-tight text-ink">{plan.products}</div>
+                <div className="mt-0.5 text-[12px] text-ink-2">{plan.media}</div>
+                <ul className="mt-3 space-y-2 border-b border-line pb-4">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-[12px] text-ink">
+                      <Check size={15} className="shrink-0 text-success" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-3">
+                  <div className="text-[22px] font-bold text-ink">{plan.price}</div>
+                  <div className="mt-0.5 text-[11px] font-medium text-success">{plan.saving}</div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => showToast(`${plan.name} bundle is a preview only`)}
+                  className={`mt-4 w-full rounded-full ${plan.featured ? "bg-brand text-primary-foreground hover:bg-brand/90" : "bg-brand-soft text-brand hover:bg-brand-soft/80"}`}
+                >
+                  {plan.action}
+                </Button>
               </div>
-              <p className="mt-1 text-[12px] text-ink-2">{plan.detail}</p>
-              <div className="my-4 h-px bg-line" />
-              <ul className="space-y-2.5">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-[12px] text-ink">
-                    <Check size={15} className="shrink-0 text-success" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                type="button"
-                disabled={plan.name === "Free"}
-                onClick={() => showToast(`${plan.name} plan is a preview only`)}
-                className={`mt-5 w-full rounded-full ${plan.featured ? "bg-brand text-primary-foreground hover:bg-brand/90" : "bg-brand-soft text-brand hover:bg-brand-soft/80"}`}
-              >
-                {plan.action}
-              </Button>
             </section>
           ))}
+          <p className="text-center text-[11px] text-ink-2">Illustrative plans for this preview. No payment is collected.</p>
         </main>
       </>
     );
