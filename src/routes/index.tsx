@@ -106,7 +106,7 @@ function VoiceAssistant({
   onListen: () => void;
 }) {
   return (
-    <div className="pointer-events-none fixed bottom-24 left-1/2 z-40 w-full max-w-[390px] -translate-x-1/2 px-5">
+    <div className="pointer-events-none fixed bottom-5 left-1/2 z-40 w-full max-w-[390px] -translate-x-1/2 px-5">
       {open && (
         <div className="pointer-events-auto mb-3 ml-auto w-[min(290px,calc(100vw-40px))] rounded-2xl bg-glass p-4 shadow-lg ring-1 ring-line backdrop-blur-xl">
           <div className="flex items-start justify-between gap-3">
