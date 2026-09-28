@@ -452,8 +452,7 @@ function Index() {
             <Check className="shrink-0 text-brand" size={18} />
           </div>
             </div>
-         </section>
-         <section className="bg-background px-5 py-4">
+          <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-ink">Your photos</h2>
             <span className="text-[11px] text-ink-2">Tap to select</span>
@@ -605,6 +604,7 @@ function Index() {
                })}
              </div>
            </div>
+         </section>
         <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-ink">Choose a preset</h2>
