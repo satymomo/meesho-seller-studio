@@ -10,7 +10,6 @@ import {
   Crown,
   Mic,
   ImagePlus,
-  Plus,
   Share2,
   ShoppingBag,
   Sparkles,
@@ -32,8 +31,10 @@ import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
 import { streamImage } from "@/lib/stream-image";
 
-type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "pricing";
+type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { name: string; shortName: string; price: string; image: string };
+type BulkMode = "one-one" | "many-one" | "many-many";
+type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
 const defaultProduct: Product = { name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
 const products: Product[] = [
@@ -162,12 +163,29 @@ function Index() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState("");
   const [bulkSelection, setBulkSelection] = useState<string[]>([defaultProduct.name, "Maroon Straight Kurti"]);
+  const [bulkMode, setBulkMode] = useState<BulkMode>("many-one");
+  const [bulkStyle, setBulkStyle] = useState("Safed Shaan");
+  const [bulkStyles, setBulkStyles] = useState<string[]>(["Safed Shaan", "Shaadi Shringar"]);
+  const [bulkAssignments, setBulkAssignments] = useState<Record<string, string>>({});
+  const [bulkFocusedProduct, setBulkFocusedProduct] = useState(defaultProduct.name);
+  const [bulkResults, setBulkResults] = useState<BulkResult[]>([]);
+  const [bulkProgress, setBulkProgress] = useState(0);
+  const [bulkError, setBulkError] = useState("");
+  const [upgradeStyle, setUpgradeStyle] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState("");
   const [partialImage, setPartialImage] = useState<string | null>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const activeStyle = styles.find((style) => style.name === selectedStyle) ?? styles[0];
+  const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
+  const bulkPairs = selectedBulkProducts.flatMap((product, index) => {
+    const names = bulkMode === "many-many" ? bulkStyles : [bulkMode === "many-one" ? bulkStyle : (bulkAssignments[product.name] ?? styles[index % 3]?.name ?? "Safed Shaan")];
+    return names.flatMap((name) => {
+      const style = styles.find((item) => item.name === name);
+      return style ? [{ product, style }] : [];
+    });
+  });
   useEffect(() => {
     if (screen !== "loading") return;
     const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), 650);
@@ -228,6 +246,7 @@ function Index() {
 
   const generatePhoto = () => {
     if (onlineDemo && activeStyle.premium) {
+      setUpgradeStyle(activeStyle.name);
       setUpgradeOpen(true);
       return;
     }
@@ -290,6 +309,61 @@ function Index() {
     setBulkSelection((current) =>
       current.includes(name) ? current.filter((item) => item !== name) : [...current, name],
     );
+  };
+
+  const makeBulkPhoto = async (product: Product, style: (typeof styles)[number]) => {
+    const [photoResponse, referenceResponse] = await Promise.all([fetch(product.image), fetch(style.image)]);
+    if (!photoResponse.ok || !referenceResponse.ok) throw new Error("Could not load a photo. Please try again.");
+    const toFile = async (response: Response) => {
+      const bitmap = await createImageBitmap(await response.blob());
+      const ratio = Math.min(1, 1536 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(bitmap.width * ratio);
+      canvas.height = Math.round(bitmap.height * ratio);
+      const context = canvas.getContext("2d");
+      if (!context) { bitmap.close(); throw new Error("Could not prepare the photo."); }
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("Could not prepare the photo.");
+      return new File([blob], "photo.png", { type: "image/png" });
+    };
+    const [photo, reference] = await Promise.all([toFile(photoResponse), toFile(referenceResponse)]);
+    const form = new FormData();
+    form.append("image", photo);
+    form.append("reference", reference);
+    form.append("preset", style.name);
+    let output = "";
+    await streamImage("/api/edit-product-photo", form, (src, final) => { if (final) output = src; });
+    if (!output) throw new Error("No photo was returned. Please try again.");
+    return output;
+  };
+
+  const createBulkPhotos = async () => {
+    if (bulkPairs.length === 0) return;
+    const premium = onlineDemo && bulkPairs.find(({ style }) => style.premium);
+    if (premium) {
+      setUpgradeStyle(premium.style.name);
+      setUpgradeOpen(true);
+      return;
+    }
+    setBulkResults([]);
+    setBulkError("");
+    setBulkProgress(0);
+    setScreen("bulkLoading");
+    const results: BulkResult[] = [];
+    try {
+      for (const { product, style } of bulkPairs) {
+        const image = onlineDemo ? await makeBulkPhoto(product, style) : style.image;
+        results.push({ product, style, image });
+        setBulkProgress(results.length);
+        if (!onlineDemo) await new Promise<void>((resolve) => window.setTimeout(resolve, 260));
+      }
+      setBulkResults(results);
+      setScreen("bulkResults");
+    } catch (error) {
+      setBulkError(error instanceof Error ? error.message : "Could not make your photos. Please try again.");
+    }
   };
 
   const renderHeader = (title: string, eyebrow: string, back: () => void) => (
@@ -734,26 +808,28 @@ function Index() {
 
   const renderBulk = () => (
     <>
-      {renderHeader("Create many at once", "Power seller", () => setScreen("home"))}
+      {renderHeader("Select products", "Create many · 1 of 3", () => setScreen("home"))}
       <main className="space-y-5 px-5 pb-28">
-        <div className="rounded-2xl bg-sky-soft p-4 ring-1 ring-line">
+        <div className="border-b border-line bg-background pb-4 pt-2">
           <div className="flex items-center gap-3">
-            <div className="grid size-11 place-items-center rounded-2xl bg-glass text-sky">
+            <div className="grid size-11 place-items-center rounded-md bg-brand-soft text-brand">
               <LayoutGrid size={21} />
             </div>
             <div>
               <div className="text-[14px] font-semibold text-ink">Select your products</div>
-              <div className="mt-1 text-[11px] text-ink-2">Make clean photos for many products together</div>
+              <div className="mt-1 text-[11px] text-ink-2">{bulkSelection.length} selected · Tap a photo to add or remove it</div>
             </div>
           </div>
         </div>
         <section className="space-y-2.5">
           {products.map((product) => (
-            <button
+            <Button
+              variant="ghost"
               type="button"
               key={product.name}
               onClick={() => toggleBulk(product.name)}
-              className={`flex w-full items-center gap-3 rounded-2xl bg-glass p-3 text-left ring-1 ${bulkSelection.includes(product.name) ? "ring-brand" : "ring-line"}`}
+              aria-pressed={bulkSelection.includes(product.name)}
+              className={`flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3 text-left ring-1 ${bulkSelection.includes(product.name) ? "ring-brand" : "ring-line"}`}
             >
               <img
                 src={product.image}
@@ -761,7 +837,7 @@ function Index() {
                 loading="lazy"
                 width={768}
                 height={960}
-                className="size-14 rounded-xl object-cover"
+                className="size-14 rounded-md object-cover"
               />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-medium text-ink">{product.name}</span>
@@ -772,38 +848,124 @@ function Index() {
               >
                 {bulkSelection.includes(product.name) && <Check size={14} />}
               </span>
-            </button>
+            </Button>
           ))}
         </section>
-        <button
+        <Button
           type="button"
           disabled={bulkSelection.length === 0}
-          onClick={() => showToast(`${bulkSelection.length} products are ready to create`)}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-[15px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
+          onClick={() => { setBulkFocusedProduct(selectedBulkProducts[0]?.name ?? defaultProduct.name); setScreen("bulkPresets"); }}
+          className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[15px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <Sparkles size={18} /> Create {bulkSelection.length} products
-        </button>
-        <div className="rounded-2xl bg-glass p-4 ring-1 ring-line">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[13px] font-semibold text-ink">Need more?</div>
-              <div className="mt-1 text-[11px] text-ink-2">Add products to your pack</div>
+          Next: choose looks <ArrowRight size={18} />
+        </Button>
+      </main>
+    </>
+  );
+
+  const renderBulkPresets = () => {
+    const focus = selectedBulkProducts.find((product) => product.name === bulkFocusedProduct) ?? selectedBulkProducts[0];
+    const currentStyle = bulkMode === "many-one" ? bulkStyle : (bulkAssignments[focus?.name ?? ""] ?? styles[Math.max(0, products.findIndex((product) => product.name === focus?.name)) % 3]?.name ?? "Safed Shaan");
+    return (
+      <>
+        {renderHeader("Choose looks", "Create many · 2 of 3", () => setScreen("bulk"))}
+        <main className="space-y-5 pb-28">
+          <section className="bg-background px-5 py-4">
+            <h2 className="text-[14px] font-semibold text-ink">How should the looks be used?</h2>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {([
+                { mode: "one-one", title: "One each", caption: "Pick a look for each" },
+                { mode: "many-one", title: "Same look", caption: "One look for all" },
+                { mode: "many-many", title: "Mix looks", caption: "Several looks for all" },
+              ] as const).map(({ mode, title, caption }) => (
+                <Button key={mode} type="button" variant="ghost" aria-pressed={bulkMode === mode} onClick={() => setBulkMode(mode)} className={`h-auto min-h-20 min-w-0 flex-col items-start justify-center gap-1 whitespace-normal rounded-md border p-2.5 text-left ${bulkMode === mode ? "border-brand bg-brand-soft text-brand" : "border-line bg-background text-ink"}`}>
+                  <span className="text-[12px] font-bold">{title}</span>
+                  <span className="text-[10px] font-normal leading-tight text-ink-2">{caption}</span>
+                </Button>
+              ))}
             </div>
-            <Plus size={18} className="text-brand" />
+          </section>
+          {bulkMode === "one-one" && (
+            <section className="bg-background px-5 py-4">
+              <h2 className="text-[14px] font-semibold text-ink">Choose a product to style</h2>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {selectedBulkProducts.map((product, index) => (
+                  <Button key={product.name} type="button" variant="ghost" aria-pressed={focus?.name === product.name} onClick={() => setBulkFocusedProduct(product.name)} className={`h-auto w-20 shrink-0 flex-col gap-1 rounded-md border p-1.5 ${focus?.name === product.name ? "border-brand bg-brand-soft" : "border-line bg-background"}`}>
+                    <img src={product.image} alt="" className="size-14 rounded-sm object-cover" />
+                    <span className="w-full truncate text-[10px] text-ink">{product.shortName}</span>
+                    <span className="w-full truncate text-[9px] text-brand">{bulkAssignments[product.name] ?? styles[index % 3]?.name ?? "Safed Shaan"}</span>
+                  </Button>
+                ))}
+              </div>
+            </section>
+          )}
+          <section className="bg-background px-5 py-4">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-[14px] font-semibold text-ink">{bulkMode === "one-one" ? `Look for ${focus?.shortName ?? "product"}` : bulkMode === "many-one" ? "Pick one look" : "Pick several looks"}</h2>
+              <span className="shrink-0 text-[11px] text-ink-2">3 free · 4 premium</span>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-x-2 gap-y-4">
+              {styles.map((style) => {
+                const selected = bulkMode === "many-many" ? bulkStyles.includes(style.name) : currentStyle === style.name;
+                return (
+                  <Button key={style.name} type="button" variant="ghost" aria-label={`${style.name}${style.premium ? " premium" : " free"}`} aria-pressed={selected} onClick={() => {
+                    if (bulkMode === "many-many") setBulkStyles((current) => current.includes(style.name) ? current.filter((name) => name !== style.name) : [...current, style.name]);
+                    else if (bulkMode === "many-one") setBulkStyle(style.name);
+                    else if (focus) setBulkAssignments((current) => ({ ...current, [focus.name]: style.name }));
+                  }} className="h-auto min-w-0 flex-col gap-0 p-0 text-center">
+                    <span className={`relative block aspect-square w-full overflow-hidden rounded-md bg-cool ring-2 ${selected ? "ring-brand" : "ring-transparent"}`}>
+                      <img src={style.image} alt="" className="size-full object-cover" />
+                      {style.premium && <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-warning" title="Premium look"><Crown size={13} /></span>}
+                      {selected && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}
+                    </span>
+                    <span className={`mt-2 w-full whitespace-normal text-[10px] leading-tight ${selected ? "font-semibold text-brand" : "text-ink"}`}>{style.name}</span>
+                    <span className="mt-0.5 text-[10px] text-ink-2">{style.premium ? "Premium" : "Free"}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </section>
+          <div className="px-5">
+            <p className="mb-3 text-[12px] text-ink-2">{selectedBulkProducts.length} products · {bulkPairs.length} {bulkPairs.length === 1 ? "photo" : "photos"} to make</p>
+            <Button type="button" disabled={bulkPairs.length === 0} onClick={() => void createBulkPhotos()} className="h-12 w-[calc(100%-72px)] rounded-md bg-brand text-[14px] font-semibold text-primary-foreground disabled:opacity-40"><Sparkles size={17} /> Generate photos</Button>
+            {!onlineDemo && <p className="mt-3 text-[11px] text-ink-2">Offline demo · results show preset samples, not edits of your products.</p>}
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {["10 more products", "100 more products", "Large seller pack"].map((pack) => (
-              <button
-                type="button"
-                key={pack}
-                onClick={() => showToast(`${pack} selected`)}
-                className="rounded-xl bg-cool px-2 py-3 text-[10px] font-medium text-ink"
-              >
-                {pack}
-              </button>
-            ))}
-          </div>
-        </div>
+        </main>
+      </>
+    );
+  };
+
+  const renderBulkLoading = () => (
+    <main className="flex min-h-screen flex-col items-center justify-center px-5 pb-20 text-center">
+      <div className="grid size-20 place-items-center rounded-md bg-brand-soft text-brand"><WandSparkles size={34} /></div>
+      <h1 className="mt-5 text-[23px] font-semibold text-ink">Making your options</h1>
+      <p className="mt-2 text-[13px] text-ink-2">{bulkProgress} of {bulkPairs.length} photos ready</p>
+      {bulkError && <div role="alert" className="mt-5 text-[13px] text-destructive"><p>{bulkError}</p><Button type="button" variant="ghost" onClick={() => setScreen("bulkPresets")} className="mt-3 text-brand">Back to looks</Button></div>}
+    </main>
+  );
+
+  const renderBulkResults = () => (
+    <>
+      {renderHeader("Your photos are ready", "Create many · 3 of 3", () => setScreen("bulkPresets"))}
+      <main className="space-y-5 px-5 pb-28">
+        <p className="text-[13px] text-ink-2">{bulkResults.length} before-and-after {bulkResults.length === 1 ? "pair" : "pairs"}</p>
+        {bulkResults.map(({ product, style, image }) => (
+          <section key={`${product.name}-${style.name}`} className="border-b border-line pb-5">
+            <h2 className="mb-2 text-[14px] font-semibold text-ink">{product.name}</h2>
+            <div className="grid grid-cols-2 gap-2">
+              <figure className="min-w-0 overflow-hidden rounded-md border border-line bg-background">
+                <img src={product.image} alt={`Original ${product.name}`} className="aspect-[3/4] w-full bg-cool object-contain" />
+                <figcaption className="px-2 py-2 text-[11px] font-semibold text-ink">Before</figcaption>
+              </figure>
+              <figure className="min-w-0 overflow-hidden rounded-md border-2 border-brand bg-background">
+                <img src={image} alt={`${style.name} result for ${product.name}`} className="aspect-[3/4] w-full bg-cool object-contain" />
+                <figcaption className="flex items-center justify-between gap-1 px-2 py-2 text-[11px] font-semibold text-brand"><span>After · {style.name}</span>{style.premium && <Crown size={13} className="shrink-0 text-warning" />}</figcaption>
+              </figure>
+            </div>
+          </section>
+        ))}
+        {!onlineDemo && <p className="text-[11px] leading-relaxed text-ink-2">Offline demo: after photos are preset samples, not edits of your selected products.</p>}
+        <Button type="button" onClick={() => { setScreen("home"); setBulkResults([]); }} className="h-12 w-[calc(100%-72px)] rounded-md bg-brand text-primary-foreground"><Check size={18} /> Done</Button>
       </main>
     </>
   );
@@ -926,6 +1088,9 @@ function Index() {
         {screen === "loading" && renderLoading()}
         {screen === "export" && renderExport()}
         {screen === "bulk" && renderBulk()}
+        {screen === "bulkPresets" && renderBulkPresets()}
+        {screen === "bulkLoading" && renderBulkLoading()}
+        {screen === "bulkResults" && renderBulkResults()}
         {screen === "pricing" && renderPricing()}
         {upgradeOpen && (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 sm:items-center" role="presentation" onClick={() => setUpgradeOpen(false)}>
@@ -935,7 +1100,7 @@ function Index() {
                 <Button type="button" variant="ghost" size="icon" aria-label="Close upgrade prompt" onClick={() => setUpgradeOpen(false)}><X size={18} /></Button>
               </div>
               <h2 id="upgrade-title" className="mt-4 text-[20px] font-semibold text-ink">Consider upgrading</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{selectedStyle} is a premium preset. Explore a plan to use premium looks, or choose one of the free presets.</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{upgradeStyle} is a premium preset. Explore a plan to use premium looks, or choose one of the free presets.</p>
               <Button type="button" onClick={() => { setUpgradeOpen(false); setScreen("pricing"); }} className="mt-5 h-11 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">See plans <ArrowRight size={17} /></Button>
               <Button type="button" variant="ghost" onClick={() => setUpgradeOpen(false)} className="mt-1 h-11 w-full text-brand">Keep browsing</Button>
             </div>
