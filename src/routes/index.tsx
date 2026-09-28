@@ -272,6 +272,20 @@ function Index() {
     }
   };
 
+  const finishFlow = () => {
+    if (uploadedImage?.startsWith("blob:")) URL.revokeObjectURL(uploadedImage);
+    if (generatedImage?.startsWith("blob:")) URL.revokeObjectURL(generatedImage);
+    if (partialImage?.startsWith("blob:")) URL.revokeObjectURL(partialImage);
+    setUploadedImage(null);
+    setUploadedName("");
+    setSelectedProduct(defaultProduct);
+    setGeneratedImage(null);
+    setPartialImage(null);
+    setLoadingStep(0);
+    setScreen("home");
+    showToast("Done. Your new photo is ready to use.");
+  };
+
   const toggleBulk = (name: string) => {
     setBulkSelection((current) =>
       current.includes(name) ? current.filter((item) => item !== name) : [...current, name],
@@ -624,79 +638,95 @@ function Index() {
   const renderExport = () => (
     <>
       {renderHeader("Ready to use", "Step 4 of 4", () => setScreen("creation"))}
-      <main className="space-y-5 px-5 pb-28">
+      <main className="space-y-4 px-5 pb-28">
+        <div className="flex items-center gap-3 rounded-md bg-success-soft p-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-background text-success"><Check size={18} /></span>
+          <div className="min-w-0">
+            <div className="text-[13px] font-semibold text-ink">Your new photo is ready</div>
+            <div className="truncate text-[11px] text-ink-2">{selectedProduct.name} · {selectedStyle}</div>
+          </div>
+        </div>
+
         <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-ink">See the improvement</h2>
+          <div className="mb-2.5 flex items-baseline justify-between">
+            <h2 className="text-[15px] font-semibold text-ink">Before and after</h2>
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand">HD ready</span>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="overflow-hidden rounded-2xl bg-glass ring-1 ring-line">
-              <img
-                src={currentImage}
-                alt={`Original ${selectedProduct.name}`}
-                width={768}
-                height={960}
-                 className="aspect-[3/4] w-full object-contain bg-cool"
-              />
-              <div className="px-3 py-2.5">
-                <div className="text-[11px] font-semibold text-ink">Original</div>
-                 <div className="text-[10px] text-ink-2">Your selected photo</div>
+            <figure className="overflow-hidden rounded-md bg-background ring-1 ring-line">
+              <div className="relative">
+                <img
+                  src={currentImage}
+                  alt={`Original ${selectedProduct.name}`}
+                  width={768}
+                  height={960}
+                  className="aspect-[3/4] w-full object-contain bg-cool"
+                />
+                <span className="absolute left-2 top-2 rounded-sm bg-ink/75 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-background">Before</span>
               </div>
-            </div>
-            <div className="overflow-hidden rounded-2xl bg-cool ring-2 ring-brand">
-              <img
+              <figcaption className="border-t border-line px-2.5 py-2">
+                <div className="text-[11px] font-semibold text-ink">Original</div>
+                <div className="truncate text-[10px] text-ink-2">Your selected photo</div>
+              </figcaption>
+            </figure>
+            <figure className="overflow-hidden rounded-md bg-background ring-2 ring-brand">
+              <div className="relative">
+                <img
                   src={generatedImage ?? currentImage}
-                 alt={`${selectedStyle} HD preset result`}
-                 width={1920}
-                 height={1920}
-                 className="aspect-[3/4] w-full object-contain bg-cool"
-              />
-              <div className="bg-glass px-3 py-2.5">
+                  alt={`${selectedStyle} HD preset result`}
+                  width={1920}
+                  height={1920}
+                  className="aspect-[3/4] w-full object-contain bg-cool"
+                />
+                <span className="absolute left-2 top-2 rounded-sm bg-brand px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-primary-foreground">After</span>
+              </div>
+              <figcaption className="border-t border-line px-2.5 py-2">
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-brand">
-                   <Sparkles size={12} /> {onlineDemo ? "Enhanced" : "Preset sample"}
+                  <Sparkles size={12} /> {onlineDemo ? "Enhanced" : "Preset sample"}
                 </div>
                 <div className="truncate text-[10px] text-ink-2">{selectedStyle}</div>
-              </div>
-            </div>
+              </figcaption>
+            </figure>
           </div>
         </section>
-         <p className="text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Check the colour, print and details before using your new photo." : "Offline demo: this is the preset sample, not your product photo. Turn on Online to create an edited image."}</p>
-         <div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setScreen("creation")}
-             className="rounded-full bg-glass text-[12px] text-ink"
-          >
-            Try another style
-          </Button>
-        </div>
-        <div>
-          <h2 className="text-[17px] font-semibold text-ink">Use this image</h2>
-          <div className="mt-3 space-y-2.5">
+
+        <p className="text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Check the colour, print and details before using your new photo." : "Offline demo: this is the preset sample, not your product photo. Turn on Online to create an edited image."}</p>
+
+        <section>
+          <h2 className="text-[15px] font-semibold text-ink">Use this image</h2>
+          <div className="mt-2.5 space-y-2">
             {[
-               { label: "Add to Meesho catalog", note: "Use this photo in your product listing", icon: ShoppingBag },
-               { label: "Download HD", note: "Save this photo to your device", icon: Download },
-               { label: "Share", note: "Send this photo to any app", icon: Share2 },
+              { label: "Add to Meesho catalog", note: "Use this photo in your product listing", icon: ShoppingBag },
+              { label: "Download HD", note: "Save this photo to your device", icon: Download },
+              { label: "Share", note: "Send this photo to any app", icon: Share2 },
             ].map(({ label, note, icon: ActionIcon }) => (
               <Button
                 variant="ghost"
                 type="button"
                 key={label}
-                 onClick={() => label === "Download HD" ? void downloadPhoto() : label === "Share" ? void sharePhoto() : showToast("Adding to Meesho catalog is a demo for now")}
-                className="flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
+                onClick={() => label === "Download HD" ? void downloadPhoto() : label === "Share" ? void sharePhoto() : showToast("Adding to Meesho catalog is a demo for now")}
+                className="flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
-                  <ActionIcon size={18} />
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">
+                  <ActionIcon size={17} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-semibold text-ink">{label}</span>
                   <span className="mt-0.5 block text-[11px] text-ink-2">{note}</span>
                 </span>
-                <ChevronRight size={17} className="text-ink-2" />
+                <ChevronRight size={17} className="shrink-0 text-ink-2" />
               </Button>
             ))}
           </div>
+        </section>
+
+        <div className="space-y-1.5 pt-1">
+          <Button type="button" onClick={finishFlow} className="h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
+            <Check size={18} /> Done
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="h-8 w-full p-0 text-[12px] font-medium text-ink-2 hover:bg-transparent">
+            Try another style
+          </Button>
         </div>
       </main>
     </>
