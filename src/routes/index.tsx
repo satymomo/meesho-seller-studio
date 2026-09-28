@@ -180,7 +180,7 @@ function Index() {
   const activeStyle = styles.find((style) => style.name === selectedStyle) ?? styles[0];
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product, index) => {
-    const names = bulkMode === "many-many" ? bulkStyles : [bulkMode === "many-one" ? bulkStyle : (bulkAssignments[product.name] ?? styles[index % 3].name)];
+    const names = bulkMode === "many-many" ? bulkStyles : [bulkMode === "many-one" ? bulkStyle : (bulkAssignments[product.name] ?? styles[index % 3]?.name ?? "Safed Shaan")];
     return names.flatMap((name) => {
       const style = styles.find((item) => item.name === name);
       return style ? [{ product, style }] : [];
@@ -865,7 +865,7 @@ function Index() {
 
   const renderBulkPresets = () => {
     const focus = selectedBulkProducts.find((product) => product.name === bulkFocusedProduct) ?? selectedBulkProducts[0];
-    const currentStyle = bulkMode === "many-one" ? bulkStyle : (bulkAssignments[focus?.name ?? ""] ?? styles[products.indexOf(focus) % 3]?.name ?? styles[0].name);
+    const currentStyle = bulkMode === "many-one" ? bulkStyle : (bulkAssignments[focus?.name ?? ""] ?? styles[Math.max(0, products.findIndex((product) => product.name === focus?.name)) % 3]?.name ?? "Safed Shaan");
     return (
       <>
         {renderHeader("Choose looks", "Create many · 2 of 3", () => setScreen("bulk"))}
@@ -893,7 +893,7 @@ function Index() {
                   <Button key={product.name} type="button" variant="ghost" aria-pressed={focus?.name === product.name} onClick={() => setBulkFocusedProduct(product.name)} className={`h-auto w-20 shrink-0 flex-col gap-1 rounded-md border p-1.5 ${focus?.name === product.name ? "border-brand bg-brand-soft" : "border-line bg-background"}`}>
                     <img src={product.image} alt="" className="size-14 rounded-sm object-cover" />
                     <span className="w-full truncate text-[10px] text-ink">{product.shortName}</span>
-                    <span className="w-full truncate text-[9px] text-brand">{bulkAssignments[product.name] ?? styles[index % 3].name}</span>
+                    <span className="w-full truncate text-[9px] text-brand">{bulkAssignments[product.name] ?? styles[index % 3]?.name ?? "Safed Shaan"}</span>
                   </Button>
                 ))}
               </div>
