@@ -228,7 +228,7 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (activeStyle.premium) {
+    if (onlineDemo && activeStyle.premium) {
       setUpgradeOpen(true);
       return;
     }
@@ -333,7 +333,7 @@ function Index() {
            <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
              <div>
                <label htmlFor="demo-mode" className="text-[13px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
-               <p className="mt-0.5 text-[11px] text-ink-2">{onlineDemo ? "Creates a new photo using your product. Uses AI credits." : "Shows preset samples. No AI credits used."}</p>
+               <p className="mt-0.5 text-[11px] text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
              </div>
              <Switch id="demo-mode" aria-label="Online demo mode" checked={onlineDemo} onCheckedChange={setOnlineDemo} className="shrink-0 data-[state=checked]:bg-brand" />
            </div>
@@ -549,7 +549,7 @@ function Index() {
           >
             <Sparkles size={17} /> Generate photo
           </Button>
-            <p className="mt-3 text-center text-[11px] text-ink-2">{onlineDemo ? "Your photo is used to create a new image in your chosen look." : "Offline demo · preset sample only · no AI credits"}</p>
+            <p className="mt-3 text-center text-[11px] text-ink-2">{onlineDemo ? "Your photo is used to create a new image in your chosen look." : "Offline demo · preset sample only"}</p>
         </div>
       </main>
     </>
