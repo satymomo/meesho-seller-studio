@@ -202,7 +202,7 @@ function Index() {
   });
   const shots = insight.profile.shotPlan;
   const selectedSet = selectedShots;
-  const shotImage = (index: number) => isKurti ? styles[(Math.max(0, styles.findIndex((item) => item.name === activePreset.name)) + index) % styles.length]?.image ?? activePreset.image : currentImage;
+  const shotImage = (_index: number) => activePreset.image;
   const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   useEffect(() => {
     if (screen !== "loading" && screen !== "understanding") return;
@@ -375,6 +375,7 @@ function Index() {
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
 
+          <div className="mt-5 border-l-2 border-warning bg-warning-soft px-3 py-2.5 text-[12px] font-medium text-ink">Help your products appear better than your peers with a complete photo set.</div>
           <div className="mt-7 rounded-md border border-line bg-brand-soft/50 p-4">
             <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">How it works</div>
             <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5">
@@ -590,7 +591,7 @@ function Index() {
                  </figure>
                ))}
              </div>
-             <p className="mt-2 text-[11px] text-ink-2">Illustrative set · your product is not edited in this demo.</p>
+              <p className="mt-2 text-[11px] text-ink-2">Illustrative views of one sample photo · not separate generated shots of your product.</p>
            </div>
            <div className="border-t border-line px-5 py-3">
              <div className="mb-2 text-[12px] font-semibold text-ink">More like this</div>
@@ -820,7 +821,7 @@ function Index() {
           <h2 className="text-[14px] font-semibold text-ink">{currentStyle.name} catalogue</h2>
           <p className="mt-1 text-[11px] text-ink-2">One look for {selectedBulkProducts.length} selected products</p>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {inferProduct(defaultProduct.id).profile.shotPlan.map((shot, index) => <figure key={shot} className="overflow-hidden rounded-md border border-line"><img src={styles[(styles.indexOf(currentStyle) + index) % styles.length].image} alt={`${shot} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{shot}</figcaption></figure>)}
+            {inferProduct(defaultProduct.id).profile.shotPlan.map((shot) => <figure key={shot} className="overflow-hidden rounded-md border border-line"><img src={currentStyle.image} alt={`${shot} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{shot}</figcaption></figure>)}
           </div>
           <p className="mt-2 text-[11px] text-ink-2">Illustrative previews · not edited product photos.</p>
         </section>
