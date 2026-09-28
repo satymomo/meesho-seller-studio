@@ -27,4 +27,4 @@
 - [x] Replace product-understanding page with a compact scan-and-overview pop-up.
 - [x] Show a five-shot catalogue preview for each preset, generate a demo catalogue set, and let sellers select shots before proceeding.
 - [x] Remove bulk preset modes, simplify the results and saving screens, and add the peer-quality nudge.
-- [ ] Verify both mobile journeys.
+- [x] Verify both mobile journeys.
