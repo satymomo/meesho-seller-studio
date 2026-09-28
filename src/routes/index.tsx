@@ -6,7 +6,6 @@ import {
   Check,
   ChevronRight,
   Download,
-  Instagram,
   LayoutGrid,
   Crown,
   Mic,
@@ -152,6 +151,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [screen, setScreen] = useState<Screen>("home");
+  const [onlineDemo, setOnlineDemo] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
   const [selectedStyle, setSelectedStyle] = useState("Safed Shaan");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -187,6 +187,12 @@ function Index() {
     setGeneratedImage(null);
     setScreen("loading");
     try {
+      if (!onlineDemo) {
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 2200));
+        setGeneratedImage(activeStyle.image);
+        setScreen("export");
+        return;
+      }
       const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activeStyle.image)]);
       if (!productResponse.ok || !presetResponse.ok) throw new Error("Could not load the selected photos. Please try again.");
       const normalizePhoto = async (response: Response) => {
@@ -221,7 +227,7 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (activeStyle.premium) {
+    if (onlineDemo && activeStyle.premium) {
       setUpgradeOpen(true);
       return;
     }
@@ -236,12 +242,33 @@ function Index() {
   const downloadPhoto = async () => {
     try {
       if (!generatedImage) throw new Error("No generated photo");
+      const response = await fetch(generatedImage);
+      if (!response.ok) throw new Error("Could not load photo");
+      const objectUrl = URL.createObjectURL(await response.blob());
       const link = document.createElement("a");
-      link.href = generatedImage;
+      link.href = objectUrl;
       link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.png`;
       link.click();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch {
       showToast("Download unavailable right now");
+    }
+  };
+
+  const sharePhoto = async () => {
+    if (!generatedImage) return;
+    try {
+      const response = await fetch(generatedImage);
+      if (!response.ok) throw new Error("Could not load photo");
+      const file = new File([await response.blob()], "meesho-studio-photo.png", { type: "image/png" });
+      if (!navigator.canShare?.({ files: [file] })) {
+        showToast("Sharing isn't available here. Use Download HD instead.");
+        return;
+      }
+      await navigator.share({ files: [file] });
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return;
+      showToast("Could not share this photo. Use Download HD instead.");
     }
   };
 
@@ -302,6 +329,15 @@ function Index() {
             Start with a photo <ArrowRight size={18} />
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
+           <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
+             <div>
+               <label htmlFor="demo-mode" className="text-[13px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
+               <p className="mt-0.5 text-[11px] text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
+             </div>
+              <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
+                <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
+              </Button>
+           </div>
           <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
             <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
             <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Plans & pricing <ChevronRight size={15} /></Button>
@@ -504,7 +540,7 @@ function Index() {
               </Button>
             ))}
           </div>
-           <p className="mt-4 text-[11px] leading-relaxed text-ink-2">Preset pictures show the look. Your selected product photo is used when you generate.</p>
+           <p className="mt-4 text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Preset pictures show the look. Your selected product photo is used when you generate." : "Offline demo shows the preset sample, not an edit of your product photo."}</p>
         </section>
         <div className="px-5 pt-2">
           <Button
@@ -514,7 +550,7 @@ function Index() {
           >
             <Sparkles size={17} /> Generate photo
           </Button>
-           <p className="mt-3 text-center text-[11px] text-ink-2">Your photo is used to create a new image in your chosen look.</p>
+            <p className="mt-3 text-center text-[11px] text-ink-2">{onlineDemo ? "Your photo is used to create a new image in your chosen look." : "Offline demo · preset sample only"}</p>
         </div>
       </main>
     </>
@@ -530,7 +566,7 @@ function Index() {
             <WandSparkles size={34} />
           </div>
           <h1 className="mt-6 text-[24px] font-semibold text-ink">Making your options</h1>
-          <p className="mt-2 text-[13px] text-ink-2">Your {selectedProduct.shortName} is being prepared.</p>
+           <p className="mt-2 text-[13px] text-ink-2">{onlineDemo ? `Your ${selectedProduct.shortName} is being prepared.` : "Preparing your preset sample."}</p>
            {partialImage && <img src={partialImage} alt="Photo being created" className="mx-auto mt-5 max-h-48 w-auto rounded-md object-contain blur-2xl transition-[filter]" />}
            {generationError && (
              <div role="alert" className="mt-6 text-[13px] text-destructive">
@@ -597,28 +633,20 @@ function Index() {
               />
               <div className="bg-glass px-3 py-2.5">
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-brand">
-                  <Sparkles size={12} /> Enhanced
+                   <Sparkles size={12} /> {onlineDemo ? "Enhanced" : "Preset sample"}
                 </div>
                 <div className="truncate text-[10px] text-ink-2">{selectedStyle}</div>
               </div>
             </div>
           </div>
         </section>
-         <p className="text-[11px] leading-relaxed text-ink-2">Check the colour, print and details before using your new photo.</p>
-        <div className="grid grid-cols-2 gap-2.5">
-          <Button
-            type="button"
-            variant="outline"
-             onClick={() => void startGeneration()}
-            className="rounded-full bg-glass text-[11px] text-ink"
-          >
-             Try again
-          </Button>
+         <p className="text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Check the colour, print and details before using your new photo." : "Offline demo: this is the preset sample, not your product photo. Turn on Online to create an edited image."}</p>
+         <div>
           <Button
             type="button"
             variant="outline"
             onClick={() => setScreen("creation")}
-            className="rounded-full bg-glass text-[11px] text-ink"
+             className="rounded-full bg-glass text-[12px] text-ink"
           >
             Try another style
           </Button>
@@ -627,17 +655,15 @@ function Index() {
           <h2 className="text-[17px] font-semibold text-ink">Use this image</h2>
           <div className="mt-3 space-y-2.5">
             {[
-              { label: "Add to Meesho catalogue", note: "Use this photo in your product listing", icon: ShoppingBag },
-               { label: "Download HD", note: "Save your new high-quality photo", icon: Download },
-              { label: "Share on WhatsApp", note: "Send it to a customer or family", icon: Share2 },
-              { label: "Use on Instagram", note: "Share as a post or story", icon: Instagram },
-              { label: "Export for other marketplaces", note: "Use this photo anywhere", icon: ArrowRight },
+               { label: "Add to Meesho catalog", note: "Use this photo in your product listing", icon: ShoppingBag },
+               { label: "Download HD", note: "Save this photo to your device", icon: Download },
+               { label: "Share", note: "Send this photo to any app", icon: Share2 },
             ].map(({ label, note, icon: ActionIcon }) => (
               <Button
                 variant="ghost"
                 type="button"
                 key={label}
-                onClick={() => label === "Download HD" ? void downloadPhoto() : showToast(`${label} is ready for the next step`)}
+                 onClick={() => label === "Download HD" ? void downloadPhoto() : label === "Share" ? void sharePhoto() : showToast("Adding to Meesho catalog is a demo for now")}
                 className="flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
@@ -652,16 +678,6 @@ function Index() {
             ))}
           </div>
         </div>
-        <Button
-          type="button"
-          onClick={() => {
-            showToast("Photo saved to your catalogue");
-            setScreen("home");
-          }}
-          className="h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground"
-        >
-          Done
-        </Button>
       </main>
     </>
   );
