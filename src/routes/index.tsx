@@ -317,7 +317,7 @@ function Index() {
       </header>
       <main className="bg-background pb-24">
         <div className="px-5 pb-5 pt-6">
-          <span className="inline-flex items-center gap-1.5 rounded-sm bg-brand-soft px-2.5 py-1 text-[11px] font-bold text-brand"><Sparkles size={13} /> NEW FOR SELLERS</span>
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-warning px-2.5 py-1 text-[11px] font-bold text-ink"><Sparkles size={13} /> NEW FOR SELLERS</span>
           <h1 className="mt-4 text-[32px] font-bold leading-[1.12] text-ink">Meesho<br />Seller Studio</h1>
           <p className="mt-3 max-w-[310px] text-[14px] leading-relaxed text-ink-2">Make your product photos ready to share. Choose a photo, try a look, and see the difference.</p>
         </div>
@@ -555,7 +555,7 @@ function Index() {
                 >
                   <img src={style.image} alt="" width={1920} height={1920} className="size-full object-cover" />
                   {style.premium && (
-                    <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-brand" title="Premium preset" aria-label="Premium preset">
+                    <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-warning" title="Premium preset" aria-label="Premium preset">
                       <Crown size={13} />
                     </span>
                   )}
@@ -819,7 +819,7 @@ function Index() {
         price: "Free",
         saving: "Free for your first 3 products",
         action: "Try it free",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: false,
       },
       {
@@ -831,7 +831,7 @@ function Index() {
         price: "₹1,499",
         saving: "Saves 70–79% per photo",
         action: "Choose Basic",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: false,
       },
       {
@@ -843,7 +843,7 @@ function Index() {
         price: "₹10,499",
         saving: "Saves 79–85% per photo",
         action: "Choose Plus",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: true,
       },
       {
@@ -855,7 +855,7 @@ function Index() {
         price: "₹74,999",
         saving: "Saves 85–89% per photo",
         action: "Choose Pro",
-        tone: "bg-tier-pro",
+        tone: "bg-tier-pro text-ink",
         featured: false,
       },
     ];
@@ -876,7 +876,7 @@ function Index() {
               key={plan.name}
               className={`overflow-hidden rounded-2xl bg-glass ring-1 ${plan.featured ? "ring-2 ring-brand" : "ring-line"}`}
             >
-              <div className={`flex items-center justify-between px-4 py-3 text-primary-foreground ${plan.tone}`}>
+              <div className={`flex items-center justify-between px-4 py-3 ${plan.tone}`}>
                 <div>
                   <div className="text-[16px] font-bold leading-tight">{plan.name}</div>
                   <div className="text-[11px] opacity-90">{plan.tagline}</div>
