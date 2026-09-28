@@ -230,13 +230,13 @@ function Index() {
     setGeneratedImage(null);
     setScreen("loading");
     try {
-      if (!onlineDemo) {
+      if (!onlineDemo || !isKurti) {
         await new Promise<void>((resolve) => window.setTimeout(resolve, 2200));
-        setGeneratedImage(activeStyle.image);
+        setGeneratedImage(activePreset.image);
         setScreen("export");
         return;
       }
-      const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activeStyle.image)]);
+      const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activePreset.image)]);
       if (!productResponse.ok || !presetResponse.ok) throw new Error("Could not load the selected photos. Please try again.");
       const normalizePhoto = async (response: Response) => {
         const bitmap = await createImageBitmap(await response.blob());
@@ -256,7 +256,7 @@ function Index() {
       const form = new FormData();
       form.append("image", productBlob);
       form.append("reference", presetBlob);
-      form.append("preset", selectedStyle);
+      form.append("preset", activePreset.name);
       await streamImage("/api/edit-product-photo", form, (src, isFinal) => {
         if (isFinal) {
           setGeneratedImage(src);
@@ -270,8 +270,8 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (onlineDemo && activeStyle.premium) {
-      setUpgradeStyle(activeStyle.name);
+    if (onlineDemo && activePreset.premium) {
+      setUpgradeStyle(activePreset.name);
       setUpgradeOpen(true);
       return;
     }
@@ -291,7 +291,7 @@ function Index() {
       const objectUrl = URL.createObjectURL(await response.blob());
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.png`;
+      link.download = `${activePreset.name.toLowerCase().replaceAll(" ", "-")}-hd.png`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch {
@@ -1240,6 +1240,7 @@ function Index() {
 
         {screen === "home" && renderHome()}
         {screen === "studio" && renderStudio()}
+        {screen === "understanding" && renderUnderstanding()}
         {screen === "creation" && renderCreation()}
         {screen === "loading" && renderLoading()}
         {screen === "export" && renderExport()}
