@@ -20,3 +20,4 @@
 - [x] Remove the Need more section from Create many.
 - [x] Add bulk preset assignment for one-to-one, many-to-one, and many-to-many product looks.
 - [x] Show bulk before/after pairs and verify the mobile journey.
+- [x] Replace pricing with ₹9 Trial / ₹49 Starter / ₹199 Growth / ₹499 Pro plus top-ups; verify on mobile.
