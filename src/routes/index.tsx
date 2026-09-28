@@ -320,27 +320,47 @@ function Index() {
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
         </div>
         <div className="px-5 pt-6">
-          <div className="grid grid-cols-3 gap-2 border-b border-line pb-6 text-center">
-            <div><ImagePlus className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Choose photo</span></div>
-            <div><Sparkles className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Try a look</span></div>
-            <div><Share2 className="mx-auto text-brand" size={20} /><span className="mt-2 block text-[11px] font-semibold text-ink">Save & share</span></div>
-          </div>
-          <Button type="button" onClick={() => setScreen("studio")} className="mt-6 h-13 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
+          <Button type="button" onClick={() => setScreen("studio")} className="h-13 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
             Start with a photo <ArrowRight size={18} />
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
-           <div className="mt-5 flex items-center justify-between gap-3 border-t border-line pt-4">
-             <div>
-               <label htmlFor="demo-mode" className="text-[13px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
-               <p className="mt-0.5 text-[11px] text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
-             </div>
-              <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
-                <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
-              </Button>
-           </div>
-          <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
+
+          <div className="mt-7 rounded-md border border-line bg-brand-soft/50 p-4">
+            <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">How it works</div>
+            <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5">
+              <div className="flex flex-col items-center text-center">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><ImagePlus size={18} /></span>
+                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Choose photo</span>
+                <span className="mt-1 text-[10px] leading-snug text-ink-2">From your phone</span>
+              </div>
+              <ArrowRight className="mt-3 shrink-0 text-brand/60" size={15} />
+              <div className="flex flex-col items-center text-center">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><Sparkles size={18} /></span>
+                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Try a look</span>
+                <span className="mt-1 text-[10px] leading-snug text-ink-2">Tap a preset</span>
+              </div>
+              <ArrowRight className="mt-3 shrink-0 text-brand/60" size={15} />
+              <div className="flex flex-col items-center text-center">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><Share2 size={18} /></span>
+                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Save & share</span>
+                <span className="mt-1 text-[10px] leading-snug text-ink-2">Download or post</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-5">
             <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
             <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Plans & pricing <ChevronRight size={15} /></Button>
+          </div>
+
+          <div className="mt-6 flex items-center justify-between gap-3 rounded-md bg-cool px-3.5 py-3">
+            <div className="min-w-0">
+              <label htmlFor="demo-mode" className="text-[12px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
+              <p className="mt-0.5 text-[10px] leading-snug text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
+            </div>
+            <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
+              <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
+            </Button>
           </div>
         </div>
       </main>
