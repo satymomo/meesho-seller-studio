@@ -16,3 +16,4 @@
 - [x] Add a first-screen offline/online demo switch; offline uses preset samples without AI generation.
 - [x] Limit final image actions to catalog, download, and share; keep only Try another style.
 - [x] Reorder the start screen: main action first, how-it-works workflow with arrows, then links, demo toggle last.
+- [x] Improve the Step 4 layout with before/after badges and a Done button that returns to the home screen.
