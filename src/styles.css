@@ -183,9 +183,13 @@
 .mic-bar:nth-child(4) { animation-delay: .54s; }
 .mic-bar:nth-child(5) { animation-delay: .24s; }
 .soft-pulse { animation: softPulse 1.4s ease-in-out infinite; }
+@keyframes scanLine { 0% { top: -2rem; } 100% { top: 100%; } }
+.scan-line { animation: scanLine 1.1s linear infinite; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fadeUp .35s ease-out both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .drift, .mic-bar, .soft-pulse { animation: none; }
+  .drift, .mic-bar, .soft-pulse, .scan-line, .fade-up { animation: none; }
 }
 
 @layer base {

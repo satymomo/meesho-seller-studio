@@ -14,3 +14,4 @@
 - Keep screen state local but route photo editing through a server-only image gateway module; this protects the credential and supports streamed HD edits.
 - Uploaded preset binaries are served through Lovable Assets pointers; this keeps original HD photos available without growing the source repository.
 - Keep the demo mode local and default offline; only the explicit online mode calls the image gateway so previews do not spend credits.
+- Category understanding lives in src/lib/category-inference.ts (inferProduct returns a hard-coded ProductInsight); swap it for a real model without touching the UI.

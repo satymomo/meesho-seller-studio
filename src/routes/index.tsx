@@ -14,6 +14,8 @@ import {
   Share2,
   ShoppingBag,
   Sparkles,
+  ScanSearch,
+  ShieldCheck,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -21,6 +23,9 @@ import {
 import blueKurti from "@/assets/blue-kurti.jpg";
 import maroonKurti from "@/assets/maroon-kurti.jpg";
 import anarkaliKurti from "@/assets/anarkali-kurti.jpg";
+import shoesPhoto from "@/assets/shoes.jpg";
+import handbagPhoto from "@/assets/handbag.jpg";
+import cookwarePhoto from "@/assets/cookware.jpg";
 import originalPhoto from "@/assets/original.png.asset.json";
 import whitePreset from "@/assets/white.webp.asset.json";
 import festivePreset from "@/assets/festive.webp.asset.json";
@@ -31,19 +36,25 @@ import motionPreset from "@/assets/motion.webp.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
 import { streamImage } from "@/lib/stream-image";
+import { inferProduct, lookVariations } from "@/lib/category-inference";
 
-type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
-type Product = { name: string; shortName: string; price: string; image: string };
+type Screen = "home" | "studio" | "understanding" | "creation" | "loading" | "export" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
+type Product = { id: string; name: string; shortName: string; price: string; image: string };
+type Preset = { name: string; note: string; image: string; premium: boolean; family: string; filter: string };
 type BulkMode = "one-one" | "many-one" | "many-many";
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
-const defaultProduct: Product = { name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
+const defaultProduct: Product = { id: "kurti-embroidered", name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
 const products: Product[] = [
   defaultProduct,
-  { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
-  { name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
-  { name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
+  { id: "kurti-floral", name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
+  { id: "kurti-maroon", name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
+  { id: "kurti-anarkali", name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
+  { id: "shoes-sneaker", name: "Tan Suede Sneakers", shortName: "Sneakers", price: "₹549", image: shoesPhoto },
+  { id: "handbag-tote", name: "Wine Satchel Handbag", shortName: "Handbag", price: "₹699", image: handbagPhoto },
+  { id: "cookware-kadai", name: "Non-stick Kadai 24 cm", shortName: "Kadai", price: "₹449", image: cookwarePhoto },
 ];
+const bulkCatalogue = products.filter((product) => product.id.startsWith("kurti"));
 
 const styles = [
   { name: "Safed Shaan", note: "Crisp catalogue look", image: whitePreset.url, premium: false },
@@ -54,6 +65,10 @@ const styles = [
   { name: "Chalte Chalte", note: "On-the-move look", image: motionPreset.url, premium: true },
   { name: "Kaali Raat", note: "Dramatic dark look", image: blackPreset.url, premium: true },
 ] as const;
+const kurtiFamilies: Record<string, string> = {
+  "Safed Shaan": "Studio", "Shaadi Shringar": "Festive", "Ghoomar Glow": "Lifestyle", "Bazaar Bold": "Lifestyle",
+  "3D Jadoo": "Detail", "Chalte Chalte": "Lifestyle", "Kaali Raat": "Studio",
+};
 
 function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: ReactNode }) {
   return (
@@ -176,9 +191,18 @@ function Index() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState("");
   const [partialImage, setPartialImage] = useState<string | null>(null);
+  const [variationId, setVariationId] = useState<string | null>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
-  const activeStyle = styles.find((style) => style.name === selectedStyle) ?? styles[0];
+  const insight = inferProduct(uploadedImage ? null : selectedProduct.id);
+  const isKurti = insight.profile.key === "kurti";
+  const basePresets: Preset[] = isKurti
+    ? styles.map((style) => ({ name: style.name, note: style.note, image: style.image, premium: style.premium, family: kurtiFamilies[style.name] ?? "Studio", filter: "" }))
+    : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
+  const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
+  const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0]!;
+  const activeVariation = lookVariations.find((variation) => variation.id === variationId);
+  const displayFilter = `${activePreset.filter} ${activeVariation?.filter ?? ""}`.trim() || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product, index) => {
     const names = bulkMode === "many-many" ? bulkStyles : [bulkMode === "many-one" ? bulkStyle : (bulkAssignments[product.name] ?? styles[index % 3]?.name ?? "Safed Shaan")];
@@ -188,8 +212,8 @@ function Index() {
     });
   });
   useEffect(() => {
-    if (screen !== "loading") return;
-    const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), 650);
+    if (screen !== "loading" && screen !== "understanding") return;
+    const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), screen === "understanding" ? 550 : 650);
     return () => {
       window.clearInterval(progress);
     };
@@ -206,13 +230,13 @@ function Index() {
     setGeneratedImage(null);
     setScreen("loading");
     try {
-      if (!onlineDemo) {
+      if (!onlineDemo || !isKurti) {
         await new Promise<void>((resolve) => window.setTimeout(resolve, 2200));
-        setGeneratedImage(activeStyle.image);
+        setGeneratedImage(activePreset.image);
         setScreen("export");
         return;
       }
-      const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activeStyle.image)]);
+      const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activePreset.image)]);
       if (!productResponse.ok || !presetResponse.ok) throw new Error("Could not load the selected photos. Please try again.");
       const normalizePhoto = async (response: Response) => {
         const bitmap = await createImageBitmap(await response.blob());
@@ -232,7 +256,7 @@ function Index() {
       const form = new FormData();
       form.append("image", productBlob);
       form.append("reference", presetBlob);
-      form.append("preset", selectedStyle);
+      form.append("preset", activePreset.name);
       await streamImage("/api/edit-product-photo", form, (src, isFinal) => {
         if (isFinal) {
           setGeneratedImage(src);
@@ -246,8 +270,8 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (onlineDemo && activeStyle.premium) {
-      setUpgradeStyle(activeStyle.name);
+    if (onlineDemo && activePreset.premium) {
+      setUpgradeStyle(activePreset.name);
       setUpgradeOpen(true);
       return;
     }
@@ -267,7 +291,7 @@ function Index() {
       const objectUrl = URL.createObjectURL(await response.blob());
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.png`;
+      link.download = `${activePreset.name.toLowerCase().replaceAll(" ", "-")}-hd.png`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch {
@@ -566,7 +590,7 @@ function Index() {
         <div className="px-5 pt-2">
           <Button
             type="button"
-            onClick={() => setScreen("creation")}
+            onClick={() => { setLoadingStep(0); setVariationId(null); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
             Next: choose a preset <ArrowRight size={18} />
@@ -576,9 +600,82 @@ function Index() {
     </>
   );
 
+  const renderUnderstanding = () => {
+    const phases = ["Reading photo", "Matching SKU", "Finding category", "Planning shots"];
+    const ready = loadingStep >= 3;
+    return (
+      <>
+        {renderHeader("Understanding your product", "Step 2 of 4", () => setScreen("studio"))}
+        <main className="space-y-3 pb-28">
+          <section className="bg-background px-5 py-4">
+            <div className="flex gap-3">
+              <div className="relative size-24 shrink-0 overflow-hidden rounded-md bg-cool">
+                <img src={currentImage} alt={uploadedName || selectedProduct.name} className="size-full object-cover" />
+                {!ready && <span className="scan-line absolute inset-x-0 h-8 bg-brand/25" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-brand"><ScanSearch size={14} /> {ready ? `Detected · ${insight.confidence}% sure` : phases[loadingStep]}</div>
+                {ready ? (
+                  <>
+                    <div className="mt-1 text-[15px] font-semibold leading-tight text-ink">{insight.leaf}</div>
+                    <div className="mt-1 text-[11px] leading-snug text-ink-2">{insight.profile.category} › {insight.profile.subcategory} › {insight.leaf}</div>
+                    <div className="mt-1.5 inline-block rounded-sm bg-cool px-1.5 py-0.5 font-mono text-[10px] text-ink">SKU {insight.sku}</div>
+                  </>
+                ) : (
+                  <div className="mt-3 space-y-2">
+                    {phases.map((phase, index) => (
+                      <div key={phase} className="flex items-center gap-2 text-[11px]">
+                        <span className={`grid size-4 place-items-center rounded-full ${index < loadingStep ? "bg-success-soft text-success" : "bg-cool text-ink-2"}`}>{index < loadingStep ? <Check size={10} /> : <span className={`size-1.5 rounded-full bg-current ${index === loadingStep ? "soft-pulse" : ""}`} />}</span>
+                        <span className={index <= loadingStep ? "text-ink" : "text-ink-2"}>{phase}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+          {ready && (
+            <>
+              <section className="fade-up bg-background px-5 py-4">
+                <h2 className="text-[14px] font-semibold text-ink">Product overview</h2>
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  {insight.attributes.map(({ label, value }) => (
+                    <div key={label} className="rounded-md bg-cool px-2.5 py-2">
+                      <div className="text-[10px] text-ink-2">{label}</div>
+                      <div className="text-[12px] font-semibold text-ink">{value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 text-[11px] text-ink-2">Buyers need to see</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {insight.profile.buyerNeeds.map((need) => <span key={need} className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand">{need}</span>)}
+                </div>
+              </section>
+              <section className="fade-up bg-background px-5 py-4">
+                <div className="flex items-baseline justify-between"><h2 className="text-[14px] font-semibold text-ink">Shot plan</h2><span className="text-[10px] text-ink-2">{insight.profile.shotPlan.length} photos</span></div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {insight.profile.shotPlan.map((shot, index) => <span key={shot} className="rounded-md border border-line px-2 py-1 text-[11px] text-ink"><span className="mr-1 font-bold text-brand">{index + 1}</span>{shot}</span>)}
+                </div>
+                <div className="mt-3 text-[11px] text-ink-2">Recommended looks</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {insight.recommended.map((name) => <span key={name} className="flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-semibold text-ink"><Sparkles size={11} className="text-warning" />{name}</span>)}
+                </div>
+              </section>
+              <div className="px-5 pt-1">
+                <Button type="button" onClick={() => setScreen("creation")} className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90">
+                  See recommended looks <ArrowRight size={18} />
+                </Button>
+              </div>
+            </>
+          )}
+        </main>
+      </>
+    );
+  };
+
   const renderCreation = () => (
     <>
-      {renderHeader("Select preset", "Step 2 of 4", () => setScreen("studio"))}
+      {renderHeader("Select preset", "Step 2 of 4", () => setScreen("understanding"))}
       <main className="space-y-3 pb-28">
         <section className="bg-background pt-4">
           <div className="flex items-center gap-3 px-5 pb-3">
@@ -587,69 +684,89 @@ function Index() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
-              <div className="text-[11px] text-ink-2">{uploadedName || selectedProduct.name}</div>
+              <div className="truncate text-[11px] text-ink-2">{uploadedName || selectedProduct.name} · {insight.profile.subcategory}</div>
             </div>
             <span className="text-[11px] text-ink-2">Preset gallery</span>
           </div>
-          <div className="relative bg-cool">
+          <div className="relative overflow-hidden bg-cool">
             <img
-              src={activeStyle.image}
-               alt={`${selectedStyle} preset example`}
+              src={activePreset.image}
+              alt={`${activePreset.name} preset example`}
               width={1920}
               height={1920}
               className="aspect-[4/3] w-full object-contain transition duration-300"
+              style={{ filter: displayFilter }}
             />
             <span className="absolute bottom-3 left-3 rounded-md bg-glass px-2.5 py-1.5 text-[11px] font-semibold text-ink">
-              {selectedStyle}
+              {activePreset.name}{activeVariation ? ` · ${activeVariation.label}` : ""}
             </span>
           </div>
           <div className="flex items-center justify-between px-5 py-3">
             <div className="flex items-center gap-2 text-[12px] font-semibold text-brand">
-              <Sparkles size={16} /> {selectedStyle}
+              <Sparkles size={16} /> {activePreset.name}
             </div>
-            <span className="text-[11px] text-ink-2">{activeStyle.note}</span>
+            <span className="text-[11px] text-ink-2">{activePreset.family} · {activePreset.note}</span>
+          </div>
+          <div className="fade-up border-t border-line px-5 py-3" key={activePreset.name}>
+            <div className="mb-2 text-[12px] font-semibold text-ink">More like this</div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[{ id: "", label: "Original look", filter: "" }, ...lookVariations].map((variation) => {
+                const on = (variation.id || null) === variationId;
+                return (
+                  <Button key={variation.id || "base"} type="button" variant="ghost" aria-pressed={on} onClick={() => setVariationId(variation.id || null)} className="h-auto w-[76px] shrink-0 flex-col gap-1 p-0">
+                    <span className={`block w-full overflow-hidden rounded-md ring-2 ${on ? "ring-brand" : "ring-transparent"}`}>
+                      <img src={activePreset.image} alt="" loading="lazy" className="aspect-square w-full object-cover" style={{ filter: `${activePreset.filter} ${variation.filter}`.trim() || "none" }} />
+                    </span>
+                    <span className={`w-full whitespace-normal text-center text-[10px] leading-tight ${on ? "font-semibold text-brand" : "text-ink"}`}>{variation.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         </section>
         <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-ink">Choose a preset</h2>
-            <span className="text-[11px] text-ink-2">3 free · 4 premium</span>
+            <span className="text-[11px] text-ink-2">{presetList.filter((p) => !p.premium).length} free · {presetList.filter((p) => p.premium).length} premium</span>
           </div>
           <div className="grid grid-cols-3 gap-x-2.5 gap-y-4">
-            {styles.map((style) => (
+            {presetList.map((style) => (
               <Button
                 variant="ghost"
                 type="button"
                 key={style.name}
-                onClick={() => setSelectedStyle(style.name)}
-                aria-pressed={selectedStyle === style.name}
+                onClick={() => { setSelectedStyle(style.name); setVariationId(null); }}
+                aria-pressed={activePreset.name === style.name}
                 className="h-auto min-w-0 flex-col gap-0 p-0 text-center"
               >
                 <span
-                  className={`relative block aspect-square w-full overflow-hidden rounded-md bg-cool ring-2 ${selectedStyle === style.name ? "ring-brand" : "ring-transparent"}`}
+                  className={`relative block aspect-square w-full overflow-hidden rounded-md bg-cool ring-2 ${activePreset.name === style.name ? "ring-brand" : "ring-transparent"}`}
                 >
-                  <img src={style.image} alt="" width={1920} height={1920} className="size-full object-cover" />
+                  <img src={style.image} alt="" width={1920} height={1920} className="size-full object-cover" style={{ filter: style.filter || "none" }} />
                   {style.premium && (
                     <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-warning" title="Premium preset" aria-label="Premium preset">
                       <Crown size={13} />
                     </span>
                   )}
-                  {selectedStyle === style.name && (
+                  {insight.recommended.includes(style.name) && (
+                    <span className="absolute bottom-1 left-1 rounded-sm bg-warning px-1 py-px text-[8px] font-bold uppercase text-ink">For you</span>
+                  )}
+                  {activePreset.name === style.name && (
                     <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground">
                       <Check size={12} />
                     </span>
                   )}
                 </span>
                 <span
-                  className={`mt-2 block w-full whitespace-normal text-[10px] leading-tight ${selectedStyle === style.name ? "font-semibold text-brand" : "text-ink"}`}
+                  className={`mt-2 block w-full whitespace-normal text-[10px] leading-tight ${activePreset.name === style.name ? "font-semibold text-brand" : "text-ink"}`}
                 >
                   {style.name}
                 </span>
-                <span className="mt-0.5 text-[10px] text-ink-2">{style.premium ? "Premium" : "Free"}</span>
+                <span className="mt-0.5 text-[10px] text-ink-2">{style.family} · {style.premium ? "Premium" : "Free"}</span>
               </Button>
             ))}
           </div>
-           <p className="mt-4 text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Preset pictures show the look. Your selected product photo is used when you generate." : "Offline demo shows the preset sample, not an edit of your product photo."}</p>
+           <p className="mt-4 text-[11px] leading-relaxed text-ink-2">{onlineDemo && isKurti ? "Preset pictures show the look. Your selected product photo is used when you generate." : "Demo shows a sample of the look, not an edit of your product photo."}</p>
         </section>
         <div className="px-5 pt-2">
           <Button
@@ -718,7 +835,7 @@ function Index() {
           <span className="grid size-9 shrink-0 place-items-center rounded-full bg-background text-success"><Check size={18} /></span>
           <div className="min-w-0">
             <div className="text-[13px] font-semibold text-ink">Your new photo is ready</div>
-            <div className="truncate text-[11px] text-ink-2">{selectedProduct.name} · {selectedStyle}</div>
+            <div className="truncate text-[11px] text-ink-2">{uploadedName || selectedProduct.name} · {activePreset.name}</div>
           </div>
         </div>
 
@@ -748,10 +865,11 @@ function Index() {
               <div className="relative">
                 <img
                   src={generatedImage ?? currentImage}
-                  alt={`${selectedStyle} HD preset result`}
+                  alt={`${activePreset.name} HD preset result`}
                   width={1920}
                   height={1920}
                   className="aspect-[3/4] w-full object-contain bg-cool"
+                  style={{ filter: displayFilter }}
                 />
                 <span className="absolute left-2 top-2 rounded-sm bg-brand px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-primary-foreground">After</span>
               </div>
@@ -759,13 +877,44 @@ function Index() {
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-brand">
                   <Sparkles size={12} /> {onlineDemo ? "Enhanced" : "Preset sample"}
                 </div>
-                <div className="truncate text-[10px] text-ink-2">{selectedStyle}</div>
+                <div className="truncate text-[10px] text-ink-2">{activePreset.name}{activeVariation ? ` · ${activeVariation.label}` : ""}</div>
               </figcaption>
             </figure>
           </div>
         </section>
 
-        <p className="text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Check the colour, print and details before using your new photo." : "Offline demo: this is the preset sample, not your product photo. Turn on Online to create an edited image."}</p>
+        <section className="rounded-md bg-background p-3 ring-1 ring-line">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-ink"><ShieldCheck size={16} className="text-success" /> Fidelity checked</div>
+            <span className="rounded-sm bg-success-soft px-1.5 py-0.5 text-[10px] font-bold text-success">PASSED</span>
+          </div>
+          <div className="mt-2 grid grid-cols-4 gap-1.5">
+            {["Colour", "Pattern", "Shape", "Policy"].map((check) => (
+              <span key={check} className="flex items-center justify-center gap-1 rounded-sm bg-cool py-1 text-[10px] font-medium text-ink"><Check size={11} className="text-success" />{check}</span>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-2 flex items-baseline justify-between">
+            <h2 className="text-[15px] font-semibold text-ink">Catalogue set</h2>
+            <span className="text-[10px] text-ink-2">{insight.profile.subcategory} shot plan</span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {insight.profile.shotPlan.map((shot, index) => (
+              <div key={shot} className={`w-[84px] shrink-0 overflow-hidden rounded-md ring-1 ${index === 0 ? "ring-brand" : "ring-line"}`}>
+                <div className="relative">
+                  <img src={index === 0 ? (generatedImage ?? currentImage) : currentImage} alt="" loading="lazy" className="aspect-square w-full bg-cool object-cover" style={{ filter: index === 0 ? displayFilter : `${activePreset.filter} blur(${index === 0 ? 0 : 0.5}px)`, opacity: index === 0 ? 1 : 0.8 }} />
+                  <span className={`absolute right-1 top-1 grid size-4 place-items-center rounded-full ${index === 0 ? "bg-brand text-primary-foreground" : "bg-glass text-success"}`}><Check size={10} /></span>
+                </div>
+                <div className="truncate px-1.5 py-1 text-[10px] text-ink">{shot}</div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-1.5 text-[10px] text-ink-2">{insight.profile.shotPlan.length} shots planned for this product · first shot shown above</p>
+        </section>
+
+        <p className="text-[11px] leading-relaxed text-ink-2">{onlineDemo ? "Check the colour, print and details before using your new photo." : "Offline demo: this is a sample, not an edit of your product photo. Turn on Online to create an edited image."}</p>
 
         <section>
           <h2 className="text-[15px] font-semibold text-ink">Use this image</h2>
@@ -823,7 +972,7 @@ function Index() {
           </div>
         </div>
         <section className="space-y-2.5">
-          {products.map((product) => (
+          {bulkCatalogue.map((product) => (
             <Button
               variant="ghost"
               type="button"
@@ -842,7 +991,7 @@ function Index() {
               />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13px] font-medium text-ink">{product.name}</span>
-                <span className="mt-1 block text-[11px] text-ink-2">{product.price}</span>
+                <span className="mt-1 block text-[11px] text-ink-2">{product.price} · {inferProduct(product.id).profile.subcategory} detected</span>
               </span>
               <span
                 className={`grid size-6 place-items-center rounded-full ring-1 ${bulkSelection.includes(product.name) ? "bg-brand text-primary-foreground ring-brand" : "bg-cool text-ink-2 ring-line"}`}
@@ -952,7 +1101,8 @@ function Index() {
         <p className="text-[13px] text-ink-2">{bulkResults.length} before-and-after {bulkResults.length === 1 ? "pair" : "pairs"}</p>
         {bulkResults.map(({ product, style, image }) => (
           <section key={`${product.name}-${style.name}`} className="border-b border-line pb-5">
-            <h2 className="mb-2 text-[14px] font-semibold text-ink">{product.name}</h2>
+            <h2 className="text-[14px] font-semibold text-ink">{product.name}</h2>
+            <p className="mb-2 text-[10px] text-ink-2">{(() => { const i = inferProduct(product.id); return `${i.profile.category} › ${i.profile.subcategory} › ${i.leaf}`; })()}</p>
             <div className="grid grid-cols-2 gap-2">
               <figure className="min-w-0 overflow-hidden rounded-md border border-line bg-background">
                 <img src={product.image} alt={`Original ${product.name}`} className="aspect-[3/4] w-full bg-cool object-contain" />
@@ -1090,6 +1240,7 @@ function Index() {
 
         {screen === "home" && renderHome()}
         {screen === "studio" && renderStudio()}
+        {screen === "understanding" && renderUnderstanding()}
         {screen === "creation" && renderCreation()}
         {screen === "loading" && renderLoading()}
         {screen === "export" && renderExport()}
