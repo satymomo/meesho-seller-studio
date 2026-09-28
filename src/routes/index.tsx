@@ -30,7 +30,6 @@ import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { streamImage } from "@/lib/stream-image";
 
 type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "pricing";
@@ -335,7 +334,9 @@ function Index() {
                <label htmlFor="demo-mode" className="text-[13px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
                <p className="mt-0.5 text-[11px] text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
              </div>
-             <Switch id="demo-mode" aria-label="Online demo mode" checked={onlineDemo} onCheckedChange={setOnlineDemo} className="shrink-0 data-[state=checked]:bg-brand" />
+              <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
+                <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
+              </Button>
            </div>
           <div className="mt-7 flex items-center justify-between border-t border-line pt-5">
             <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
