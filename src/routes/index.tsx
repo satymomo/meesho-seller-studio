@@ -190,11 +190,24 @@ function Index() {
     try {
       const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activeStyle.image)]);
       if (!productResponse.ok || !presetResponse.ok) throw new Error("Could not load the selected photos. Please try again.");
-      const productBlob = await productResponse.blob();
-      const presetBlob = await presetResponse.blob();
+      const normalizePhoto = async (response: Response) => {
+        const bitmap = await createImageBitmap(await response.blob());
+        const ratio = Math.min(1, 1536 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(bitmap.width * ratio);
+        canvas.height = Math.round(bitmap.height * ratio);
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Could not prepare this photo. Please try another one.");
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        bitmap.close();
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("Could not prepare this photo. Please try another one.");
+        return new File([blob], "photo.png", { type: "image/png" });
+      };
+      const [productBlob, presetBlob] = await Promise.all([normalizePhoto(productResponse), normalizePhoto(presetResponse)]);
       const form = new FormData();
-      form.append("image", new File([productBlob], "product", { type: productBlob.type || "image/jpeg" }));
-      form.append("reference", new File([presetBlob], "preset", { type: presetBlob.type || "image/webp" }));
+      form.append("image", productBlob);
+      form.append("reference", presetBlob);
       form.append("preset", selectedStyle);
       await streamImage("/api/edit-product-photo", form, (src, isFinal) => {
         if (isFinal) {
