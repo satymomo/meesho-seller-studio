@@ -819,7 +819,7 @@ function Index() {
         price: "Free",
         saving: "Free for your first 3 products",
         action: "Try it free",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: false,
       },
       {
@@ -831,7 +831,7 @@ function Index() {
         price: "₹1,499",
         saving: "Saves 70–79% per photo",
         action: "Choose Basic",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: false,
       },
       {
@@ -843,7 +843,7 @@ function Index() {
         price: "₹10,499",
         saving: "Saves 79–85% per photo",
         action: "Choose Plus",
-        tone: "bg-brand",
+        tone: "bg-brand text-primary-foreground",
         featured: true,
       },
       {
@@ -855,7 +855,7 @@ function Index() {
         price: "₹74,999",
         saving: "Saves 85–89% per photo",
         action: "Choose Pro",
-        tone: "bg-tier-pro",
+        tone: "bg-tier-pro text-ink",
         featured: false,
       },
     ];
@@ -876,7 +876,7 @@ function Index() {
               key={plan.name}
               className={`overflow-hidden rounded-2xl bg-glass ring-1 ${plan.featured ? "ring-2 ring-brand" : "ring-line"}`}
             >
-              <div className={`flex items-center justify-between px-4 py-3 text-primary-foreground ${plan.tone}`}>
+              <div className={`flex items-center justify-between px-4 py-3 ${plan.tone}`}>
                 <div>
                   <div className="text-[16px] font-bold leading-tight">{plan.name}</div>
                   <div className="text-[11px] opacity-90">{plan.tagline}</div>
