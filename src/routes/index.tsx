@@ -10,6 +10,7 @@ import {
   Crown,
   Mic,
   ImagePlus,
+  Plus,
   Share2,
   ShoppingBag,
   Sparkles,
@@ -973,52 +974,56 @@ function Index() {
   const renderPricing = () => {
     const plans = [
       {
-        name: "Free Trial",
-        tagline: "For new sellers",
-        products: "3 products",
-        media: "9 photos · 3 videos",
-        features: ["1 style pack", "555 photo credits", "Great for trying Seller Studio"],
-        price: "Free",
-        saving: "Free for your first 3 products",
-        action: "Try it free",
+        name: "Try once",
+        price: "₹9",
+        cadence: "one-time",
+        spec: "1 Product · 3 Presets · 1 Final Image",
+        features: [
+          "One product, one finished photo",
+          "Three preset looks to choose from",
+          "No monthly bill — pay once",
+        ],
+        action: "Try once for ₹9",
         tone: "bg-brand text-primary-foreground",
-        featured: false,
       },
       {
-        name: "Basic",
-        tagline: "For new sellers",
-        products: "10 products",
-        media: "30 photos · 10 videos",
-        features: ["5 style packs", "1,850 photo credits", "Works out to ₹149 per product"],
-        price: "₹1,499",
-        saving: "Saves 70–79% per photo",
-        action: "Choose Basic",
+        name: "Starter",
+        price: "₹49",
+        cadence: "/month",
+        spec: "1 Product · 10 Presets",
+        features: [
+          "One new product every month",
+          "Ten preset looks",
+          "Keep previews free — pay only for finals",
+        ],
+        action: "Choose Starter",
         tone: "bg-brand text-primary-foreground",
-        featured: false,
       },
       {
-        name: "Plus",
-        tagline: "For active sellers",
-        products: "100 products",
-        media: "300 photos · 100 videos",
-        features: ["50 style packs", "18,500 photo credits", "Works out to ₹105 per product"],
-        price: "₹10,499",
-        saving: "Saves 79–85% per photo",
-        action: "Choose Plus",
+        name: "Growth",
+        price: "₹199",
+        cadence: "/month",
+        spec: "5 Products · More Presets",
+        features: [
+          "Five new products every month",
+          "Larger preset library",
+          "Best for sellers adding stock weekly",
+        ],
+        action: "Choose Growth",
         tone: "bg-brand text-primary-foreground",
-        featured: true,
       },
       {
         name: "Pro",
-        tagline: "For power sellers",
-        products: "1,000 products",
-        media: "3,000 photos · 1,000 videos",
-        features: ["All 500+ styles", "185,000 photo credits", "Works out to ₹75 per product"],
-        price: "₹74,999",
-        saving: "Saves 85–89% per photo",
+        price: "₹499",
+        cadence: "/month",
+        spec: "15 Products · All Presets",
+        features: [
+          "Fifteen new products every month",
+          "Full N/N preset library",
+          "Best for catalog-wide refreshes",
+        ],
         action: "Choose Pro",
         tone: "bg-tier-pro text-ink",
-        featured: false,
       },
     ];
     return (
@@ -1027,29 +1032,23 @@ function Index() {
         <main className="space-y-4 px-5 pb-32">
           <section className="rounded-2xl bg-brand-soft p-4 ring-1 ring-line">
             <div className="flex items-center gap-2 text-[13px] font-semibold text-brand">
-              <Sparkles size={16} /> How bundles work
+              <Sparkles size={16} /> Browse previews first
             </div>
             <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">
-              Pick a bundle for a set number of products. Bigger bundles cost less per product — start small and grow when you're ready.
+              Browse previews first. Pay only for final-quality creation.
             </p>
           </section>
           {plans.map((plan) => (
-            <section
-              key={plan.name}
-              className={`overflow-hidden rounded-2xl bg-glass ring-1 ${plan.featured ? "ring-2 ring-brand" : "ring-line"}`}
-            >
-              <div className={`flex items-center justify-between px-4 py-3 ${plan.tone}`}>
-                <div>
-                  <div className="text-[16px] font-bold leading-tight">{plan.name}</div>
-                  <div className="text-[11px] opacity-90">{plan.tagline}</div>
+            <section key={plan.name} className="overflow-hidden rounded-2xl bg-glass ring-1 ring-line">
+              <div className={`flex items-end justify-between gap-3 px-4 py-3 ${plan.tone}`}>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[26px] font-extrabold leading-none">{plan.price}</span>
+                  <span className="text-[13px] font-bold uppercase tracking-wide">{plan.name}</span>
                 </div>
-                {plan.featured && (
-                  <span className="rounded-full bg-glass px-2.5 py-1 text-[10px] font-bold text-brand">Most popular</span>
-                )}
+                <span className="text-[11px] font-semibold opacity-90">{plan.cadence}</span>
               </div>
               <div className="px-4 py-4">
-                <div className="text-[24px] font-bold leading-tight text-ink">{plan.products}</div>
-                <div className="mt-0.5 text-[12px] text-ink-2">{plan.media}</div>
+                <div className="text-[13px] font-semibold text-ink">{plan.spec}</div>
                 <ul className="mt-3 space-y-2 border-b border-line pb-4">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-[12px] text-ink">
@@ -1058,20 +1057,27 @@ function Index() {
                     </li>
                   ))}
                 </ul>
-                <div className="pt-3">
-                  <div className="text-[22px] font-bold text-ink">{plan.price}</div>
-                  <div className="mt-0.5 text-[11px] font-medium text-success">{plan.saving}</div>
-                </div>
                 <Button
                   type="button"
-                  onClick={() => showToast(`${plan.name} bundle is a preview only`)}
-                  className={`mt-4 w-full rounded-full ${plan.featured ? "bg-brand text-primary-foreground hover:bg-brand/90" : "bg-brand-soft text-brand hover:bg-brand-soft/80"}`}
+                  onClick={() => showToast(`${plan.name} plan is a preview only`)}
+                  className="mt-4 w-full rounded-full bg-brand-soft text-brand hover:bg-brand-soft/80"
                 >
                   {plan.action}
                 </Button>
               </div>
             </section>
           ))}
+          <section className="flex items-start gap-3 rounded-2xl bg-warning-soft p-4 ring-1 ring-line">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-warning text-ink">
+              <Plus size={18} />
+            </span>
+            <div>
+              <div className="text-[13px] font-bold text-ink">Top-ups anytime</div>
+              <p className="mt-1 text-[12px] leading-relaxed text-ink-2">
+                Top-ups available anytime for extra products or generations — no need to change your plan.
+              </p>
+            </div>
+          </section>
           <p className="text-center text-[11px] text-ink-2">Illustrative plans for this preview. No payment is collected.</p>
         </main>
       </>
