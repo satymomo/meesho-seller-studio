@@ -12,4 +12,4 @@
 - [x] Replace the seller homepage with a focused Seller Studio start screen and 23-point overview.
 - [x] Align the interface with Meesho’s purple, pink-adjacent, and neutral colours.
 - [x] Verify the start-to-generation journey on mobile.
-- [ ] Generate an HD image from a seller photo and selected preset through AI Gateway; verify a real response and download.
+- [x] Generate an HD image from a seller photo and selected preset through AI Gateway; verify a real response and download.

@@ -158,7 +158,6 @@ function Index() {
   const [listening, setListening] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
-  const [remaining, setRemaining] = useState(9);
   const [toast, setToast] = useState("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState("");
@@ -262,9 +261,6 @@ function Index() {
           <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-ink-2">{eyebrow}</div>
           <h1 className="text-[22px] font-semibold leading-tight text-ink">{title}</h1>
         </div>
-      </div>
-      <div className="rounded-full bg-glass px-3 py-1.5 text-[11px] font-medium text-ink-2 ring-1 ring-line">
-        <span className="text-brand">{remaining}</span> left
       </div>
     </div>
   );
@@ -593,7 +589,7 @@ function Index() {
             </div>
             <div className="overflow-hidden rounded-2xl bg-cool ring-2 ring-brand">
               <img
-                  src={generatedImage ?? activeStyle.image}
+                  src={generatedImage ?? currentImage}
                  alt={`${selectedStyle} HD preset result`}
                  width={1920}
                  height={1920}
