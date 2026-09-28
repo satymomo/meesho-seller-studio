@@ -112,13 +112,13 @@
   /* Meesho brand palette: #580A46 purple, #FF9D00 yellow-orange, #F5F5F9 surface, #353543 ink */
   --cool: oklch(0.9713 0.0053 286.30);
   --ink: oklch(0.3348 0.0245 285.00);
-  --ink-2: oklch(0.52 0.015 285);
+  --ink-2: oklch(0.47 0.018 285);
   --glass: oklch(1 0 0);
   --brand: oklch(0.3181 0.1262 339.88); /* #580A46 */
   --brand-soft: oklch(0.9570 0.0116 334.08); /* #F6EEF4 */
   --sky: oklch(0.58 0.17 262);
   --sky-soft: oklch(0.95 0.03 262);
-  --success: oklch(0.6 0.15 155);
+  --success: oklch(0.5 0.13 155);
   --success-soft: oklch(0.955 0.04 155);
   --warning: oklch(0.7788 0.1727 66.57); /* #FF9D00 */
   --warning-soft: oklch(0.9685 0.0282 79.48); /* #FFF3E0 */
