@@ -24,3 +24,7 @@
 - [x] Add demo category inference step (SKU, category, overview, shot plan, recommended looks).
 - [x] Add shoes, handbag and cookware demo products with category preset families.
 - [x] Add "More like this" preset variations and Step 4 catalogue set + fidelity badge.
+- [x] Replace product-understanding page with a compact scan-and-overview pop-up.
+- [x] Show a five-shot catalogue preview for each preset, generate a demo catalogue set, and let sellers select shots before proceeding.
+- [x] Remove bulk preset modes, simplify the results and saving screens, and add the peer-quality nudge.
+- [x] Verify both mobile journeys.
