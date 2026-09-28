@@ -31,6 +31,7 @@ import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
+import { streamImage } from "@/lib/stream-image";
 
 type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "pricing";
 type Product = { name: string; shortName: string; price: string; image: string };
@@ -55,14 +56,14 @@ const styles = [
 
 function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: ReactNode }) {
   return (
-    <button
+    <Button
       type="button"
       aria-label={label}
       onClick={onClick}
       className="grid size-10 place-items-center rounded-full bg-glass text-ink ring-1 ring-line transition hover:bg-brand-soft active:scale-95"
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -162,16 +163,17 @@ function Index() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState("");
   const [bulkSelection, setBulkSelection] = useState<string[]>([defaultProduct.name, "Maroon Straight Kurti"]);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState("");
+  const [partialImage, setPartialImage] = useState<string | null>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const activeStyle = styles.find((style) => style.name === selectedStyle) ?? styles[0];
   useEffect(() => {
     if (screen !== "loading") return;
     const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), 650);
-    const finish = window.setTimeout(() => setScreen("export"), 2850);
     return () => {
       window.clearInterval(progress);
-      window.clearTimeout(finish);
     };
   }, [screen]);
 
@@ -179,22 +181,39 @@ function Index() {
     setVoiceOpen(false);
   }, [screen]);
 
-  const startGeneration = () => {
+  const startGeneration = async () => {
     setLoadingStep(0);
+    setGenerationError("");
+    setPartialImage(null);
+    setGeneratedImage(null);
     setScreen("loading");
+    try {
+      const [productResponse, presetResponse] = await Promise.all([fetch(currentImage), fetch(activeStyle.image)]);
+      if (!productResponse.ok || !presetResponse.ok) throw new Error("Could not load the selected photos. Please try again.");
+      const productBlob = await productResponse.blob();
+      const presetBlob = await presetResponse.blob();
+      const form = new FormData();
+      form.append("image", new File([productBlob], "product", { type: productBlob.type || "image/jpeg" }));
+      form.append("reference", new File([presetBlob], "preset", { type: presetBlob.type || "image/webp" }));
+      form.append("preset", selectedStyle);
+      await streamImage("/api/edit-product-photo", form, (src, isFinal) => {
+        if (isFinal) {
+          setGeneratedImage(src);
+          setScreen("export");
+        } else setPartialImage(src);
+      });
+    } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : "Could not make your photo. Please try again.");
+      setPartialImage(null);
+    }
   };
 
   const generatePhoto = () => {
-    if (selectedProduct.name !== defaultProduct.name || uploadedImage) {
-      showToast("Choose the blue embroidered sample to use these presets");
-      return;
-    }
     if (activeStyle.premium) {
       setUpgradeOpen(true);
       return;
     }
-    setRemaining((value) => Math.max(value - 1, 0));
-    startGeneration();
+    void startGeneration();
   };
 
   const showToast = (message: string) => {
@@ -204,14 +223,11 @@ function Index() {
 
   const downloadPhoto = async () => {
     try {
-      const response = await fetch(activeStyle.image);
-      if (!response.ok) throw new Error("Could not fetch photo");
-      const url = URL.createObjectURL(await response.blob());
+      if (!generatedImage) throw new Error("No generated photo");
       const link = document.createElement("a");
-      link.href = url;
-      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.webp`;
+      link.href = generatedImage;
+      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.png`;
       link.click();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch {
       showToast("Download unavailable right now");
     }
@@ -369,12 +385,16 @@ function Index() {
               <span className="truncate px-1 pb-1 text-[10px] text-ink">Add photo</span>
               <input
                 type="file"
-                accept="image/*"
+               accept="image/jpeg,image/png,image/webp"
                 aria-label="Upload a product photo"
                 className="absolute inset-0 cursor-pointer opacity-0"
                 onChange={(event) => {
                   const file = event.target.files?.[0];
                   if (file) {
+                     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 15_000_000) {
+                       showToast("Choose a JPG, PNG or WebP photo under 15 MB");
+                       return;
+                     }
                     if (uploadedImage) URL.revokeObjectURL(uploadedImage);
                     setUploadedImage(URL.createObjectURL(file));
                     setUploadedName(file.name);
@@ -420,7 +440,7 @@ function Index() {
           <div className="relative bg-cool">
             <img
               src={activeStyle.image}
-              alt={`${selectedStyle} preset showing the blue embroidered kurti`}
+               alt={`${selectedStyle} preset example`}
               width={1920}
               height={1920}
               className="aspect-[4/3] w-full object-contain transition duration-300"
@@ -475,9 +495,7 @@ function Index() {
               </Button>
             ))}
           </div>
-          {selectedProduct.name !== defaultProduct.name || uploadedImage ? (
-            <p className="mt-4 text-[11px] leading-relaxed text-ink-2">These preset examples use the blue embroidered sample photo. This preview cannot apply them to another photo yet.</p>
-          ) : null}
+           <p className="mt-4 text-[11px] leading-relaxed text-ink-2">Preset pictures show the look. Your selected product photo is used when you generate.</p>
         </section>
         <div className="px-5 pt-2">
           <Button
@@ -487,7 +505,7 @@ function Index() {
           >
             <Sparkles size={17} /> Generate photo
           </Button>
-          <p className="mt-3 text-center text-[11px] text-ink-2">{remaining} product creations remaining · retry is free</p>
+           <p className="mt-3 text-center text-[11px] text-ink-2">Your photo is used to create a new image in your chosen look.</p>
         </div>
       </main>
     </>
@@ -504,6 +522,14 @@ function Index() {
           </div>
           <h1 className="mt-6 text-[24px] font-semibold text-ink">Making your options</h1>
           <p className="mt-2 text-[13px] text-ink-2">Your {selectedProduct.shortName} is being prepared.</p>
+           {partialImage && <img src={partialImage} alt="Photo being created" className="mx-auto mt-5 max-h-48 w-auto rounded-md object-contain blur-2xl transition-[filter]" />}
+           {generationError && (
+             <div role="alert" className="mt-6 text-[13px] text-destructive">
+               <p>{generationError}</p>
+               <Button type="button" onClick={() => void startGeneration()} className="mt-4 bg-brand text-primary-foreground">Try again</Button>
+               <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="mt-4 text-brand">Back to presets</Button>
+             </div>
+           )}
           <div className="mt-8 space-y-3 text-left">
             {steps.map((step, index) => (
               <div
@@ -537,7 +563,6 @@ function Index() {
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-semibold text-ink">See the improvement</h2>
-            <span className="text-[10px] font-medium text-success">96% product match</span>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             <div className="overflow-hidden rounded-2xl bg-glass ring-1 ring-line">
@@ -550,12 +575,12 @@ function Index() {
               />
               <div className="px-3 py-2.5">
                 <div className="text-[11px] font-semibold text-ink">Original</div>
-                <div className="text-[10px] text-ink-2">Your uploaded photo</div>
+                 <div className="text-[10px] text-ink-2">Your selected photo</div>
               </div>
             </div>
             <div className="overflow-hidden rounded-2xl bg-cool ring-2 ring-brand">
               <img
-                 src={activeStyle.image}
+                  src={generatedImage ?? activeStyle.image}
                  alt={`${selectedStyle} HD preset result`}
                  width={1920}
                  height={1920}
