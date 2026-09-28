@@ -185,6 +185,10 @@ function Index() {
   };
 
   const generatePhoto = () => {
+    if (selectedProduct.name !== defaultProduct.name || uploadedImage) {
+      showToast("Choose the blue embroidered sample to use these presets");
+      return;
+    }
     if (activeStyle.premium) {
       setUpgradeOpen(true);
       return;
@@ -196,6 +200,21 @@ function Index() {
   const showToast = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 2400);
+  };
+
+  const downloadPhoto = async () => {
+    try {
+      const response = await fetch(activeStyle.image);
+      if (!response.ok) throw new Error("Could not fetch photo");
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.webp`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      showToast("Download unavailable right now");
+    }
   };
 
   const toggleBulk = (name: string) => {
@@ -595,16 +614,17 @@ function Index() {
           <div className="mt-3 space-y-2.5">
             {[
               { label: "Add to Meesho catalogue", note: "Use this photo in your product listing", icon: ShoppingBag },
-              { label: "Download HD", note: "Save a clear copy to your phone", icon: Download },
+              { label: "Download HD", note: "Save the selected HD preset photo", icon: Download },
               { label: "Share on WhatsApp", note: "Send it to a customer or family", icon: Share2 },
               { label: "Use on Instagram", note: "Share as a post or story", icon: Instagram },
               { label: "Export for other marketplaces", note: "Use this photo anywhere", icon: ArrowRight },
             ].map(({ label, note, icon: ActionIcon }) => (
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 key={label}
-                onClick={() => showToast(`${label} is ready for the next step`)}
-                className="flex w-full items-center gap-3 rounded-2xl bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
+                onClick={() => label === "Download HD" ? void downloadPhoto() : showToast(`${label} is ready for the next step`)}
+                className="flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
                   <ActionIcon size={18} />
@@ -614,20 +634,20 @@ function Index() {
                   <span className="mt-0.5 block text-[11px] text-ink-2">{note}</span>
                 </span>
                 <ChevronRight size={17} className="text-ink-2" />
-              </button>
+              </Button>
             ))}
           </div>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => {
             showToast("Photo saved to your catalogue");
             setScreen("home");
           }}
-          className="w-full rounded-full bg-brand py-3.5 text-[15px] font-semibold text-primary-foreground shadow-[0_16px_30px_-16px_var(--brand)]"
+          className="h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground"
         >
           Done
-        </button>
+        </Button>
       </main>
     </>
   );
@@ -827,6 +847,20 @@ function Index() {
         {screen === "export" && renderExport()}
         {screen === "bulk" && renderBulk()}
         {screen === "pricing" && renderPricing()}
+        {upgradeOpen && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 sm:items-center" role="presentation" onClick={() => setUpgradeOpen(false)}>
+            <div role="dialog" aria-modal="true" aria-labelledby="upgrade-title" onClick={(event) => event.stopPropagation()} className="w-full max-w-[350px] rounded-md bg-background p-5 shadow-xl">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid size-10 place-items-center rounded-md bg-brand-soft text-brand"><Crown size={20} /></span>
+                <Button type="button" variant="ghost" size="icon" aria-label="Close upgrade prompt" onClick={() => setUpgradeOpen(false)}><X size={18} /></Button>
+              </div>
+              <h2 id="upgrade-title" className="mt-4 text-[20px] font-semibold text-ink">Consider upgrading</h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{selectedStyle} is a premium preset. Explore a plan to use premium looks, or choose one of the free presets.</p>
+              <Button type="button" onClick={() => { setUpgradeOpen(false); setScreen("pricing"); }} className="mt-5 h-11 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">See plans <ArrowRight size={17} /></Button>
+              <Button type="button" variant="ghost" onClick={() => setUpgradeOpen(false)} className="mt-1 h-11 w-full text-brand">Keep browsing</Button>
+            </div>
+          </div>
+        )}
         {screen !== "loading" && (
           <VoiceAssistant
             listening={listening}

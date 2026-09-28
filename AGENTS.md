@@ -12,3 +12,4 @@
 ## Product prototype architecture
 
 - The first release is intentionally frontend-only, with demo product assets and local screen state; this keeps the requested prototype clickable without adding integrations before the product flow is validated.
+- Uploaded preset binaries are served through Lovable Assets pointers; this keeps original HD photos available without growing the source repository.

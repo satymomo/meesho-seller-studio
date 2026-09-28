@@ -5,6 +5,9 @@
 - [x] Make the photo-selection and filter flow feel like a familiar social photo post while retaining Meesho colors.
 - [x] Make step 3 only the generation animation and transition directly to step 4.
 - [x] Verify the updated mobile journey.
+- [x] Add the supplied original photo and seven HD preset images to the sample flow.
+- [x] Show three free presets and four premium presets with an upgrade prompt on Generate.
+- [x] Verify the preset selection, premium prompt, and HD result on mobile.
 
 - [x] Replace the seller homepage with a focused Seller Studio start screen and 23-point overview.
 - [x] Align the interface with Meesho’s purple, pink-adjacent, and neutral colours.
