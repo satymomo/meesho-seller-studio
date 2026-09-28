@@ -595,35 +595,15 @@ function Index() {
             </div>
           </div>
         </section>
-        <section className="rounded-2xl bg-glass p-4 ring-1 ring-line">
-          <div className="flex items-center justify-between">
-            <div className="text-[14px] font-semibold text-ink">Product Match</div>
-            <div className="rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-semibold text-success">
-              Looks right
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-4 gap-1.5">
-            {["Colour", "Print", "Shape", "Details"].map((check) => (
-              <div
-                key={check}
-                className="flex flex-col items-center gap-1.5 rounded-xl bg-cool px-1 py-2.5 text-[9px] font-medium text-ink"
-              >
-                <span className="grid size-5 place-items-center rounded-full bg-success-soft text-success">
-                  <Check size={12} />
-                </span>
-                {check}
-              </div>
-            ))}
-          </div>
-        </section>
+         <p className="text-[11px] leading-relaxed text-ink-2">Check the colour, print and details before using your new photo.</p>
         <div className="grid grid-cols-2 gap-2.5">
           <Button
             type="button"
             variant="outline"
-            onClick={startGeneration}
+             onClick={() => void startGeneration()}
             className="rounded-full bg-glass text-[11px] text-ink"
           >
-            Retry free
+             Try again
           </Button>
           <Button
             type="button"
@@ -639,7 +619,7 @@ function Index() {
           <div className="mt-3 space-y-2.5">
             {[
               { label: "Add to Meesho catalogue", note: "Use this photo in your product listing", icon: ShoppingBag },
-              { label: "Download HD", note: "Save the selected HD preset photo", icon: Download },
+               { label: "Download HD", note: "Save your new high-quality photo", icon: Download },
               { label: "Share on WhatsApp", note: "Send it to a customer or family", icon: Share2 },
               { label: "Use on Instagram", note: "Share as a post or story", icon: Instagram },
               { label: "Export for other marketplaces", note: "Use this photo anywhere", icon: ArrowRight },
