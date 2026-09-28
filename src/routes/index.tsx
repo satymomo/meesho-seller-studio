@@ -181,9 +181,6 @@ function Index() {
   const [bulkProgress, setBulkProgress] = useState(0);
   const [bulkError, setBulkError] = useState("");
   const [upgradeStyle, setUpgradeStyle] = useState("");
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [generationError, setGenerationError] = useState("");
-  const [partialImage, setPartialImage] = useState<string | null>(null);
   const [variationId, setVariationId] = useState<string | null>(null);
   const [selectedShots, setSelectedShots] = useState<number[]>([]);
   const [activeShot, setActiveShot] = useState(0);
@@ -204,7 +201,7 @@ function Index() {
     return style ? [{ product, style }] : [];
   });
   const shots = insight.profile.shotPlan;
-  const selectedSet = selectedShots.length ? selectedShots : shots.map((_, index) => index);
+  const selectedSet = selectedShots;
   const shotImage = (index: number) => isKurti ? styles[(Math.max(0, styles.findIndex((item) => item.name === activePreset.name)) + index) % styles.length]?.image ?? activePreset.image : currentImage;
   const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   useEffect(() => {
@@ -223,10 +220,8 @@ function Index() {
     setLoadingStep(0);
     setSelectedShots(shots.map((_, index) => index));
     setActiveShot(0);
-    setGenerationError("");
     setScreen("loading");
     await new Promise<void>((resolve) => window.setTimeout(resolve, 1900));
-    setGeneratedImage(activePreset.image);
     setScreen("export");
   };
 
@@ -292,16 +287,12 @@ function Index() {
 
   const finishFlow = () => {
     if (uploadedImage?.startsWith("blob:")) URL.revokeObjectURL(uploadedImage);
-    if (generatedImage?.startsWith("blob:")) URL.revokeObjectURL(generatedImage);
-    if (partialImage?.startsWith("blob:")) URL.revokeObjectURL(partialImage);
     setUploadedImage(null);
     setUploadedName("");
     setSelectedProduct(defaultProduct);
-    setGeneratedImage(null);
-    setPartialImage(null);
     setLoadingStep(0);
     setScreen("home");
-    showToast("Done. Your new photo is ready to use.");
+    showToast("Done. Your catalogue selection is ready.");
   };
 
   const toggleBulk = (name: string) => {
@@ -415,7 +406,7 @@ function Index() {
           <div className="mt-6 flex items-center justify-between gap-3 rounded-md bg-cool px-3.5 py-3">
             <div className="min-w-0">
               <label htmlFor="demo-mode" className="text-[12px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
-              <p className="mt-0.5 text-[10px] leading-snug text-ink-2">{onlineDemo ? "Creates a new photo using your product." : "Shows preset samples without online generation."}</p>
+              <p className="mt-0.5 text-[10px] leading-snug text-ink-2">{onlineDemo ? "Catalogue preview stays local; no live creation." : "Shows local preset samples without online generation."}</p>
             </div>
             <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
               <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
@@ -439,7 +430,7 @@ function Index() {
               <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
               <div className="text-[11px] text-ink-2">Choose a product photo</div>
             </div>
-            <span className="text-[11px] font-semibold text-brand">1 / 4</span>
+             <span className="text-[11px] font-semibold text-brand">1 / 5</span>
           </div>
           <div className="mt-4 -mx-5 bg-cool">
             <img
@@ -459,8 +450,9 @@ function Index() {
             </div>
             <Check className="shrink-0 text-brand" size={18} />
           </div>
-        </div>
-        <section className="bg-background px-5 py-4">
+            </div>
+         </section>
+         <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-ink">Your photos</h2>
             <span className="text-[11px] text-ink-2">Tap to select</span>
@@ -662,9 +654,9 @@ function Index() {
             onClick={generatePhoto}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
-            <Sparkles size={17} /> Generate photo
+             <Sparkles size={17} /> Generate catalogue
           </Button>
-            <p className="mt-3 text-center text-[11px] text-ink-2">{onlineDemo ? "Your photo is used to create a new image in your chosen look." : "Offline demo · preset sample only"}</p>
+            <p className="mt-3 text-center text-[11px] text-ink-2">Demo · illustrative sample set only</p>
         </div>
       </main>
     </>
@@ -675,20 +667,13 @@ function Index() {
     return (
       <main className="flex min-h-screen flex-col justify-center px-5 pb-20">
         <div className="mx-auto w-full max-w-[350px] text-center">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-brand">Step 3 of 4</div>
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-brand">Step 3 of 5</div>
           <div className="mx-auto mt-6 grid size-20 place-items-center rounded-[24px] bg-brand-soft text-brand">
             <WandSparkles size={34} />
           </div>
           <h1 className="mt-6 text-[24px] font-semibold text-ink">Making your options</h1>
            <p className="mt-2 text-[13px] text-ink-2">Preparing your catalogue previews.</p>
 
-           {generationError && (
-             <div role="alert" className="mt-6 text-[13px] text-destructive">
-               <p>{generationError}</p>
-               <Button type="button" onClick={() => void startGeneration()} className="mt-4 bg-brand text-primary-foreground">Try again</Button>
-               <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="mt-4 text-brand">Back to presets</Button>
-             </div>
-           )}
           <div className="mt-8 space-y-3 text-left">
             {steps.map((step, index) => (
               <div
