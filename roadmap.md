@@ -15,3 +15,4 @@
 - [x] Generate an HD image from a seller photo and selected preset through AI Gateway; verify a real response and download.
 - [x] Add a first-screen offline/online demo switch; offline uses preset samples without AI generation.
 - [x] Limit final image actions to catalog, download, and share; keep only Try another style.
+- [x] Reorder the start screen: main action first, how-it-works workflow with arrows, then links, demo toggle last.
