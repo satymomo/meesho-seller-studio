@@ -21,3 +21,6 @@
 - [x] Add bulk preset assignment for one-to-one, many-to-one, and many-to-many product looks.
 - [x] Show bulk before/after pairs and verify the mobile journey.
 - [x] Replace pricing with ₹9 Trial / ₹49 Starter / ₹199 Growth / ₹499 Pro plus top-ups; verify on mobile.
+- [x] Add demo category inference step (SKU, category, overview, shot plan, recommended looks).
+- [x] Add shoes, handbag and cookware demo products with category preset families.
+- [x] Add "More like this" preset variations and Step 4 catalogue set + fidelity badge.

@@ -36,7 +36,7 @@ export type ProductInsight = {
 export const lookVariations: LookVariation[] = [
   { id: "simple", label: "Simpler background", filter: "saturate(0.75) brightness(1.12) contrast(0.95)" },
   { id: "day", label: "Daytime", filter: "brightness(1.12) saturate(1.1)" },
-  { id: "night", label: "Night-time", filter: "brightness(0.68) contrast(1.15) hue-rotate(195deg) saturate(0.85)" },
+  { id: "night", label: "Night-time", filter: "brightness(0.7) contrast(1.15) saturate(0.9)" },
   { id: "festive", label: "Warmer festive light", filter: "sepia(0.35) saturate(1.45) brightness(1.04)" },
 ];
 
