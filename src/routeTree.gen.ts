@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiEditProductPhotoRouteImport } from './routes/api/edit-product-photo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEditProductPhotoRoute = ApiEditProductPhotoRouteImport.update({
+  id: '/api/edit-product-photo',
+  path: '/api/edit-product-photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/edit-product-photo': typeof ApiEditProductPhotoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/edit-product-photo': typeof ApiEditProductPhotoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/edit-product-photo': typeof ApiEditProductPhotoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/edit-product-photo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/edit-product-photo'
+  id: '__root__' | '/' | '/api/edit-product-photo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiEditProductPhotoRoute: typeof ApiEditProductPhotoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/edit-product-photo': {
+      id: '/api/edit-product-photo'
+      path: '/api/edit-product-photo'
+      fullPath: '/api/edit-product-photo'
+      preLoaderRoute: typeof ApiEditProductPhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiEditProductPhotoRoute: ApiEditProductPhotoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
