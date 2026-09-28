@@ -192,7 +192,7 @@ function Index() {
     ? styles.map((style) => ({ name: style.name, note: style.note, image: style.image, premium: style.premium, family: kurtiFamilies[style.name] ?? "Studio", filter: "" }))
     : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
   const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
-  const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0]!;
+  const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whitePreset.url, premium: false, family: "Studio", filter: "" };
   const activeVariation = lookVariations.find((variation) => variation.id === variationId);
   const displayFilter = `${activePreset.filter} ${activeVariation?.filter ?? ""}`.trim() || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
@@ -442,7 +442,7 @@ function Index() {
               className="aspect-[4/3] w-full object-contain"
             />
           </div>
-          <div className="flex items-center justify-between pt-3">
+           <div className="flex items-center justify-between pt-3">
             <div className="min-w-0">
               <div className="truncate text-[14px] font-semibold text-ink">{uploadedName || selectedProduct.name}</div>
               <div className="text-[11px] text-ink-2">
@@ -451,8 +451,8 @@ function Index() {
             </div>
             <Check className="shrink-0 text-brand" size={18} />
           </div>
-            </div>
-          <section className="bg-background px-5 py-4">
+         </div>
+         <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[14px] font-semibold text-ink">Your photos</h2>
             <span className="text-[11px] text-ink-2">Tap to select</span>
@@ -579,8 +579,8 @@ function Index() {
               <div className="truncate text-[11px] text-ink-2">{uploadedName || selectedProduct.name} · {insight.profile.subcategory}</div>
             </div>
             <span className="text-[11px] text-ink-2">Preset gallery</span>
-          </div>
-                     <div className="border-t border-line px-5 py-3">
+           </div>
+           <div className="border-t border-line px-5 py-3">
              <div className="flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">{activePreset.name} catalogue</h2><span className="text-[11px] text-ink-2">{shots.length} photo previews</span></div>
              <div className="mt-3 grid grid-cols-3 gap-2">
                {shots.map((shot, index) => (
@@ -590,7 +590,7 @@ function Index() {
                  </figure>
                ))}
              </div>
-              <p className="mt-2 text-[11px] text-ink-2">Illustrative views of one sample photo · not separate generated shots of your product.</p>
+              <p className="mt-2 text-[11px] text-ink-2">Demo previews of the planned shots. These are not separate generated photos.</p>
            </div>
            <div className="border-t border-line px-5 py-3">
              <div className="mb-2 text-[12px] font-semibold text-ink">More like this</div>
@@ -730,7 +730,7 @@ function Index() {
             </div>;
           })}
         </div>
-        <p className="mt-3 text-[11px] text-ink-2">Demo samples, not edited product photos or a verified fidelity check.</p>
+         <p className="mt-3 text-[11px] text-ink-2">Illustrative demo samples, not edited product photos.</p>
         <Button type="button" disabled={selectedShots.length === 0} onClick={() => setScreen("save")} className="mt-6 h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">Proceed with {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"} <ArrowRight size={17} /></Button>
         <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="mt-2 w-full text-brand">Try another style</Button>
       </main>
@@ -741,7 +741,7 @@ function Index() {
     <>
       {renderHeader("Use your photos", "Step 5 of 5", () => setScreen("export"))}
       <main className="px-5 pb-28">
-        <p className="text-[13px] text-ink-2">{selectedShots.length} selected from {activePreset.name}</p>
+         <p className="text-[13px] text-ink-2">{selectedShots.length} selected from {activePreset.name} · demo samples</p>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
           {selectedShots.map((index) => <figure key={index} className="w-24 shrink-0 overflow-hidden rounded-md border border-line bg-background"><img src={shotImage(index)} alt={shots[index]} className="aspect-square w-full object-cover" style={{ filter: shotFilter(index) }} /><figcaption className="truncate px-2 py-1 text-[10px] text-ink">{shots[index]}</figcaption></figure>)}
         </div>
