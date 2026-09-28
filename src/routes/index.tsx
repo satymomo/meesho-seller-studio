@@ -721,7 +721,7 @@ function Index() {
         </section>
 
         <div className="space-y-1.5 pt-1">
-          <Button type="button" onClick={finishFlow} className="h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
+          <Button type="button" onClick={finishFlow} className="h-12 w-[calc(100%-72px)] rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
             <Check size={18} /> Done
           </Button>
           <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="h-8 w-full p-0 text-[12px] font-medium text-ink-2 hover:bg-transparent">
