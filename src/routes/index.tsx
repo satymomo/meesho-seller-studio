@@ -8,6 +8,7 @@ import {
   Download,
   Instagram,
   LayoutGrid,
+  Crown,
   Mic,
   ImagePlus,
   Plus,
@@ -21,38 +22,35 @@ import {
 import blueKurti from "@/assets/blue-kurti.jpg";
 import maroonKurti from "@/assets/maroon-kurti.jpg";
 import anarkaliKurti from "@/assets/anarkali-kurti.jpg";
+import originalPhoto from "@/assets/original.png.asset.json";
+import whitePreset from "@/assets/white.webp.asset.json";
+import festivePreset from "@/assets/festive.webp.asset.json";
+import twirlPreset from "@/assets/twirl.webp.asset.json";
+import boldPreset from "@/assets/meesho-bold.webp.asset.json";
+import threeDPreset from "@/assets/3D.webp.asset.json";
+import motionPreset from "@/assets/motion.webp.asset.json";
+import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
 
 type Screen = "home" | "studio" | "creation" | "loading" | "export" | "bulk" | "pricing";
 type Product = { name: string; shortName: string; price: string; image: string };
 
-const defaultProduct: Product = { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti };
+const defaultProduct: Product = { name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
 const products: Product[] = [
   defaultProduct,
+  { name: "Blue Floral Kurti", shortName: "Blue kurti", price: "₹499", image: blueKurti },
   { name: "Maroon Straight Kurti", shortName: "Maroon kurti", price: "₹599", image: maroonKurti },
   { name: "Festive Anarkali Kurti", shortName: "Festive anarkali", price: "₹899", image: anarkaliKurti },
 ];
 
 const styles = [
-  { name: "Simple Catalogue", note: "Clean white", frame: "bg-background", image: "object-contain p-2 brightness-105" },
-  {
-    name: "Everyday Model",
-    note: "Natural light",
-    frame: "bg-sky-soft",
-    image: "object-cover brightness-105 saturate-90",
-  },
-  {
-    name: "Festive Look",
-    note: "Warm celebration",
-    frame: "bg-warning-soft",
-    image: "object-cover contrast-110 saturate-125",
-  },
-  {
-    name: "Modern Look",
-    note: "Fresh and bold",
-    frame: "bg-success-soft",
-    image: "object-cover contrast-125 saturate-75",
-  },
+  { name: "Safed Shaan", note: "Crisp catalogue look", image: whitePreset.url, premium: false },
+  { name: "Shaadi Shringar", note: "Festive and full of colour", image: festivePreset.url, premium: false },
+  { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlPreset.url, premium: false },
+  { name: "Bazaar Bold", note: "Stand out in style", image: boldPreset.url, premium: true },
+  { name: "3D Jadoo", note: "A striking display", image: threeDPreset.url, premium: true },
+  { name: "Chalte Chalte", note: "On-the-move look", image: motionPreset.url, premium: true },
+  { name: "Kaali Raat", note: "Dramatic dark look", image: blackPreset.url, premium: true },
 ] as const;
 
 function IconButton({ label, onClick, children }: { label: string; onClick?: () => void; children: ReactNode }) {
@@ -154,7 +152,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [screen, setScreen] = useState<Screen>("home");
   const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
-  const [selectedStyle, setSelectedStyle] = useState("Simple Catalogue");
+  const [selectedStyle, setSelectedStyle] = useState("Safed Shaan");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -185,9 +184,37 @@ function Index() {
     setScreen("loading");
   };
 
+  const generatePhoto = () => {
+    if (selectedProduct.name !== defaultProduct.name || uploadedImage) {
+      showToast("Choose the blue embroidered sample to use these presets");
+      return;
+    }
+    if (activeStyle.premium) {
+      setUpgradeOpen(true);
+      return;
+    }
+    setRemaining((value) => Math.max(value - 1, 0));
+    startGeneration();
+  };
+
   const showToast = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 2400);
+  };
+
+  const downloadPhoto = async () => {
+    try {
+      const response = await fetch(activeStyle.image);
+      if (!response.ok) throw new Error("Could not fetch photo");
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${selectedStyle.toLowerCase().replaceAll(" ", "-")}-hd.webp`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      showToast("Download unavailable right now");
+    }
   };
 
   const toggleBulk = (name: string) => {
@@ -231,11 +258,11 @@ function Index() {
         <div className="relative h-[190px] overflow-hidden bg-brand-soft sm:h-[230px]">
 
           <div className="absolute inset-y-4 left-5 w-[46%] overflow-hidden rounded-md border border-line bg-background shadow-sm">
-            <img src={blueKurti} alt="Original blue kurti product photo" className="size-full object-contain" />
+            <img src={originalPhoto.url} alt="Original embroidered kurti product photo" className="size-full object-contain" />
             <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
           </div>
           <div className="absolute inset-y-4 right-5 w-[46%] overflow-hidden rounded-md border-2 border-brand bg-background shadow-md">
-            <img src={blueKurti} alt="Blue kurti with a catalogue look" className="size-full object-contain p-2 brightness-105" />
+            <img src={whitePreset.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
             <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">Studio look</span>
           </div>
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
@@ -368,7 +395,7 @@ function Index() {
             onClick={() => setScreen("creation")}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
-            Next: add a filter <ArrowRight size={18} />
+            Next: choose a preset <ArrowRight size={18} />
           </Button>
         </div>
       </main>
@@ -388,15 +415,15 @@ function Index() {
               <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
               <div className="text-[11px] text-ink-2">{uploadedName || selectedProduct.name}</div>
             </div>
-            <span className="text-[11px] text-ink-2">Preview</span>
+            <span className="text-[11px] text-ink-2">Preset gallery</span>
           </div>
-          <div className={`relative ${activeStyle.frame}`}>
+          <div className="relative bg-cool">
             <img
-              src={currentImage}
-              alt={`${selectedProduct.name} with ${selectedStyle} filter`}
-              width={768}
-              height={960}
-              className={`aspect-[4/3] w-full transition duration-300 ${activeStyle.image}`}
+              src={activeStyle.image}
+              alt={`${selectedStyle} preset showing the blue embroidered kurti`}
+              width={1920}
+              height={1920}
+              className="aspect-[4/3] w-full object-contain transition duration-300"
             />
             <span className="absolute bottom-3 left-3 rounded-md bg-glass px-2.5 py-1.5 text-[11px] font-semibold text-ink">
               {selectedStyle}
@@ -411,10 +438,10 @@ function Index() {
         </section>
         <section className="bg-background px-5 py-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[14px] font-semibold text-ink">Filters</h2>
-            <span className="text-[11px] text-ink-2">Tap to preview</span>
+            <h2 className="text-[14px] font-semibold text-ink">Choose a preset</h2>
+            <span className="text-[11px] text-ink-2">3 free · 4 premium</span>
           </div>
-          <div className="-mr-5 flex gap-2.5 overflow-x-auto pb-2 pr-5">
+          <div className="grid grid-cols-3 gap-x-2.5 gap-y-4">
             {styles.map((style) => (
               <Button
                 variant="ghost"
@@ -422,12 +449,17 @@ function Index() {
                 key={style.name}
                 onClick={() => setSelectedStyle(style.name)}
                 aria-pressed={selectedStyle === style.name}
-                className="h-auto w-[91px] shrink-0 flex-col gap-0 p-0 text-center"
+                className="h-auto min-w-0 flex-col gap-0 p-0 text-center"
               >
                 <span
-                  className={`relative block aspect-square w-full overflow-hidden rounded-md ring-2 ${style.frame} ${selectedStyle === style.name ? "ring-brand" : "ring-transparent"}`}
+                  className={`relative block aspect-square w-full overflow-hidden rounded-md bg-cool ring-2 ${selectedStyle === style.name ? "ring-brand" : "ring-transparent"}`}
                 >
-                  <img src={currentImage} alt="" width={768} height={960} className={`size-full ${style.image}`} />
+                  <img src={style.image} alt="" width={1920} height={1920} className="size-full object-cover" />
+                  {style.premium && (
+                    <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-brand" title="Premium preset" aria-label="Premium preset">
+                      <Crown size={13} />
+                    </span>
+                  )}
                   {selectedStyle === style.name && (
                     <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground">
                       <Check size={12} />
@@ -439,24 +471,23 @@ function Index() {
                 >
                   {style.name}
                 </span>
+                <span className="mt-0.5 text-[10px] text-ink-2">{style.premium ? "Premium" : "Free"}</span>
               </Button>
             ))}
           </div>
+          {selectedProduct.name !== defaultProduct.name || uploadedImage ? (
+            <p className="mt-4 text-[11px] leading-relaxed text-ink-2">These preset examples use the blue embroidered sample photo. This preview cannot apply them to another photo yet.</p>
+          ) : null}
         </section>
         <div className="px-5 pt-2">
           <Button
             type="button"
-            onClick={() => {
-              setRemaining((value) => Math.max(value - 1, 0));
-              startGeneration();
-            }}
+            onClick={generatePhoto}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
             <Sparkles size={17} /> Generate photo
           </Button>
-          <p className="mt-3 text-center text-[11px] text-ink-2">
-            {remaining} product creations remaining · retry is free
-          </p>
+          <p className="mt-3 text-center text-[11px] text-ink-2">{remaining} product creations remaining · retry is free</p>
         </div>
       </main>
     </>
@@ -515,20 +546,20 @@ function Index() {
                 alt={`Original ${selectedProduct.name}`}
                 width={768}
                 height={960}
-                className="aspect-[3/4] w-full object-cover"
+                 className="aspect-[3/4] w-full object-contain bg-cool"
               />
               <div className="px-3 py-2.5">
                 <div className="text-[11px] font-semibold text-ink">Original</div>
                 <div className="text-[10px] text-ink-2">Your uploaded photo</div>
               </div>
             </div>
-            <div className={`overflow-hidden rounded-2xl ring-2 ring-brand ${activeStyle?.frame ?? "bg-background"}`}>
+            <div className="overflow-hidden rounded-2xl bg-cool ring-2 ring-brand">
               <img
-                src={currentImage}
-                alt={`Enhanced ${selectedProduct.name}`}
-                width={768}
-                height={960}
-                className={`aspect-[3/4] w-full ${activeStyle?.image ?? "object-cover"}`}
+                 src={activeStyle.image}
+                 alt={`${selectedStyle} HD preset result`}
+                 width={1920}
+                 height={1920}
+                 className="aspect-[3/4] w-full object-contain bg-cool"
               />
               <div className="bg-glass px-3 py-2.5">
                 <div className="flex items-center gap-1 text-[11px] font-semibold text-brand">
@@ -583,16 +614,17 @@ function Index() {
           <div className="mt-3 space-y-2.5">
             {[
               { label: "Add to Meesho catalogue", note: "Use this photo in your product listing", icon: ShoppingBag },
-              { label: "Download HD", note: "Save a clear copy to your phone", icon: Download },
+              { label: "Download HD", note: "Save the selected HD preset photo", icon: Download },
               { label: "Share on WhatsApp", note: "Send it to a customer or family", icon: Share2 },
               { label: "Use on Instagram", note: "Share as a post or story", icon: Instagram },
               { label: "Export for other marketplaces", note: "Use this photo anywhere", icon: ArrowRight },
             ].map(({ label, note, icon: ActionIcon }) => (
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 key={label}
-                onClick={() => showToast(`${label} is ready for the next step`)}
-                className="flex w-full items-center gap-3 rounded-2xl bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
+                onClick={() => label === "Download HD" ? void downloadPhoto() : showToast(`${label} is ready for the next step`)}
+                className="flex h-auto w-full items-center justify-start gap-3 rounded-md bg-glass p-3.5 text-left ring-1 ring-line transition hover:ring-brand active:scale-[0.99]"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
                   <ActionIcon size={18} />
@@ -602,20 +634,20 @@ function Index() {
                   <span className="mt-0.5 block text-[11px] text-ink-2">{note}</span>
                 </span>
                 <ChevronRight size={17} className="text-ink-2" />
-              </button>
+              </Button>
             ))}
           </div>
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => {
             showToast("Photo saved to your catalogue");
             setScreen("home");
           }}
-          className="w-full rounded-full bg-brand py-3.5 text-[15px] font-semibold text-primary-foreground shadow-[0_16px_30px_-16px_var(--brand)]"
+          className="h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground"
         >
           Done
-        </button>
+        </Button>
       </main>
     </>
   );
@@ -815,6 +847,20 @@ function Index() {
         {screen === "export" && renderExport()}
         {screen === "bulk" && renderBulk()}
         {screen === "pricing" && renderPricing()}
+        {upgradeOpen && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 sm:items-center" role="presentation" onClick={() => setUpgradeOpen(false)}>
+            <div role="dialog" aria-modal="true" aria-labelledby="upgrade-title" onClick={(event) => event.stopPropagation()} className="w-full max-w-[350px] rounded-md bg-background p-5 shadow-xl">
+              <div className="flex items-start justify-between gap-3">
+                <span className="grid size-10 place-items-center rounded-md bg-brand-soft text-brand"><Crown size={20} /></span>
+                <Button type="button" variant="ghost" size="icon" aria-label="Close upgrade prompt" onClick={() => setUpgradeOpen(false)}><X size={18} /></Button>
+              </div>
+              <h2 id="upgrade-title" className="mt-4 text-[20px] font-semibold text-ink">Consider upgrading</h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{selectedStyle} is a premium preset. Explore a plan to use premium looks, or choose one of the free presets.</p>
+              <Button type="button" onClick={() => { setUpgradeOpen(false); setScreen("pricing"); }} className="mt-5 h-11 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">See plans <ArrowRight size={17} /></Button>
+              <Button type="button" variant="ghost" onClick={() => setUpgradeOpen(false)} className="mt-1 h-11 w-full text-brand">Keep browsing</Button>
+            </div>
+          </div>
+        )}
         {screen !== "loading" && (
           <VoiceAssistant
             listening={listening}
