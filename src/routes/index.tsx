@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   ChevronRight,
+  ChevronLeft,
   Download,
   LayoutGrid,
   Crown,
@@ -34,7 +35,7 @@ import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
-import { inferProduct, lookVariations } from "@/lib/category-inference";
+import { inferProduct } from "@/lib/category-inference";
 
 type Screen = "home" | "studio" | "understanding" | "creation" | "loading" | "export" | "save" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
@@ -181,9 +182,9 @@ function Index() {
   const [bulkProgress, setBulkProgress] = useState(0);
   const [bulkError, setBulkError] = useState("");
   const [upgradeStyle, setUpgradeStyle] = useState("");
-  const [variationId, setVariationId] = useState<string | null>(null);
   const [selectedShots, setSelectedShots] = useState<number[]>([]);
   const [activeShot, setActiveShot] = useState(0);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const insight = inferProduct(uploadedImage ? null : selectedProduct.id);
@@ -193,8 +194,7 @@ function Index() {
     : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
   const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
   const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whitePreset.url, premium: false, family: "Studio", filter: "" };
-  const activeVariation = lookVariations.find((variation) => variation.id === variationId);
-  const displayFilter = `${activePreset.filter} ${activeVariation?.filter ?? ""}`.trim() || "none";
+  const displayFilter = activePreset.filter || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product) => {
     const style = styles.find((item) => item.name === bulkStyle);
@@ -210,6 +210,12 @@ function Index() {
     return () => {
       window.clearInterval(progress);
     };
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen !== "understanding") return;
+    const timer = window.setTimeout(() => setScreen("creation"), 3000);
+    return () => window.clearTimeout(timer);
   }, [screen]);
 
   useEffect(() => {
