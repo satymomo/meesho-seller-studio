@@ -33,7 +33,12 @@ import whiteClose from "@/assets/white_close.png.asset.json";
 import whiteBack from "@/assets/white_back.png.asset.json";
 import whiteSleeve from "@/assets/white_sleeve.png.asset.json";
 import whiteDimensions from "@/assets/white_dimn.png.asset.json";
-import festivePreset from "@/assets/festive.webp.asset.json";
+import festiveFront from "@/assets/festive.png.asset.json";
+import festiveSide from "@/assets/festive_side.png.asset.json";
+import festiveClose from "@/assets/festive_close.png.asset.json";
+import festiveBack from "@/assets/festive_back.png.asset.json";
+import festiveSleeve from "@/assets/festive_sleeve.png.asset.json";
+import festiveDimensions from "@/assets/festive_dimn.png.asset.json";
 import twirlFront from "@/assets/twirl.png.asset.json";
 import twirlSide from "@/assets/twirl_side.png.asset.json";
 import twirlClose from "@/assets/twirl_close.png.asset.json";
@@ -92,15 +97,24 @@ const bazaarShots = [
   { label: "Sleeve", image: boldSleeve.url },
   { label: "Dimensions", image: boldDimensions.url },
 ];
+const shaadiShots = [
+  { label: "Front", image: festiveFront.url },
+  { label: "Side", image: festiveSide.url },
+  { label: "Close-up", image: festiveClose.url },
+  { label: "Back", image: festiveBack.url },
+  { label: "Sleeve", image: festiveSleeve.url },
+  { label: "Dimensions", image: festiveDimensions.url },
+];
 const presetShots: Record<string, typeof safedShaanShots> = {
   "Safed Shaan": safedShaanShots,
+  "Shaadi Shringar": shaadiShots,
   "Ghoomar Glow": ghoomarShots,
   "Bazaar Bold": bazaarShots,
 };
 
 const styles = [
   { name: "Safed Shaan", note: "Crisp catalogue look", image: whiteFront.url, premium: false },
-  { name: "Shaadi Shringar", note: "Festive and full of colour", image: festivePreset.url, premium: false },
+  { name: "Shaadi Shringar", note: "Festive and full of colour", image: festiveFront.url, premium: false },
   { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlFront.url, premium: false },
   { name: "Bazaar Bold", note: "Stand out in style", image: boldFront.url, premium: true },
   { name: "3D Jadoo", note: "A striking display", image: threeDPreset.url, premium: true },
@@ -650,7 +664,7 @@ function Index() {
             </Button>
           ))}
         </div>
-         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan, Ghoomar Glow and Bazaar Bold use sample catalogue photos; other looks are illustrative previews.</p>
+         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan, Shaadi Shringar, Ghoomar Glow and Bazaar Bold use sample catalogue photos; other looks are illustrative previews.</p>
       </main>
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
