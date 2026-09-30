@@ -384,11 +384,19 @@ function Index() {
       [4200, () => setScreen("creation")],
       [4800, () => moveCursor(`[data-agent="preset-${festive}"]`, "Opening festive look")],
       [5400, () => { moveCursor(`[data-agent="preset-${festive}"]`, "Opening festive look", true); setPreviewStyle(festive); setActiveShot(0); }],
-      [6200, () => { moveCursor('[data-agent="catalogue-gallery"]', "Browsing catalogue"); scrollGalleryTo(1); }],
-      [6900, () => scrollGalleryTo(2)],
-      [7600, () => moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue")],
-      [8200, () => { moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue", true); setSelectedStyle(festive); setSelectedShots(Array.from({ length: shotsCount }, (_, i) => i)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); setAutoPilot(false); hideCursor(); }],
     ];
+    // Visit every shot in the catalogue before the voice demo chooses it.
+    for (let index = 1; index < shotsCount; index += 1) {
+      steps.push([6200 + (index - 1) * 600, () => {
+        moveCursor(`[data-agent="catalogue-shot-${index}"]`, "Browsing catalogue", true);
+        scrollGalleryTo(index);
+      }]);
+    }
+    const lastShotTime = 6200 + Math.max(0, shotsCount - 2) * 600;
+    steps.push(
+      [lastShotTime + 750, () => moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue")],
+      [lastShotTime + 1250, () => { moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue", true); setSelectedStyle(festive); setSelectedShots(Array.from({ length: shotsCount }, (_, i) => i)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); setAutoPilot(false); hideCursor(); }],
+    );
     autoTimers.current = steps.map(([delay, fn]) => window.setTimeout(fn, delay));
   }
 
@@ -772,7 +780,7 @@ function Index() {
            <div data-agent="catalogue-gallery" className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(previewShots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
              {previewShots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start bg-cool"><img src={previewShotImage(index)} alt={`${shot} catalogue preview`} className="max-h-[56dvh] w-full object-contain" style={{ aspectRatio: "4/5", filter: previewShotFilter(index) }} /><figcaption className="absolute bottom-2 left-3 rounded-sm bg-background/95 px-2 py-1 text-[12px] font-semibold text-ink">{shot}</figcaption></figure>)}
           </div>
-           <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${previewShots.length}`}>{previewShots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === previewShots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
+            <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${previewShots.length}`}>{previewShots.map((shot, index) => <Button key={shot} type="button" variant="ghost" data-agent={`catalogue-shot-${index}`} aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === previewShots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
             <p className="mt-1 text-center text-[11px] text-ink-2">Swipe to see the catalogue · demo samples</p>
              <Button type="button" data-agent="choose-catalogue" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(previewShots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
           </div>
