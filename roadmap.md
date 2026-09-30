@@ -33,3 +33,4 @@
 - [x] Make review selection clearer without changing the final save screen.
 - [x] Select catalogue shots directly within the preset gallery, carry that selection through review, and improve swipe feedback.
 - [x] Separate preset browsing into a catalogue-preview pop-up and a dedicated photo-selection page before generation.
+- [x] Replace Safed Shaan's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
