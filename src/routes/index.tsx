@@ -359,6 +359,15 @@ function Index() {
 
   useEffect(() => () => autoTimers.current.forEach((t) => window.clearTimeout(t)), []);
 
+  // Agentic cursor: flies to a control, pulses a "tap", moves on.
+  const moveCursor = (selector: string, label: string, tapping = false) => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setCursor({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, visible: true, tapping, label });
+  };
+  const hideCursor = () => setCursor((current) => ({ ...current, visible: false, tapping: false }));
+
   // Hard-coded demo: "Meri blue kurti ki festive photo bana do" → blue kurti → Shaadi Shringar → photo selection.
   function runVoiceFlow() {
     autoTimers.current.forEach((t) => window.clearTimeout(t));
@@ -367,13 +376,18 @@ function Index() {
     const shotsCount = (presetShots[festive] ?? []).length || 6;
     const steps: [number, () => void][] = [
       [0, () => { setAutoPilot(true); setVoiceOpen(false); showToast("Samajh gaya! Blue kurti ki festive photos bana raha hoon"); setUploadedImage(null); setUploadedName(""); setPreviewStyle(null); setScreen("studio"); }],
-      [700, () => setSelectedProduct(defaultProduct)],
-      [1500, () => { setLoadingStep(0); setActiveShot(0); setScreen("understanding"); }],
-      [2900, () => setScreen("creation")],
-      [3800, () => { setPreviewStyle(festive); setActiveShot(0); }],
-      [4500, () => setActiveShot(1)],
-      [5100, () => setActiveShot(2)],
-      [5800, () => { setSelectedStyle(festive); setSelectedShots(Array.from({ length: shotsCount }, (_, i) => i)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); setAutoPilot(false); }],
+      [500, () => moveCursor(`[data-agent="product-${defaultProduct.name}"]`, "Selecting product")],
+      [1100, () => { moveCursor(`[data-agent="product-${defaultProduct.name}"]`, "Selecting product", true); setSelectedProduct(defaultProduct); }],
+      [1800, () => moveCursor('[data-agent="next-preset"]', "Continuing")],
+      [2400, () => { moveCursor('[data-agent="next-preset"]', "Continuing", true); setLoadingStep(0); setActiveShot(0); setScreen("understanding"); }],
+      [3200, () => moveCursor('[data-agent="understanding"]', "Reading product")],
+      [4200, () => setScreen("creation")],
+      [4800, () => moveCursor(`[data-agent="preset-${festive}"]`, "Opening festive look")],
+      [5400, () => { moveCursor(`[data-agent="preset-${festive}"]`, "Opening festive look", true); setPreviewStyle(festive); setActiveShot(0); }],
+      [6200, () => { moveCursor('[data-agent="catalogue-gallery"]', "Browsing catalogue"); scrollGalleryTo(1); }],
+      [6900, () => scrollGalleryTo(2)],
+      [7600, () => moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue")],
+      [8200, () => { moveCursor('[data-agent="choose-catalogue"]', "Choosing catalogue", true); setSelectedStyle(festive); setSelectedShots(Array.from({ length: shotsCount }, (_, i) => i)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); setAutoPilot(false); hideCursor(); }],
     ];
     autoTimers.current = steps.map(([delay, fn]) => window.setTimeout(fn, delay));
   }
