@@ -28,3 +28,6 @@
 - [x] Show a five-shot catalogue preview for each preset, generate a demo catalogue set, and let sellers select shots before proceeding.
 - [x] Remove bulk preset modes, simplify the results and saving screens, and add the peer-quality nudge.
 - [x] Verify both mobile journeys.
+- [x] Auto-dismiss product details after three seconds and show only SKU and attributes.
+- [x] Replace preset grid previews with a swipeable catalogue gallery and remove similar looks.
+- [x] Make review selection clearer without changing the final save screen.
