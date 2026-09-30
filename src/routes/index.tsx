@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   ChevronRight,
+  ChevronLeft,
   Download,
   LayoutGrid,
   Crown,
@@ -34,7 +35,7 @@ import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
-import { inferProduct, lookVariations } from "@/lib/category-inference";
+import { inferProduct } from "@/lib/category-inference";
 
 type Screen = "home" | "studio" | "understanding" | "creation" | "loading" | "export" | "save" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
@@ -181,9 +182,9 @@ function Index() {
   const [bulkProgress, setBulkProgress] = useState(0);
   const [bulkError, setBulkError] = useState("");
   const [upgradeStyle, setUpgradeStyle] = useState("");
-  const [variationId, setVariationId] = useState<string | null>(null);
   const [selectedShots, setSelectedShots] = useState<number[]>([]);
   const [activeShot, setActiveShot] = useState(0);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const insight = inferProduct(uploadedImage ? null : selectedProduct.id);
@@ -193,8 +194,7 @@ function Index() {
     : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
   const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
   const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whitePreset.url, premium: false, family: "Studio", filter: "" };
-  const activeVariation = lookVariations.find((variation) => variation.id === variationId);
-  const displayFilter = `${activePreset.filter} ${activeVariation?.filter ?? ""}`.trim() || "none";
+  const displayFilter = activePreset.filter || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product) => {
     const style = styles.find((item) => item.name === bulkStyle);
@@ -204,12 +204,23 @@ function Index() {
   const selectedSet = selectedShots;
   const shotImage = (_index: number) => activePreset.image;
   const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const moveGallery = (direction: number) => {
+    const next = Math.max(0, Math.min(shots.length - 1, activeShot + direction));
+    setActiveShot(next);
+    galleryRef.current?.scrollTo({ left: next * galleryRef.current.clientWidth, behavior: "instant" });
+  };
   useEffect(() => {
     if (screen !== "loading" && screen !== "understanding") return;
     const progress = window.setInterval(() => setLoadingStep((step) => Math.min(step + 1, 3)), screen === "understanding" ? 500 : 650);
     return () => {
       window.clearInterval(progress);
     };
+  }, [screen]);
+
+  useEffect(() => {
+    if (screen !== "understanding") return;
+    const timer = window.setTimeout(() => setScreen("creation"), 3000);
+    return () => window.clearTimeout(timer);
   }, [screen]);
 
   useEffect(() => {
@@ -528,7 +539,7 @@ function Index() {
         <div className="px-5 pt-2">
           <Button
             type="button"
-            onClick={() => { setLoadingStep(0); setVariationId(null); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
+             onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
             Next: choose a preset <ArrowRight size={18} />
@@ -554,12 +565,12 @@ function Index() {
               {ready && <p className="mt-1 text-[11px] text-ink-2">{insight.profile.category} › {insight.profile.subcategory}</p>}
             </div>
           </div>
-          {ready && <div className="fade-up mt-4 border-t border-line pt-4">
-            <p className="text-[12px] font-semibold text-ink">{insight.sku} · {insight.profile.subcategory}</p>
-            <p className="mt-2 text-[12px] leading-relaxed text-ink-2">{insight.attributes.map(({ label, value }) => `${label}: ${value}`).join(" · ")}</p>
-            <p className="mt-3 text-[12px] leading-relaxed text-ink-2">Buyers want to see {insight.profile.buyerNeeds.join(", ").toLowerCase()}.</p>
-            <Button type="button" onClick={() => setScreen("creation")} className="mt-5 h-11 w-full rounded-md bg-brand text-primary-foreground">Proceed <ArrowRight size={16} /></Button>
-          </div>}
+           {ready && <div className="fade-up mt-4 border-t border-line pt-4">
+             <p className="text-[12px] font-semibold text-ink">{insight.sku} · {insight.profile.subcategory}</p>
+             <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2">
+               {insight.attributes.map(({ label, value }) => <div key={label}><dt className="text-[10px] text-ink-2">{label}</dt><dd className="text-[12px] font-medium text-ink">{value}</dd></div>)}
+             </dl>
+           </div>}
         </section>
       </div>
     );
@@ -578,31 +589,29 @@ function Index() {
               <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
               <div className="truncate text-[11px] text-ink-2">{uploadedName || selectedProduct.name} · {insight.profile.subcategory}</div>
             </div>
-            <span className="text-[11px] text-ink-2">Preset gallery</span>
+             <span className="text-[11px] text-ink-2">{shots.length} photos</span>
            </div>
            <div className="border-t border-line px-5 py-3">
-             <div className="flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">{activePreset.name} catalogue</h2><span className="text-[11px] text-ink-2">{shots.length} photo previews</span></div>
-             <div className="mt-3 grid grid-cols-3 gap-2">
-               {shots.map((shot, index) => (
-                 <figure key={shot} className="min-w-0 overflow-hidden rounded-md border border-line bg-cool">
-                   <img src={shotImage(index)} alt={`${shot} preview`} className="aspect-[3/4] w-full object-cover" style={{ filter: shotFilter(index) }} />
-                   <figcaption className="truncate bg-background px-1.5 py-1.5 text-[10px] font-medium text-ink">{shot}</figcaption>
-                 </figure>
-               ))}
-             </div>
-              <p className="mt-2 text-[11px] text-ink-2">Demo previews of the planned shots. These are not separate generated photos.</p>
-           </div>
-           <div className="border-t border-line px-5 py-3">
-             <div className="mb-2 text-[12px] font-semibold text-ink">More like this</div>
-             <div className="flex gap-2 overflow-x-auto pb-1">
-               {[{ id: "", label: "Original look", filter: "" }, ...lookVariations].map((variation) => {
-                 const on = (variation.id || null) === variationId;
-                 return <Button key={variation.id || "base"} type="button" variant="ghost" aria-pressed={on} onClick={() => setVariationId(variation.id || null)} className="h-auto w-[76px] shrink-0 flex-col gap-1 p-0">
-                   <span className={`block w-full overflow-hidden rounded-md ring-2 ${on ? "ring-brand" : "ring-transparent"}`}><img src={activePreset.image} alt="" loading="lazy" className="aspect-square w-full object-cover" style={{ filter: `${activePreset.filter} ${variation.filter}`.trim() || "none" }} /></span>
-                   <span className={`w-full whitespace-normal text-center text-[10px] leading-tight ${on ? "font-semibold text-brand" : "text-ink"}`}>{variation.label}</span>
-                 </Button>;
-               })}
-             </div>
+              <div className="flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">{activePreset.name} catalogue</h2><span className="text-[11px] text-ink-2">{activeShot + 1} / {shots.length}</span></div>
+              <div ref={galleryRef} onScroll={(event) => {
+                const width = event.currentTarget.clientWidth;
+                if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width))));
+              }} className="mt-3 flex snap-x snap-mandatory overflow-x-auto rounded-md bg-cool [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {shots.map((shot, index) => (
+                  <figure key={shot} className="relative w-full shrink-0 snap-start">
+                    <img src={shotImage(index)} alt={`${shot} illustrative preview`} className="aspect-[4/5] w-full object-contain" style={{ filter: shotFilter(index) }} />
+                    <figcaption className="absolute bottom-3 left-3 rounded-sm bg-background/95 px-2.5 py-1.5 text-[12px] font-semibold text-ink">{shot}</figcaption>
+                  </figure>
+                ))}
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button>
+                <div className="flex gap-1.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>
+                  {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} aria-current={activeShot === index ? "true" : undefined} onClick={() => { setActiveShot(index); galleryRef.current?.scrollTo({ left: index * galleryRef.current.clientWidth, behavior: "instant" }); }} className={`size-2 rounded-full p-0 ${activeShot === index ? "bg-brand" : "bg-line"}`} />)}
+                </div>
+                <Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button>
+              </div>
+              <p className="mt-2 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
            </div>
          </section>
         <section className="bg-background px-5 py-4">
@@ -616,7 +625,7 @@ function Index() {
                 variant="ghost"
                 type="button"
                 key={style.name}
-                onClick={() => { setSelectedStyle(style.name); setVariationId(null); }}
+                 onClick={() => { setSelectedStyle(style.name); setActiveShot(0); galleryRef.current?.scrollTo({ left: 0, behavior: "instant" }); }}
                 aria-pressed={activePreset.name === style.name}
                 className="h-auto min-w-0 flex-col gap-0 p-0 text-center"
               >
@@ -705,7 +714,7 @@ function Index() {
     <>
       {renderHeader("Review catalogue", "Step 4 of 5", () => setScreen("creation"))}
       <main className="px-5 pb-28">
-        <p className="mb-4 text-[13px] text-ink-2">{activePreset.name} · Select the photos you want to keep</p>
+         <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[13px] font-semibold text-ink">{activePreset.name}</p><p className="text-[12px] text-ink-2">Tap a photo to compare it, then choose which to keep.</p></div><span className="shrink-0 rounded-sm bg-brand-soft px-2 py-1 text-[11px] font-semibold text-brand">{selectedShots.length}/{shots.length} kept</span></div>
         <div className="grid grid-cols-2 gap-2">
           <figure className="overflow-hidden rounded-md border border-line bg-background">
             <img src={currentImage} alt="Original product" className="aspect-[3/4] w-full bg-cool object-contain" />
@@ -716,18 +725,15 @@ function Index() {
             <figcaption className="px-2 py-2 text-[11px] text-ink">{shots[activeShot]} preview</figcaption>
           </figure>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-2">
+         <div className="mt-4 flex items-center justify-between gap-2 border-b border-line pb-2"><h2 className="text-[13px] font-semibold text-ink">{shots[activeShot]}</h2><Button type="button" variant="ghost" aria-pressed={selectedShots.includes(activeShot)} onClick={() => setSelectedShots((current) => current.includes(activeShot) ? current.filter((item) => item !== activeShot) : [...current, activeShot].sort())} className={`h-9 rounded-md border px-3 text-[12px] ${selectedShots.includes(activeShot) ? "border-brand bg-brand-soft text-brand" : "border-line bg-background text-ink"}`}>{selectedShots.includes(activeShot) ? <><Check size={15} /> Keeping photo</> : "Keep this photo"}</Button></div>
+         <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
           {shots.map((shot, index) => {
             const chosen = selectedShots.includes(index);
-            return <div key={shot} className={`overflow-hidden rounded-md border bg-background ${activeShot === index ? "border-brand" : "border-line"}`}>
-              <Button type="button" variant="ghost" onClick={() => setActiveShot(index)} className="h-auto w-full p-0" aria-label={`Preview ${shot}`}>
-                <img src={shotImage(index)} alt="" className="aspect-square w-full object-cover" style={{ filter: shotFilter(index) }} />
-              </Button>
-              <div className="flex items-center justify-between gap-1 px-1 py-1">
-                <span className="truncate text-[10px] text-ink">{shot}</span>
-                <Button type="button" variant="ghost" aria-label={`${chosen ? "Remove" : "Keep"} ${shot}`} aria-pressed={chosen} onClick={() => setSelectedShots((current) => chosen ? current.filter((item) => item !== index) : [...current, index].sort())} className={`size-6 shrink-0 rounded-sm border p-0 ${chosen ? "border-brand bg-brand text-primary-foreground" : "border-line text-ink-2"}`}>{chosen && <Check size={14} />}</Button>
-              </div>
-            </div>;
+             return <Button key={shot} type="button" variant="ghost" onClick={() => setActiveShot(index)} aria-label={`Preview ${shot}${chosen ? ", kept" : ", not kept"}`} aria-current={activeShot === index ? "true" : undefined} className={`relative h-auto w-20 shrink-0 flex-col gap-0 overflow-hidden rounded-md border p-0 ${activeShot === index ? "border-brand ring-1 ring-brand" : "border-line"}`}>
+               <img src={shotImage(index)} alt="" className="aspect-square w-full object-cover" style={{ filter: shotFilter(index) }} />
+               <span className="w-full truncate bg-background px-1 py-1.5 text-[10px] text-ink">{shot}</span>
+               {chosen && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}
+             </Button>;
           })}
         </div>
          <p className="mt-3 text-[11px] text-ink-2">Illustrative demo samples, not edited product photos.</p>
