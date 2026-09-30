@@ -398,7 +398,7 @@ function Index() {
             <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
           </div>
           <div className="absolute inset-y-4 right-5 w-[46%] overflow-hidden rounded-md border-2 border-brand bg-background shadow-md">
-            <img src={whitePreset.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
+             <img src={whiteFront.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
             <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">Studio look</span>
           </div>
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
