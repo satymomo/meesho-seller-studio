@@ -88,7 +88,7 @@ const presetShots: Record<string, typeof safedShaanShots> = {
 const styles = [
   { name: "Safed Shaan", note: "Crisp catalogue look", image: whiteFront.url, premium: false },
   { name: "Shaadi Shringar", note: "Festive and full of colour", image: festivePreset.url, premium: false },
-  { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlPreset.url, premium: false },
+  { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlFront.url, premium: false },
   { name: "Bazaar Bold", note: "Stand out in style", image: boldPreset.url, premium: true },
   { name: "3D Jadoo", note: "A striking display", image: threeDPreset.url, premium: true },
   { name: "Chalte Chalte", note: "On-the-move look", image: motionPreset.url, premium: true },
@@ -233,13 +233,15 @@ function Index() {
     const style = styles.find((item) => item.name === bulkStyle);
     return style ? [{ product, style }] : [];
   });
-  const shots = activePreset.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
-  const previewShots = previewPreset?.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
+  const activeShots = presetShots[activePreset.name];
+  const previewShotsList = previewPreset ? presetShots[previewPreset.name] : undefined;
+  const shots = activeShots && isKurti ? activeShots.map((shot) => shot.label) : insight.profile.shotPlan;
+  const previewShots = previewShotsList && isKurti ? previewShotsList.map((shot) => shot.label) : insight.profile.shotPlan;
   const selectedSet = selectedShots;
-  const shotImage = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? activePreset.image) : activePreset.image;
-  const previewShotImage = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? previewPreset.image) : previewPreset?.image;
-  const shotFilter = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? "none" : `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
-  const previewShotFilter = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? "none" : `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const shotImage = (index: number) => activeShots && isKurti ? (activeShots[index]?.image ?? activePreset.image) : activePreset.image;
+  const previewShotImage = (index: number) => previewShotsList && isKurti ? (previewShotsList[index]?.image ?? previewPreset?.image) : previewPreset?.image;
+  const shotFilter = (index: number) => activeShots && isKurti ? "none" : `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const previewShotFilter = (index: number) => previewShotsList && isKurti ? "none" : `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   const scrollGalleryTo = (index: number) => {
     setActiveShot(index);
     galleryRef.current?.scrollTo({
