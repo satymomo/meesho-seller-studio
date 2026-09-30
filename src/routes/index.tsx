@@ -27,7 +27,12 @@ import shoesPhoto from "@/assets/shoes.jpg";
 import handbagPhoto from "@/assets/handbag.jpg";
 import cookwarePhoto from "@/assets/cookware.jpg";
 import originalPhoto from "@/assets/original.png.asset.json";
-import whitePreset from "@/assets/white.webp.asset.json";
+import whiteFront from "@/assets/white.png.asset.json";
+import whiteSide from "@/assets/white_side.png.asset.json";
+import whiteClose from "@/assets/white_close.png.asset.json";
+import whiteBack from "@/assets/white_back.png.asset.json";
+import whiteSleeve from "@/assets/white_sleeve.png.asset.json";
+import whiteDimensions from "@/assets/white_dimn.png.asset.json";
 import festivePreset from "@/assets/festive.webp.asset.json";
 import twirlPreset from "@/assets/twirl.webp.asset.json";
 import boldPreset from "@/assets/meesho-bold.webp.asset.json";
@@ -53,9 +58,17 @@ const products: Product[] = [
   { id: "cookware-kadai", name: "Non-stick Kadai 24 cm", shortName: "Kadai", price: "₹449", image: cookwarePhoto },
 ];
 const bulkCatalogue = products.filter((product) => product.id.startsWith("kurti"));
+const safedShaanShots = [
+  { label: "Front", image: whiteFront.url },
+  { label: "Side", image: whiteSide.url },
+  { label: "Close-up", image: whiteClose.url },
+  { label: "Back", image: whiteBack.url },
+  { label: "Sleeve", image: whiteSleeve.url },
+  { label: "Dimensions", image: whiteDimensions.url },
+];
 
 const styles = [
-  { name: "Safed Shaan", note: "Crisp catalogue look", image: whitePreset.url, premium: false },
+  { name: "Safed Shaan", note: "Crisp catalogue look", image: whiteFront.url, premium: false },
   { name: "Shaadi Shringar", note: "Festive and full of colour", image: festivePreset.url, premium: false },
   { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlPreset.url, premium: false },
   { name: "Bazaar Bold", note: "Stand out in style", image: boldPreset.url, premium: true },
@@ -194,7 +207,7 @@ function Index() {
     ? styles.map((style) => ({ name: style.name, note: style.note, image: style.image, premium: style.premium, family: kurtiFamilies[style.name] ?? "Studio", filter: "" }))
     : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
   const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
-  const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whitePreset.url, premium: false, family: "Studio", filter: "" };
+  const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whiteFront.url, premium: false, family: "Studio", filter: "" };
   const previewPreset = presetList.find((preset) => preset.name === previewStyle);
   const displayFilter = activePreset.filter || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
@@ -202,11 +215,13 @@ function Index() {
     const style = styles.find((item) => item.name === bulkStyle);
     return style ? [{ product, style }] : [];
   });
-  const shots = insight.profile.shotPlan;
+  const shots = activePreset.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
+  const previewShots = previewPreset?.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
   const selectedSet = selectedShots;
-  const shotImage = (_index: number) => activePreset.image;
-  const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
-  const previewShotFilter = (index: number) => `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const shotImage = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? activePreset.image) : activePreset.image;
+  const previewShotImage = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? previewPreset.image) : previewPreset?.image;
+  const shotFilter = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? "none" : `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const previewShotFilter = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? "none" : `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   const scrollGalleryTo = (index: number) => {
     setActiveShot(index);
     galleryRef.current?.scrollTo({
@@ -215,7 +230,7 @@ function Index() {
     });
   };
   const moveGallery = (direction: number) => {
-    const next = Math.max(0, Math.min(shots.length - 1, activeShot + direction));
+    const next = Math.max(0, Math.min((previewStyle ? previewShots : shots).length - 1, activeShot + direction));
     scrollGalleryTo(next);
   };
   useEffect(() => {
@@ -383,7 +398,7 @@ function Index() {
             <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
           </div>
           <div className="absolute inset-y-4 right-5 w-[46%] overflow-hidden rounded-md border-2 border-brand bg-background shadow-md">
-            <img src={whitePreset.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
+             <img src={whiteFront.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
             <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">Studio look</span>
           </div>
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
@@ -602,17 +617,17 @@ function Index() {
             </Button>
           ))}
         </div>
-        <p className="mt-5 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
+         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan uses sample catalogue photos; other looks are illustrative previews.</p>
       </main>
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
-          <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><h2 id="catalogue-preview-title" className="truncate text-[16px] font-semibold text-ink">{previewPreset.name} catalogue</h2><p className="text-[11px] text-ink-2">{shots.length} photo styles · {previewPreset.family}</p></div><Button type="button" variant="ghost" size="icon" aria-label="Close catalogue preview" onClick={() => setPreviewStyle(null)}><X size={19} /></Button></div>
-          <div className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
-            {shots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start bg-cool"><img src={previewPreset.image} alt={`${shot} illustrative catalogue preview`} className="max-h-[56dvh] w-full object-contain" style={{ aspectRatio: "4/5", filter: previewShotFilter(index) }} /><figcaption className="absolute bottom-2 left-3 rounded-sm bg-background/95 px-2 py-1 text-[12px] font-semibold text-ink">{shot}</figcaption></figure>)}
+           <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><h2 id="catalogue-preview-title" className="truncate text-[16px] font-semibold text-ink">{previewPreset.name} catalogue</h2><p className="text-[11px] text-ink-2">{previewShots.length} photo styles · {previewPreset.family}</p></div><Button type="button" variant="ghost" size="icon" aria-label="Close catalogue preview" onClick={() => setPreviewStyle(null)}><X size={19} /></Button></div>
+           <div className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(previewShots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
+             {previewShots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start bg-cool"><img src={previewShotImage(index)} alt={`${shot} catalogue preview`} className="max-h-[56dvh] w-full object-contain" style={{ aspectRatio: "4/5", filter: previewShotFilter(index) }} /><figcaption className="absolute bottom-2 left-3 rounded-sm bg-background/95 px-2 py-1 text-[12px] font-semibold text-ink">{shot}</figcaption></figure>)}
           </div>
-          <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>{shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
+           <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${previewShots.length}`}>{previewShots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === previewShots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
             <p className="mt-1 text-center text-[11px] text-ink-2">Swipe to see the catalogue · demo samples</p>
-            <Button type="button" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(shots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
+             <Button type="button" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(previewShots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
           </div>
         </section>
       </div>}
@@ -633,7 +648,7 @@ function Index() {
         </div>
         <div className="mt-3 flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button><div className="flex items-center gap-0.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>{shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview${selectedShots.includes(index) ? ", selected" : ""}`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all duration-200 motion-reduce:transition-none ${activeShot === index ? "size-2.5 bg-brand ring-2 ring-brand-soft" : selectedShots.includes(index) ? "size-2 bg-brand/55" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button></div>
         <p className="mt-2 text-center text-[12px] font-semibold text-brand" role="status">{selectedShots.length} of {shots.length} photos selected</p>
-        <p className="mt-3 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
+         {activePreset.name !== "Safed Shaan" && <p className="mt-3 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>}
         <Button type="button" onClick={generatePhoto} disabled={selectedShots.length === 0} className="mt-6 h-12 w-full rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"><Sparkles size={17} /> Generate {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"}</Button>
       </main>
     </>
@@ -702,7 +717,7 @@ function Index() {
              </Button>;
           })}
         </div>
-         <p className="mt-3 text-[11px] text-ink-2">Illustrative demo samples, not edited product photos.</p>
+          <p className="mt-3 text-[11px] text-ink-2">{activePreset.name === "Safed Shaan" ? "Sample catalogue photos, not generated from your selected product." : "Illustrative demo samples, not edited product photos."}</p>
         <Button type="button" disabled={selectedShots.length === 0} onClick={() => setScreen("save")} className="mt-6 h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">Proceed with {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"} <ArrowRight size={17} /></Button>
          <Button type="button" variant="ghost" onClick={() => { setActiveShot(0); setScreen("shotSelection"); }} className="mt-2 w-full text-brand">Change photos</Button>
       </main>
@@ -793,7 +808,7 @@ function Index() {
           <h2 className="text-[14px] font-semibold text-ink">{currentStyle.name} catalogue</h2>
           <p className="mt-1 text-[11px] text-ink-2">One look for {selectedBulkProducts.length} selected products</p>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {inferProduct(defaultProduct.id).profile.shotPlan.map((shot) => <figure key={shot} className="overflow-hidden rounded-md border border-line"><img src={currentStyle.image} alt={`${shot} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{shot}</figcaption></figure>)}
+             {(currentStyle.name === "Safed Shaan" ? safedShaanShots : inferProduct(defaultProduct.id).profile.shotPlan.map((label) => ({ label, image: currentStyle.image }))).map(({ label, image }) => <figure key={label} className="overflow-hidden rounded-md border border-line"><img src={image} alt={`${label} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{label}</figcaption></figure>)}
           </div>
           <p className="mt-2 text-[11px] text-ink-2">Illustrative previews · not edited product photos.</p>
         </section>
