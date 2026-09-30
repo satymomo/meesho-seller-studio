@@ -642,6 +642,7 @@ function Index() {
                 variant="ghost"
                 type="button"
                 key={product.name}
+                data-agent={`product-${product.name}`}
                 aria-label={`Select ${product.name}`}
                 aria-pressed={selectedProduct.name === product.name && !uploadedImage}
                 onClick={() => {
@@ -707,6 +708,7 @@ function Index() {
         <div className="px-5 pt-2">
           <Button
             type="button"
+            data-agent="next-preset"
              onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedShots(insight.profile.shotPlan.map((_, index) => index)); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setPreviewStyle(null); setScreen("understanding"); }}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
@@ -721,7 +723,7 @@ function Index() {
     const ready = loadingStep >= 3;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/55 px-5" role="presentation">
-        <section role="dialog" aria-modal="true" aria-labelledby="product-title" className="w-full max-w-[350px] overflow-hidden rounded-md bg-background p-5 shadow-xl">
+        <section role="dialog" aria-modal="true" aria-labelledby="product-title" data-agent="understanding" className="w-full max-w-[350px] overflow-hidden rounded-md bg-background p-5 shadow-xl">
           <div className="flex items-start gap-3">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-cool">
               <img src={currentImage} alt="" className="size-full object-cover" />
@@ -752,7 +754,7 @@ function Index() {
         <div className="mb-4 flex items-center justify-between gap-2"><h2 className="text-[15px] font-semibold text-ink">Browse catalogue looks</h2><span className="shrink-0 text-[11px] text-ink-2">{presetList.filter((p) => !p.premium).length} free · {presetList.filter((p) => p.premium).length} premium</span></div>
         <div className="grid grid-cols-2 gap-3">
           {presetList.map((style) => (
-            <Button key={style.name} type="button" variant="ghost" aria-label={`Preview ${style.name} catalogue`} onClick={() => { setPreviewStyle(style.name); setActiveShot(0); }} className="h-auto min-w-0 flex-col items-stretch gap-0 overflow-hidden rounded-md border border-line p-0 text-left hover:bg-brand-soft">
+            <Button key={style.name} type="button" variant="ghost" data-agent={`preset-${style.name}`} aria-label={`Preview ${style.name} catalogue`} onClick={() => { setPreviewStyle(style.name); setActiveShot(0); }} className="h-auto min-w-0 flex-col items-stretch gap-0 overflow-hidden rounded-md border border-line p-0 text-left hover:bg-brand-soft">
               <span className="relative block aspect-[4/5] w-full overflow-hidden bg-cool">
                 <img src={style.image} alt="" className="size-full object-cover" style={{ filter: style.filter || "none" }} />
                 {style.premium && <span className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-background text-warning" aria-label="Premium preset"><Crown size={15} /></span>}
@@ -767,12 +769,12 @@ function Index() {
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
            <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><h2 id="catalogue-preview-title" className="truncate text-[16px] font-semibold text-ink">{previewPreset.name} catalogue</h2><p className="text-[11px] text-ink-2">{previewShots.length} photo styles · {previewPreset.family}</p></div><Button type="button" variant="ghost" size="icon" aria-label="Close catalogue preview" onClick={() => setPreviewStyle(null)}><X size={19} /></Button></div>
-           <div className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(previewShots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
+           <div data-agent="catalogue-gallery" className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(previewShots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
              {previewShots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start bg-cool"><img src={previewShotImage(index)} alt={`${shot} catalogue preview`} className="max-h-[56dvh] w-full object-contain" style={{ aspectRatio: "4/5", filter: previewShotFilter(index) }} /><figcaption className="absolute bottom-2 left-3 rounded-sm bg-background/95 px-2 py-1 text-[12px] font-semibold text-ink">{shot}</figcaption></figure>)}
           </div>
            <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${previewShots.length}`}>{previewShots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === previewShots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
             <p className="mt-1 text-center text-[11px] text-ink-2">Swipe to see the catalogue · demo samples</p>
-             <Button type="button" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(previewShots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
+             <Button type="button" data-agent="choose-catalogue" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(previewShots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
           </div>
         </section>
       </div>}
@@ -1151,6 +1153,7 @@ function Index() {
             </div>
           </div>
         )}
+        <AgentCursor {...cursor} />
         {screen !== "loading" && (
           <VoiceAssistant
             listening={listening}
