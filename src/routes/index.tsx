@@ -10,6 +10,7 @@ import {
   LayoutGrid,
   Crown,
   Mic,
+  MousePointer2,
   ImagePlus,
   Plus,
   Share2,
@@ -247,6 +248,23 @@ function VoiceAssistant({
   );
 }
 
+function AgentCursor({ x, y, visible, tapping, label }: { x: number; y: number; visible: boolean; tapping: boolean; label: string }) {
+  if (!visible) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed z-[80] transition-all duration-500 ease-in-out motion-reduce:transition-none"
+      style={{ left: x, top: y }}
+    >
+      {tapping && <span className="absolute -inset-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/30 animate-ping" />}
+      <span className={`relative grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-lg ring-2 ring-background transition-transform ${tapping ? "scale-90" : "scale-100"}`}>
+        <MousePointer2 size={16} />
+      </span>
+      <span className="absolute left-5 top-4 whitespace-nowrap rounded-full bg-ink px-2 py-0.5 text-[10px] font-semibold text-background shadow">{label}</span>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -288,6 +306,7 @@ function Index() {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [autoPilot, setAutoPilot] = useState(false);
   const autoTimers = useRef<number[]>([]);
+  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false, tapping: false, label: "" });
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const insight = inferProduct(uploadedImage ? null : selectedProduct.id);
