@@ -27,7 +27,6 @@ import shoesPhoto from "@/assets/shoes.jpg";
 import handbagPhoto from "@/assets/handbag.jpg";
 import cookwarePhoto from "@/assets/cookware.jpg";
 import originalPhoto from "@/assets/original.png.asset.json";
-import whitePreset from "@/assets/white.webp.asset.json";
 import whiteFront from "@/assets/white.png.asset.json";
 import whiteSide from "@/assets/white_side.png.asset.json";
 import whiteClose from "@/assets/white_close.png.asset.json";
@@ -618,7 +617,7 @@ function Index() {
             </Button>
           ))}
         </div>
-        <p className="mt-5 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
+         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan uses sample catalogue photos; other looks are illustrative previews.</p>
       </main>
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
