@@ -286,6 +286,8 @@ function Index() {
   const [activeShot, setActiveShot] = useState(0);
   const [previewStyle, setPreviewStyle] = useState<string | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const [autoPilot, setAutoPilot] = useState(false);
+  const autoTimers = useRef<number[]>([]);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
   const insight = inferProduct(uploadedImage ? null : selectedProduct.id);
@@ -331,10 +333,31 @@ function Index() {
   }, [screen]);
 
   useEffect(() => {
-    if (screen !== "understanding") return;
+    if (screen !== "understanding" || autoPilot) return;
     const timer = window.setTimeout(() => setScreen("creation"), 3000);
     return () => window.clearTimeout(timer);
-  }, [screen]);
+  }, [screen, autoPilot]);
+
+  useEffect(() => () => autoTimers.current.forEach((t) => window.clearTimeout(t)), []);
+
+  // Hard-coded demo: "Meri blue kurti ki festive photo bana do" → blue kurti → Shaadi Shringar → photo selection.
+  function runVoiceFlow() {
+    autoTimers.current.forEach((t) => window.clearTimeout(t));
+    autoTimers.current = [];
+    const festive = "Shaadi Shringar";
+    const shotsCount = (presetShots[festive] ?? []).length || 6;
+    const steps: [number, () => void][] = [
+      [0, () => { setAutoPilot(true); setVoiceOpen(false); showToast("Samajh gaya! Blue kurti ki festive photos bana raha hoon"); setUploadedImage(null); setUploadedName(""); setPreviewStyle(null); setScreen("studio"); }],
+      [700, () => setSelectedProduct(defaultProduct)],
+      [1500, () => { setLoadingStep(0); setActiveShot(0); setScreen("understanding"); }],
+      [2900, () => setScreen("creation")],
+      [3800, () => { setPreviewStyle(festive); setActiveShot(0); }],
+      [4500, () => setActiveShot(1)],
+      [5100, () => setActiveShot(2)],
+      [5800, () => { setSelectedStyle(festive); setSelectedShots(Array.from({ length: shotsCount }, (_, i) => i)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); setAutoPilot(false); }],
+    ];
+    autoTimers.current = steps.map(([delay, fn]) => window.setTimeout(fn, delay));
+  }
 
   useEffect(() => {
     setVoiceOpen(false);
@@ -1101,8 +1124,9 @@ function Index() {
             open={voiceOpen}
             onToggle={() => setVoiceOpen((value) => !value)}
             onListen={() => {
-              setListening((value) => !value);
-              if (!listening) showToast("Voice note ready for later");
+              if (!listening) { setListening(true); return; }
+              setListening(false);
+              runVoiceFlow();
             }}
           />
         )}
