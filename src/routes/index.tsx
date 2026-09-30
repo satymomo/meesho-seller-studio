@@ -450,7 +450,7 @@ function Index() {
               <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
               <div className="text-[11px] text-ink-2">Choose a product photo</div>
             </div>
-             <span className="text-[11px] font-semibold text-brand">1 / 5</span>
+              <span className="text-[11px] font-semibold text-brand">1 / 6</span>
           </div>
           <div className="mt-4 -mx-5 bg-cool">
             <img
@@ -586,103 +586,55 @@ function Index() {
 
   const renderCreation = () => (
     <>
-      {renderHeader("Select preset", "Step 2 of 5", () => setScreen("studio"))}
-      <main className="space-y-3 pb-28">
-        <section className="bg-background pt-4">
-          <div className="flex items-center gap-3 px-5 pb-3">
-            <div className="grid size-10 place-items-center rounded-full bg-brand-soft text-brand">
-              <ShoppingBag size={18} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-semibold text-ink">Sharma Fashion Store</div>
-              <div className="truncate text-[11px] text-ink-2">{uploadedName || selectedProduct.name} · {insight.profile.subcategory}</div>
-            </div>
-             <span className="text-[11px] text-ink-2">{shots.length} photos</span>
-           </div>
-           <div className="border-t border-line px-5 py-3">
-              <div className="flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">{activePreset.name} catalogue</h2><span className="text-[11px] text-ink-2">{activeShot + 1} / {shots.length}</span></div>
-              <p className="mt-1 text-[12px] text-ink-2">Swipe through and tick the photos you want.</p>
-              <div ref={galleryRef} onScroll={(event) => {
-                const width = event.currentTarget.clientWidth;
-                if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width))));
-               }} className="mt-3 flex snap-x snap-mandatory overflow-x-auto rounded-md bg-cool scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto">
-                {shots.map((shot, index) => (
-                  <figure key={shot} className="relative w-full shrink-0 snap-start">
-                    <img src={shotImage(index)} alt={`${shot} illustrative preview`} className="aspect-[4/5] w-full object-contain" style={{ filter: shotFilter(index) }} />
-                    <figcaption className="absolute bottom-3 left-3 rounded-sm bg-background/95 px-2.5 py-1.5 text-[12px] font-semibold text-ink">{shot}</figcaption>
-                     <Button type="button" variant="ghost" aria-label={`${selectedShots.includes(index) ? "Remove" : "Select"} ${shot} photo`} aria-pressed={selectedShots.includes(index)} onClick={() => setSelectedShots((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index].sort((a, b) => a - b))} className={`absolute right-3 top-3 flex h-10 items-center gap-1.5 rounded-md border px-3 text-[12px] font-semibold shadow-sm transition-colors ${selectedShots.includes(index) ? "border-brand bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground" : "border-line bg-background text-ink hover:bg-background hover:text-ink"}`}>
-                       <span className={`grid size-5 place-items-center rounded-sm border ${selectedShots.includes(index) ? "border-primary-foreground bg-primary-foreground text-brand" : "border-ink-2 bg-background"}`}>{selectedShots.includes(index) && <Check size={14} />}</span>
-                       {selectedShots.includes(index) ? "Selected" : "Select"}
-                     </Button>
-                  </figure>
-                ))}
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button>
-                 <div className="flex items-center gap-0.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>
-                   {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview${selectedShots.includes(index) ? ", selected" : ""}`} aria-current={activeShot === index ? "true" : undefined} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0 hover:bg-brand-soft"><span className={`block rounded-full transition-all duration-200 motion-reduce:transition-none ${activeShot === index ? "size-2.5 bg-brand ring-2 ring-brand-soft" : selectedShots.includes(index) ? "size-2 bg-brand/55" : "size-1.5 bg-line"}`} /></Button>)}
-                </div>
-                <Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button>
-              </div>
-               <p className="mt-1 text-center text-[11px] font-medium text-brand" role="status">{selectedShots.length} of {shots.length} photos selected</p>
-              <p className="mt-2 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
-           </div>
-         </section>
-        <section className="bg-background px-5 py-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[14px] font-semibold text-ink">Choose a preset</h2>
-            <span className="text-[11px] text-ink-2">{presetList.filter((p) => !p.premium).length} free · {presetList.filter((p) => p.premium).length} premium</span>
-          </div>
-          <div className="grid grid-cols-3 gap-x-2.5 gap-y-4">
-            {presetList.map((style) => (
-              <Button
-                variant="ghost"
-                type="button"
-                key={style.name}
-                  onClick={() => { setSelectedStyle(style.name); setSelectedShots(shots.map((_, index) => index)); setActiveShot(0); galleryRef.current?.scrollTo({ left: 0, behavior: "instant" }); }}
-                aria-pressed={activePreset.name === style.name}
-                className="h-auto min-w-0 flex-col gap-0 p-0 text-center"
-              >
-                <span
-                  className={`relative block aspect-square w-full overflow-hidden rounded-md bg-cool ring-2 ${activePreset.name === style.name ? "ring-brand" : "ring-transparent"}`}
-                >
-                  <img src={style.image} alt="" width={1920} height={1920} className="size-full object-cover" style={{ filter: style.filter || "none" }} />
-                  {style.premium && (
-                    <span className="absolute left-1 top-1 grid size-6 place-items-center rounded-full bg-glass text-warning" title="Premium preset" aria-label="Premium preset">
-                      <Crown size={13} />
-                    </span>
-                  )}
-                  {insight.recommended.includes(style.name) && (
-                    <span className="absolute bottom-1 left-1 rounded-sm bg-warning px-1 py-px text-[8px] font-bold uppercase text-ink">For you</span>
-                  )}
-                  {activePreset.name === style.name && (
-                    <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground">
-                      <Check size={12} />
-                    </span>
-                  )}
-                </span>
-                <span
-                  className={`mt-2 block w-full whitespace-normal text-[10px] leading-tight ${activePreset.name === style.name ? "font-semibold text-brand" : "text-ink"}`}
-                >
-                  {style.name}
-                </span>
-                <span className="mt-0.5 text-[10px] text-ink-2">{style.family} · {style.premium ? "Premium" : "Free"}</span>
-              </Button>
-            ))}
-          </div>
-
-        </section>
-        <div className="px-5 pt-2">
-          <Button
-            type="button"
-            onClick={generatePhoto}
-            disabled={selectedShots.length === 0}
-            className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
-          >
-              <Sparkles size={17} /> Generate {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"}
-          </Button>
-            <p className="mt-3 text-center text-[11px] text-ink-2">Demo · illustrative sample set only</p>
+      {renderHeader("Choose a preset", "Step 2 of 6", () => setScreen("studio"))}
+      <main className="bg-background px-5 pb-28 pt-4">
+        <p className="mb-4 text-[13px] text-ink-2">{uploadedName || selectedProduct.name} · {insight.profile.subcategory}</p>
+        <div className="mb-4 flex items-center justify-between gap-2"><h2 className="text-[15px] font-semibold text-ink">Browse catalogue looks</h2><span className="shrink-0 text-[11px] text-ink-2">{presetList.filter((p) => !p.premium).length} free · {presetList.filter((p) => p.premium).length} premium</span></div>
+        <div className="grid grid-cols-2 gap-3">
+          {presetList.map((style) => (
+            <Button key={style.name} type="button" variant="ghost" aria-label={`Preview ${style.name} catalogue`} onClick={() => { setPreviewStyle(style.name); setActiveShot(0); }} className="h-auto min-w-0 flex-col items-stretch gap-0 overflow-hidden rounded-md border border-line p-0 text-left hover:bg-brand-soft">
+              <span className="relative block aspect-[4/5] w-full overflow-hidden bg-cool">
+                <img src={style.image} alt="" className="size-full object-cover" style={{ filter: style.filter || "none" }} />
+                {style.premium && <span className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-background text-warning" aria-label="Premium preset"><Crown size={15} /></span>}
+                {insight.recommended.includes(style.name) && <span className="absolute bottom-2 left-2 rounded-sm bg-warning px-1.5 py-0.5 text-[10px] font-semibold text-ink">For you</span>}
+              </span>
+              <span className="block w-full px-2.5 py-2"><span className="block text-[12px] font-semibold text-ink">{style.name}</span><span className="block text-[11px] text-ink-2">{style.family} · {style.premium ? "Premium" : "Free"}</span></span>
+            </Button>
+          ))}
         </div>
+        <p className="mt-5 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
+      </main>
+      {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
+        <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
+          <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><h2 id="catalogue-preview-title" className="truncate text-[16px] font-semibold text-ink">{previewPreset.name} catalogue</h2><p className="text-[11px] text-ink-2">{shots.length} photo styles · {previewPreset.family}</p></div><Button type="button" variant="ghost" size="icon" aria-label="Close catalogue preview" onClick={() => setPreviewStyle(null)}><X size={19} /></Button></div>
+          <div className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto" onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} ref={galleryRef}>
+            {shots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start bg-cool"><img src={previewPreset.image} alt={`${shot} illustrative catalogue preview`} className="max-h-[56dvh] w-full object-contain" style={{ aspectRatio: "4/5", filter: previewShotFilter(index) }} /><figcaption className="absolute bottom-2 left-3 rounded-sm bg-background/95 px-2 py-1 text-[12px] font-semibold text-ink">{shot}</figcaption></figure>)}
+          </div>
+          <div className="shrink-0 px-4 pb-4 pt-3"><div className="flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-9 rounded-full border border-line"><ChevronLeft size={18} /></Button><div className="flex gap-1" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>{shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all ${activeShot === index ? "size-2.5 bg-brand" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-9 rounded-full border border-line"><ChevronRight size={18} /></Button></div>
+            <p className="mt-1 text-center text-[11px] text-ink-2">Swipe to see the catalogue · demo samples</p>
+            <Button type="button" onClick={() => { setSelectedStyle(previewPreset.name); setSelectedShots(shots.map((_, index) => index)); setActiveShot(0); setPreviewStyle(null); setScreen("shotSelection"); }} className="mt-3 h-12 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">Choose this catalogue <ArrowRight size={17} /></Button>
+          </div>
+        </section>
+      </div>}
+    </>
+  );
+
+  const renderShotSelection = () => (
+    <>
+      {renderHeader("Choose your photos", "Step 3 of 6", () => { setActiveShot(0); setScreen("creation"); })}
+      <main className="bg-background px-5 pb-28 pt-4">
+        <div className="mb-3 flex items-center justify-between gap-2"><div className="min-w-0"><h2 className="truncate text-[15px] font-semibold text-ink">{activePreset.name} catalogue</h2><p className="text-[12px] text-ink-2">Tick the photos you want.</p></div><span className="shrink-0 text-[11px] text-ink-2">{activeShot + 1} / {shots.length}</span></div>
+        <div ref={galleryRef} onScroll={(event) => { const width = event.currentTarget.clientWidth; if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width)))); }} className="flex snap-x snap-mandatory overflow-x-auto rounded-md bg-cool scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto">
+          {shots.map((shot, index) => <figure key={shot} className="relative w-full shrink-0 snap-start">
+            <img src={shotImage(index)} alt={`${shot} illustrative preview`} className="aspect-[4/5] w-full object-contain" style={{ filter: shotFilter(index) }} />
+            <figcaption className="absolute bottom-3 left-3 rounded-sm bg-background/95 px-2.5 py-1.5 text-[12px] font-semibold text-ink">{shot}</figcaption>
+            <Button type="button" variant="ghost" aria-label={`${selectedShots.includes(index) ? "Remove" : "Select"} ${shot} photo`} aria-pressed={selectedShots.includes(index)} onClick={() => setSelectedShots((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index].sort((a, b) => a - b))} className={`absolute right-3 top-3 flex h-10 items-center gap-1.5 rounded-md border px-3 text-[12px] font-semibold shadow-sm transition-colors ${selectedShots.includes(index) ? "border-brand bg-brand text-primary-foreground hover:bg-brand/90 hover:text-primary-foreground" : "border-line bg-background text-ink hover:bg-background hover:text-ink"}`}><span className={`grid size-5 place-items-center rounded-sm border ${selectedShots.includes(index) ? "border-primary-foreground bg-primary-foreground text-brand" : "border-ink-2 bg-background"}`}>{selectedShots.includes(index) && <Check size={14} />}</span>{selectedShots.includes(index) ? "Selected" : "Select"}</Button>
+          </figure>)}
+        </div>
+        <div className="mt-3 flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button><div className="flex items-center gap-0.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>{shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview${selectedShots.includes(index) ? ", selected" : ""}`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all duration-200 motion-reduce:transition-none ${activeShot === index ? "size-2.5 bg-brand ring-2 ring-brand-soft" : selectedShots.includes(index) ? "size-2 bg-brand/55" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button></div>
+        <p className="mt-2 text-center text-[12px] font-semibold text-brand" role="status">{selectedShots.length} of {shots.length} photos selected</p>
+        <p className="mt-3 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
+        <Button type="button" onClick={generatePhoto} disabled={selectedShots.length === 0} className="mt-6 h-12 w-full rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"><Sparkles size={17} /> Generate {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"}</Button>
       </main>
     </>
   );
@@ -692,7 +644,7 @@ function Index() {
     return (
       <main className="flex min-h-screen flex-col justify-center px-5 pb-20">
         <div className="mx-auto w-full max-w-[350px] text-center">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-brand">Step 3 of 5</div>
+          <div className="text-[11px] font-semibold uppercase tracking-widest text-brand">Step 4 of 6</div>
           <div className="mx-auto mt-6 grid size-20 place-items-center rounded-[24px] bg-brand-soft text-brand">
             <WandSparkles size={34} />
           </div>
@@ -727,7 +679,7 @@ function Index() {
 
   const renderExport = () => (
     <>
-       {renderHeader("Review catalogue", "Step 4 of 5", () => { setActiveShot(0); setScreen("creation"); })}
+       {renderHeader("Review catalogue", "Step 5 of 6", () => { setActiveShot(0); setScreen("shotSelection"); })}
       <main className="px-5 pb-28">
           <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[13px] font-semibold text-ink">{activePreset.name}</p><p className="text-[12px] text-ink-2">Your chosen photos, beside the original.</p></div><span className="shrink-0 rounded-sm bg-brand-soft px-2 py-1 text-[11px] font-semibold text-brand">{selectedShots.length} selected</span></div>
         <div className="grid grid-cols-2 gap-2">
@@ -752,14 +704,14 @@ function Index() {
         </div>
          <p className="mt-3 text-[11px] text-ink-2">Illustrative demo samples, not edited product photos.</p>
         <Button type="button" disabled={selectedShots.length === 0} onClick={() => setScreen("save")} className="mt-6 h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">Proceed with {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"} <ArrowRight size={17} /></Button>
-         <Button type="button" variant="ghost" onClick={() => { setActiveShot(0); setScreen("creation"); }} className="mt-2 w-full text-brand">Change photos or style</Button>
+         <Button type="button" variant="ghost" onClick={() => { setActiveShot(0); setScreen("shotSelection"); }} className="mt-2 w-full text-brand">Change photos</Button>
       </main>
     </>
   );
 
   const renderSave = () => (
     <>
-      {renderHeader("Use your photos", "Step 5 of 5", () => setScreen("export"))}
+      {renderHeader("Use your photos", "Step 6 of 6", () => setScreen("export"))}
       <main className="px-5 pb-28">
          <p className="text-[13px] text-ink-2">{selectedShots.length} selected from {activePreset.name} · demo samples</p>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
@@ -1016,6 +968,7 @@ function Index() {
         {(screen === "studio" || screen === "understanding") && renderStudio()}
         {screen === "understanding" && renderUnderstanding()}
         {screen === "creation" && renderCreation()}
+        {screen === "shotSelection" && renderShotSelection()}
         {screen === "loading" && renderLoading()}
         {screen === "export" && renderExport()}
         {screen === "save" && renderSave()}

@@ -32,3 +32,4 @@
 - [x] Replace preset grid previews with a swipeable catalogue gallery and remove similar looks.
 - [x] Make review selection clearer without changing the final save screen.
 - [x] Select catalogue shots directly within the preset gallery, carry that selection through review, and improve swipe feedback.
+- [x] Separate preset browsing into a catalogue-preview pop-up and a dedicated photo-selection page before generation.
