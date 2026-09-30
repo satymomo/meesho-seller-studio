@@ -204,10 +204,16 @@ function Index() {
   const selectedSet = selectedShots;
   const shotImage = (_index: number) => activePreset.image;
   const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const scrollGalleryTo = (index: number) => {
+    setActiveShot(index);
+    galleryRef.current?.scrollTo({
+      left: index * galleryRef.current.clientWidth,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
+  };
   const moveGallery = (direction: number) => {
     const next = Math.max(0, Math.min(shots.length - 1, activeShot + direction));
-    setActiveShot(next);
-    galleryRef.current?.scrollTo({ left: next * galleryRef.current.clientWidth, behavior: "instant" });
+    scrollGalleryTo(next);
   };
   useEffect(() => {
     if (screen !== "loading" && screen !== "understanding") return;
@@ -229,8 +235,7 @@ function Index() {
 
   const startGeneration = async () => {
     setLoadingStep(0);
-    setSelectedShots(shots.map((_, index) => index));
-    setActiveShot(0);
+    setActiveShot(selectedShots[0] ?? 0);
     setScreen("loading");
     await new Promise<void>((resolve) => window.setTimeout(resolve, 1900));
     setScreen("export");
@@ -539,7 +544,7 @@ function Index() {
         <div className="px-5 pt-2">
           <Button
             type="button"
-             onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
+             onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedShots(insight.profile.shotPlan.map((_, index) => index)); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
             Next: choose a preset <ArrowRight size={18} />
@@ -593,24 +598,30 @@ function Index() {
            </div>
            <div className="border-t border-line px-5 py-3">
               <div className="flex items-center justify-between"><h2 className="text-[14px] font-semibold text-ink">{activePreset.name} catalogue</h2><span className="text-[11px] text-ink-2">{activeShot + 1} / {shots.length}</span></div>
+              <p className="mt-1 text-[12px] text-ink-2">Swipe through and tick the photos you want.</p>
               <div ref={galleryRef} onScroll={(event) => {
                 const width = event.currentTarget.clientWidth;
                 if (width) setActiveShot(Math.min(shots.length - 1, Math.max(0, Math.round(event.currentTarget.scrollLeft / width))));
-              }} className="mt-3 flex snap-x snap-mandatory overflow-x-auto rounded-md bg-cool [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+               }} className="mt-3 flex snap-x snap-mandatory overflow-x-auto rounded-md bg-cool scroll-smooth touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden motion-reduce:scroll-auto">
                 {shots.map((shot, index) => (
                   <figure key={shot} className="relative w-full shrink-0 snap-start">
                     <img src={shotImage(index)} alt={`${shot} illustrative preview`} className="aspect-[4/5] w-full object-contain" style={{ filter: shotFilter(index) }} />
                     <figcaption className="absolute bottom-3 left-3 rounded-sm bg-background/95 px-2.5 py-1.5 text-[12px] font-semibold text-ink">{shot}</figcaption>
+                     <Button type="button" variant="ghost" aria-label={`${selectedShots.includes(index) ? "Remove" : "Select"} ${shot} photo`} aria-pressed={selectedShots.includes(index)} onClick={() => setSelectedShots((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index].sort((a, b) => a - b))} className={`absolute right-3 top-3 flex h-10 items-center gap-1.5 rounded-md border px-3 text-[12px] font-semibold shadow-sm transition-colors ${selectedShots.includes(index) ? "border-brand bg-brand text-primary-foreground hover:bg-brand/90" : "border-line bg-background text-ink hover:bg-brand-soft"}`}>
+                       <span className={`grid size-5 place-items-center rounded-sm border ${selectedShots.includes(index) ? "border-primary-foreground bg-primary-foreground text-brand" : "border-ink-2 bg-background"}`}>{selectedShots.includes(index) && <Check size={14} />}</span>
+                       {selectedShots.includes(index) ? "Selected" : "Select"}
+                     </Button>
                   </figure>
                 ))}
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button>
-                <div className="flex gap-1.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>
-                  {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} aria-current={activeShot === index ? "true" : undefined} onClick={() => { setActiveShot(index); galleryRef.current?.scrollTo({ left: index * galleryRef.current.clientWidth, behavior: "instant" }); }} className={`size-2 rounded-full p-0 ${activeShot === index ? "bg-brand" : "bg-line"}`} />)}
+                 <div className="flex items-center gap-0.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>
+                   {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview${selectedShots.includes(index) ? ", selected" : ""}`} aria-current={activeShot === index ? "true" : undefined} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0 hover:bg-brand-soft"><span className={`block rounded-full transition-all duration-200 motion-reduce:transition-none ${activeShot === index ? "size-2.5 bg-brand ring-2 ring-brand-soft" : selectedShots.includes(index) ? "size-2 bg-brand/55" : "size-1.5 bg-line"}`} /></Button>)}
                 </div>
                 <Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button>
               </div>
+               <p className="mt-1 text-center text-[11px] font-medium text-brand" role="status">{selectedShots.length} of {shots.length} photos selected</p>
               <p className="mt-2 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>
            </div>
          </section>
@@ -625,7 +636,7 @@ function Index() {
                 variant="ghost"
                 type="button"
                 key={style.name}
-                 onClick={() => { setSelectedStyle(style.name); setActiveShot(0); galleryRef.current?.scrollTo({ left: 0, behavior: "instant" }); }}
+                  onClick={() => { setSelectedStyle(style.name); setSelectedShots(shots.map((_, index) => index)); setActiveShot(0); galleryRef.current?.scrollTo({ left: 0, behavior: "instant" }); }}
                 aria-pressed={activePreset.name === style.name}
                 className="h-auto min-w-0 flex-col gap-0 p-0 text-center"
               >
@@ -662,9 +673,10 @@ function Index() {
           <Button
             type="button"
             onClick={generatePhoto}
+            disabled={selectedShots.length === 0}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
-             <Sparkles size={17} /> Generate catalogue
+              <Sparkles size={17} /> Generate {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"}
           </Button>
             <p className="mt-3 text-center text-[11px] text-ink-2">Demo · illustrative sample set only</p>
         </div>
@@ -712,9 +724,9 @@ function Index() {
 
   const renderExport = () => (
     <>
-      {renderHeader("Review catalogue", "Step 4 of 5", () => setScreen("creation"))}
+       {renderHeader("Review catalogue", "Step 4 of 5", () => { setActiveShot(0); setScreen("creation"); })}
       <main className="px-5 pb-28">
-         <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[13px] font-semibold text-ink">{activePreset.name}</p><p className="text-[12px] text-ink-2">Tap a photo to compare it, then choose which to keep.</p></div><span className="shrink-0 rounded-sm bg-brand-soft px-2 py-1 text-[11px] font-semibold text-brand">{selectedShots.length}/{shots.length} kept</span></div>
+          <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-[13px] font-semibold text-ink">{activePreset.name}</p><p className="text-[12px] text-ink-2">Your chosen photos, beside the original.</p></div><span className="shrink-0 rounded-sm bg-brand-soft px-2 py-1 text-[11px] font-semibold text-brand">{selectedShots.length} selected</span></div>
         <div className="grid grid-cols-2 gap-2">
           <figure className="overflow-hidden rounded-md border border-line bg-background">
             <img src={currentImage} alt="Original product" className="aspect-[3/4] w-full bg-cool object-contain" />
@@ -725,20 +737,19 @@ function Index() {
             <figcaption className="px-2 py-2 text-[11px] text-ink">{shots[activeShot]} preview</figcaption>
           </figure>
         </div>
-         <div className="mt-4 flex items-center justify-between gap-2 border-b border-line pb-2"><h2 className="text-[13px] font-semibold text-ink">{shots[activeShot]}</h2><Button type="button" variant="ghost" aria-pressed={selectedShots.includes(activeShot)} onClick={() => setSelectedShots((current) => current.includes(activeShot) ? current.filter((item) => item !== activeShot) : [...current, activeShot].sort())} className={`h-9 rounded-md border px-3 text-[12px] ${selectedShots.includes(activeShot) ? "border-brand bg-brand-soft text-brand" : "border-line bg-background text-ink"}`}>{selectedShots.includes(activeShot) ? <><Check size={15} /> Keeping photo</> : "Keep this photo"}</Button></div>
+          <h2 className="mt-4 border-b border-line pb-2 text-[13px] font-semibold text-ink">{shots[activeShot]}</h2>
          <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-          {shots.map((shot, index) => {
-            const chosen = selectedShots.includes(index);
-             return <Button key={shot} type="button" variant="ghost" onClick={() => setActiveShot(index)} aria-label={`Preview ${shot}${chosen ? ", kept" : ", not kept"}`} aria-current={activeShot === index ? "true" : undefined} className={`relative h-auto w-20 shrink-0 flex-col gap-0 overflow-hidden rounded-md border p-0 ${activeShot === index ? "border-brand ring-1 ring-brand" : "border-line"}`}>
+           {selectedShots.map((index) => {
+             const shot = shots[index];
+              return <Button key={index} type="button" variant="ghost" onClick={() => setActiveShot(index)} aria-label={`Preview ${shot}`} aria-current={activeShot === index ? "true" : undefined} className={`relative h-auto w-20 shrink-0 flex-col gap-0 overflow-hidden rounded-md border p-0 ${activeShot === index ? "border-brand ring-1 ring-brand" : "border-line"}`}>
                <img src={shotImage(index)} alt="" className="aspect-square w-full object-cover" style={{ filter: shotFilter(index) }} />
                <span className="w-full truncate bg-background px-1 py-1.5 text-[10px] text-ink">{shot}</span>
-               {chosen && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}
              </Button>;
           })}
         </div>
          <p className="mt-3 text-[11px] text-ink-2">Illustrative demo samples, not edited product photos.</p>
         <Button type="button" disabled={selectedShots.length === 0} onClick={() => setScreen("save")} className="mt-6 h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">Proceed with {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"} <ArrowRight size={17} /></Button>
-        <Button type="button" variant="ghost" onClick={() => setScreen("creation")} className="mt-2 w-full text-brand">Try another style</Button>
+         <Button type="button" variant="ghost" onClick={() => { setActiveShot(0); setScreen("creation"); }} className="mt-2 w-full text-brand">Change photos or style</Button>
       </main>
     </>
   );
