@@ -37,3 +37,4 @@
 - [x] Replace Ghoomar Glow's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Replace Bazaar Bold's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Replace Shaadi Shringar's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
+- [x] Replace Chalte Chalte's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.

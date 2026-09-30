@@ -52,7 +52,12 @@ import boldBack from "@/assets/meesho-bold_back.png.asset.json";
 import boldSleeve from "@/assets/meesho-bold_sleeve.png.asset.json";
 import boldDimensions from "@/assets/meesho-bold_dimn.png.asset.json";
 import threeDPreset from "@/assets/3D.webp.asset.json";
-import motionPreset from "@/assets/motion.webp.asset.json";
+import motionFront from "@/assets/motion.png.asset.json";
+import motionSide from "@/assets/motion_side.png.asset.json";
+import motionClose from "@/assets/motion_close.png.asset.json";
+import motionBack from "@/assets/motion_back.png.asset.json";
+import motionSleeve from "@/assets/motion_sleeve.png.asset.json";
+import motionDimensions from "@/assets/motion_dimn.png.asset.json";
 import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
 import { inferProduct } from "@/lib/category-inference";
@@ -105,11 +110,20 @@ const shaadiShots = [
   { label: "Sleeve", image: festiveSleeve.url },
   { label: "Dimensions", image: festiveDimensions.url },
 ];
+const chalteChalteShots = [
+  { label: "Front", image: motionFront.url },
+  { label: "Side", image: motionSide.url },
+  { label: "Close-up", image: motionClose.url },
+  { label: "Back", image: motionBack.url },
+  { label: "Sleeve", image: motionSleeve.url },
+  { label: "Dimensions", image: motionDimensions.url },
+];
 const presetShots: Record<string, typeof safedShaanShots> = {
   "Safed Shaan": safedShaanShots,
   "Shaadi Shringar": shaadiShots,
   "Ghoomar Glow": ghoomarShots,
   "Bazaar Bold": bazaarShots,
+  "Chalte Chalte": chalteChalteShots,
 };
 
 const styles = [
@@ -118,7 +132,7 @@ const styles = [
   { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlFront.url, premium: false },
   { name: "Bazaar Bold", note: "Stand out in style", image: boldFront.url, premium: true },
   { name: "3D Jadoo", note: "A striking display", image: threeDPreset.url, premium: true },
-  { name: "Chalte Chalte", note: "On-the-move look", image: motionPreset.url, premium: true },
+  { name: "Chalte Chalte", note: "On-the-move look", image: motionFront.url, premium: true },
   { name: "Kaali Raat", note: "Dramatic dark look", image: blackPreset.url, premium: true },
 ] as const;
 const kurtiFamilies: Record<string, string> = {
@@ -664,7 +678,7 @@ function Index() {
             </Button>
           ))}
         </div>
-         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan, Shaadi Shringar, Ghoomar Glow and Bazaar Bold use sample catalogue photos; other looks are illustrative previews.</p>
+         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan, Shaadi Shringar, Ghoomar Glow, Bazaar Bold and Chalte Chalte use sample catalogue photos; other looks are illustrative previews.</p>
       </main>
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
