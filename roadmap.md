@@ -31,3 +31,4 @@
 - [x] Auto-dismiss product details after three seconds and show only SKU and attributes.
 - [x] Replace preset grid previews with a swipeable catalogue gallery and remove similar looks.
 - [x] Make review selection clearer without changing the final save screen.
+- [x] Select catalogue shots directly within the preset gallery, carry that selection through review, and improve swipe feedback.
