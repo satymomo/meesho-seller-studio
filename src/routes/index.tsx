@@ -35,6 +35,12 @@ import whiteSleeve from "@/assets/white_sleeve.png.asset.json";
 import whiteDimensions from "@/assets/white_dimn.png.asset.json";
 import festivePreset from "@/assets/festive.webp.asset.json";
 import twirlPreset from "@/assets/twirl.webp.asset.json";
+import twirlFront from "@/assets/twirl.png.asset.json";
+import twirlSide from "@/assets/twirl_side.png.asset.json";
+import twirlClose from "@/assets/twirl_close.png.asset.json";
+import twirlBack from "@/assets/twirl_back.png.asset.json";
+import twirlSleeve from "@/assets/twirl_sleeve.png.asset.json";
+import twirlDimensions from "@/assets/twirl_dimn.png.asset.json";
 import boldPreset from "@/assets/meesho-bold.webp.asset.json";
 import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
@@ -66,6 +72,18 @@ const safedShaanShots = [
   { label: "Sleeve", image: whiteSleeve.url },
   { label: "Dimensions", image: whiteDimensions.url },
 ];
+const ghoomarShots = [
+  { label: "Front", image: twirlFront.url },
+  { label: "Side", image: twirlSide.url },
+  { label: "Close-up", image: twirlClose.url },
+  { label: "Back", image: twirlBack.url },
+  { label: "Sleeve", image: twirlSleeve.url },
+  { label: "Dimensions", image: twirlDimensions.url },
+];
+const presetShots: Record<string, typeof safedShaanShots> = {
+  "Safed Shaan": safedShaanShots,
+  "Ghoomar Glow": ghoomarShots,
+};
 
 const styles = [
   { name: "Safed Shaan", note: "Crisp catalogue look", image: whiteFront.url, premium: false },
