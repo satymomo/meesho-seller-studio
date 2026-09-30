@@ -37,7 +37,7 @@ import blackPreset from "@/assets/black.webp.asset.json";
 import { Button } from "@/components/ui/button";
 import { inferProduct } from "@/lib/category-inference";
 
-type Screen = "home" | "studio" | "understanding" | "creation" | "loading" | "export" | "save" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
+type Screen = "home" | "studio" | "understanding" | "creation" | "shotSelection" | "loading" | "export" | "save" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
 type Preset = { name: string; note: string; image: string; premium: boolean; family: string; filter: string };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
@@ -184,6 +184,7 @@ function Index() {
   const [upgradeStyle, setUpgradeStyle] = useState("");
   const [selectedShots, setSelectedShots] = useState<number[]>([]);
   const [activeShot, setActiveShot] = useState(0);
+  const [previewStyle, setPreviewStyle] = useState<string | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   const currentImage = uploadedImage ?? selectedProduct.image;
@@ -194,6 +195,7 @@ function Index() {
     : insight.profile.presets.map((preset) => ({ ...preset, image: currentImage }));
   const presetList = [...basePresets].sort((a, b) => Number(insight.recommended.includes(b.name)) - Number(insight.recommended.includes(a.name)));
   const activePreset = presetList.find((preset) => preset.name === selectedStyle) ?? presetList[0] ?? { name: "Safed Shaan", note: "Catalogue look", image: whitePreset.url, premium: false, family: "Studio", filter: "" };
+  const previewPreset = presetList.find((preset) => preset.name === previewStyle);
   const displayFilter = activePreset.filter || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product) => {
@@ -204,6 +206,7 @@ function Index() {
   const selectedSet = selectedShots;
   const shotImage = (_index: number) => activePreset.image;
   const shotFilter = (index: number) => `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const previewShotFilter = (index: number) => `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   const scrollGalleryTo = (index: number) => {
     setActiveShot(index);
     galleryRef.current?.scrollTo({
@@ -436,7 +439,7 @@ function Index() {
 
   const renderStudio = () => (
     <>
-      {renderHeader("Select a photo", "Step 1 of 5", () => setScreen("home"))}
+      {renderHeader("Select a photo", "Step 1 of 6", () => setScreen("home"))}
       <main className="space-y-3 pb-28">
         <div className="bg-background px-5 py-4">
           <div className="flex items-center gap-3">
@@ -544,7 +547,7 @@ function Index() {
         <div className="px-5 pt-2">
           <Button
             type="button"
-             onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedShots(insight.profile.shotPlan.map((_, index) => index)); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setScreen("understanding"); }}
+             onClick={() => { setLoadingStep(0); setActiveShot(0); setSelectedShots(insight.profile.shotPlan.map((_, index) => index)); setSelectedStyle(insight.recommended[0] ?? "Safed Shaan"); setPreviewStyle(null); setScreen("understanding"); }}
             className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"
           >
             Next: choose a preset <ArrowRight size={18} />
