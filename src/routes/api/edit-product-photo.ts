@@ -8,7 +8,7 @@ const looks: Record<string, string> = {
   "Bazaar Bold": "a vivid contemporary Indian market-inspired fashion campaign with striking contrast",
   "3D Jadoo": "a dimensional premium product display with subtle depth, realistic shadows and studio lighting",
   "Chalte Chalte": "a candid on-the-move lifestyle fashion photograph in a lively Indian street setting",
-  "Kaali Raat": "a dramatic dark editorial studio with refined highlights and deep contrast",
+  "Chandni": "a dramatic dark editorial studio with refined highlights and deep contrast",
 };
 
 export const Route = createFileRoute("/api/edit-product-photo")({

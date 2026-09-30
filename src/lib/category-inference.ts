@@ -102,7 +102,7 @@ const demoCatalogue: Record<string, Omit<ProductInsight, "profile"> & { key: Cat
   "kurti-maroon": {
     key: "kurti", sku: "MSH-KUR-28740", leaf: "Straight Solid", confidence: 95,
     attributes: [{ label: "Fabric", value: "Cotton" }, { label: "Colour", value: "Maroon" }, { label: "Price band", value: "₹499–₹699" }, { label: "Occasion", value: "Office" }],
-    recommended: ["Safed Shaan", "Kaali Raat", "Chalte Chalte"],
+    recommended: ["Safed Shaan", "Chandni", "Chalte Chalte"],
   },
   "kurti-anarkali": {
     key: "kurti", sku: "MSH-KUR-40219", leaf: "Anarkali", confidence: 98,
