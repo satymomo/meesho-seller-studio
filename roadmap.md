@@ -35,3 +35,4 @@
 - [x] Separate preset browsing into a catalogue-preview pop-up and a dedicated photo-selection page before generation.
 - [x] Replace Safed Shaan's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Replace Ghoomar Glow's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
+- [x] Replace Bazaar Bold's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
