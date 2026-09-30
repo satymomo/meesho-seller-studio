@@ -207,7 +207,7 @@ function Index() {
   const moveGallery = (direction: number) => {
     const next = Math.max(0, Math.min(shots.length - 1, activeShot + direction));
     setActiveShot(next);
-    galleryRef.current?.children[next]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    galleryRef.current?.scrollTo({ left: next * galleryRef.current.clientWidth, behavior: "instant" });
   };
   useEffect(() => {
     if (screen !== "loading" && screen !== "understanding") return;
@@ -607,7 +607,7 @@ function Index() {
               <div className="mt-3 flex items-center justify-between">
                 <Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button>
                 <div className="flex gap-1.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>
-                  {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} aria-current={activeShot === index ? "true" : undefined} onClick={() => { setActiveShot(index); galleryRef.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }); }} className={`size-2 rounded-full p-0 ${activeShot === index ? "bg-brand" : "bg-line"}`} />)}
+                  {shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview`} aria-current={activeShot === index ? "true" : undefined} onClick={() => { setActiveShot(index); galleryRef.current?.scrollTo({ left: index * galleryRef.current.clientWidth, behavior: "instant" }); }} className={`size-2 rounded-full p-0 ${activeShot === index ? "bg-brand" : "bg-line"}`} />)}
                 </div>
                 <Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button>
               </div>
