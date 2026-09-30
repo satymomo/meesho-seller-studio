@@ -1101,8 +1101,21 @@ function Index() {
             open={voiceOpen}
             onToggle={() => setVoiceOpen((value) => !value)}
             onListen={() => {
-              setListening((value) => !value);
-              if (!listening) showToast("Voice note ready for later");
+              if (!listening) {
+                setListening(true);
+                return;
+              }
+              // Demo: hard-coded voice command "Meri blue kurti ki festive photo bana do"
+              setListening(false);
+              setVoiceOpen(false);
+              setUploadedImage(null);
+              setSelectedProduct(defaultProduct);
+              setSelectedStyle("Shaadi Shringar");
+              setSelectedShots(shaadiShots.map((_, index) => index));
+              setActiveShot(0);
+              setPreviewStyle(null);
+              setScreen("shotSelection");
+              showToast("Blue kurti · Shaadi Shringar look chosen");
             }}
           />
         )}
