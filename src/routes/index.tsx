@@ -34,7 +34,12 @@ import whiteBack from "@/assets/white_back.png.asset.json";
 import whiteSleeve from "@/assets/white_sleeve.png.asset.json";
 import whiteDimensions from "@/assets/white_dimn.png.asset.json";
 import festivePreset from "@/assets/festive.webp.asset.json";
-import twirlPreset from "@/assets/twirl.webp.asset.json";
+import twirlFront from "@/assets/twirl.png.asset.json";
+import twirlSide from "@/assets/twirl_side.png.asset.json";
+import twirlClose from "@/assets/twirl_close.png.asset.json";
+import twirlBack from "@/assets/twirl_back.png.asset.json";
+import twirlSleeve from "@/assets/twirl_sleeve.png.asset.json";
+import twirlDimensions from "@/assets/twirl_dimn.png.asset.json";
 import boldPreset from "@/assets/meesho-bold.webp.asset.json";
 import threeDPreset from "@/assets/3D.webp.asset.json";
 import motionPreset from "@/assets/motion.webp.asset.json";
@@ -66,11 +71,23 @@ const safedShaanShots = [
   { label: "Sleeve", image: whiteSleeve.url },
   { label: "Dimensions", image: whiteDimensions.url },
 ];
+const ghoomarShots = [
+  { label: "Front", image: twirlFront.url },
+  { label: "Side", image: twirlSide.url },
+  { label: "Close-up", image: twirlClose.url },
+  { label: "Back", image: twirlBack.url },
+  { label: "Sleeve", image: twirlSleeve.url },
+  { label: "Dimensions", image: twirlDimensions.url },
+];
+const presetShots: Record<string, typeof safedShaanShots> = {
+  "Safed Shaan": safedShaanShots,
+  "Ghoomar Glow": ghoomarShots,
+};
 
 const styles = [
   { name: "Safed Shaan", note: "Crisp catalogue look", image: whiteFront.url, premium: false },
   { name: "Shaadi Shringar", note: "Festive and full of colour", image: festivePreset.url, premium: false },
-  { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlPreset.url, premium: false },
+  { name: "Ghoomar Glow", note: "A graceful twirl", image: twirlFront.url, premium: false },
   { name: "Bazaar Bold", note: "Stand out in style", image: boldPreset.url, premium: true },
   { name: "3D Jadoo", note: "A striking display", image: threeDPreset.url, premium: true },
   { name: "Chalte Chalte", note: "On-the-move look", image: motionPreset.url, premium: true },
@@ -215,13 +232,15 @@ function Index() {
     const style = styles.find((item) => item.name === bulkStyle);
     return style ? [{ product, style }] : [];
   });
-  const shots = activePreset.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
-  const previewShots = previewPreset?.name === "Safed Shaan" && isKurti ? safedShaanShots.map((shot) => shot.label) : insight.profile.shotPlan;
+  const activeShots = presetShots[activePreset.name];
+  const previewShotsList = previewPreset ? presetShots[previewPreset.name] : undefined;
+  const shots = activeShots && isKurti ? activeShots.map((shot) => shot.label) : insight.profile.shotPlan;
+  const previewShots = previewShotsList && isKurti ? previewShotsList.map((shot) => shot.label) : insight.profile.shotPlan;
   const selectedSet = selectedShots;
-  const shotImage = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? activePreset.image) : activePreset.image;
-  const previewShotImage = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? (safedShaanShots[index]?.image ?? previewPreset.image) : previewPreset?.image;
-  const shotFilter = (index: number) => activePreset.name === "Safed Shaan" && isKurti ? "none" : `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
-  const previewShotFilter = (index: number) => previewPreset?.name === "Safed Shaan" && isKurti ? "none" : `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const shotImage = (index: number) => activeShots && isKurti ? (activeShots[index]?.image ?? activePreset.image) : activePreset.image;
+  const previewShotImage = (index: number) => previewShotsList && isKurti ? (previewShotsList[index]?.image ?? previewPreset?.image) : previewPreset?.image;
+  const shotFilter = (index: number) => activeShots && isKurti ? "none" : `${displayFilter === "none" ? "" : displayFilter} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
+  const previewShotFilter = (index: number) => previewShotsList && isKurti ? "none" : `${previewPreset?.filter ?? ""} ${["", "brightness(1.08)", "contrast(1.12)", "saturate(1.1)", "brightness(0.95) contrast(1.08)"][index % 5]}`.trim() || "none";
   const scrollGalleryTo = (index: number) => {
     setActiveShot(index);
     galleryRef.current?.scrollTo({
@@ -617,7 +636,7 @@ function Index() {
             </Button>
           ))}
         </div>
-         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan uses sample catalogue photos; other looks are illustrative previews.</p>
+         <p className="mt-5 text-[11px] text-ink-2">Safed Shaan and Ghoomar Glow use sample catalogue photos; other looks are illustrative previews.</p>
       </main>
       {previewPreset && <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-3 sm:items-center" role="presentation" onClick={() => setPreviewStyle(null)}>
         <section role="dialog" aria-modal="true" aria-labelledby="catalogue-preview-title" onClick={(event) => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-[390px] flex-col overflow-hidden rounded-md bg-background shadow-xl">
@@ -648,7 +667,7 @@ function Index() {
         </div>
         <div className="mt-3 flex items-center justify-between"><Button type="button" variant="ghost" size="icon" aria-label="Previous catalogue photo" disabled={activeShot === 0} onClick={() => moveGallery(-1)} className="size-8 rounded-full border border-line text-ink"><ChevronLeft size={18} /></Button><div className="flex items-center gap-0.5" aria-label={`Photo ${activeShot + 1} of ${shots.length}`}>{shots.map((shot, index) => <Button key={shot} type="button" variant="ghost" aria-label={`Show ${shot} preview${selectedShots.includes(index) ? ", selected" : ""}`} onClick={() => scrollGalleryTo(index)} className="grid size-8 place-items-center rounded-full p-0"><span className={`block rounded-full transition-all duration-200 motion-reduce:transition-none ${activeShot === index ? "size-2.5 bg-brand ring-2 ring-brand-soft" : selectedShots.includes(index) ? "size-2 bg-brand/55" : "size-1.5 bg-line"}`} /></Button>)}</div><Button type="button" variant="ghost" size="icon" aria-label="Next catalogue photo" disabled={activeShot === shots.length - 1} onClick={() => moveGallery(1)} className="size-8 rounded-full border border-line text-ink"><ChevronRight size={18} /></Button></div>
         <p className="mt-2 text-center text-[12px] font-semibold text-brand" role="status">{selectedShots.length} of {shots.length} photos selected</p>
-         {activePreset.name !== "Safed Shaan" && <p className="mt-3 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>}
+         {!presetShots[activePreset.name] && <p className="mt-3 text-[11px] text-ink-2">Illustrative demo previews, not separate generated photos.</p>}
         <Button type="button" onClick={generatePhoto} disabled={selectedShots.length === 0} className="mt-6 h-12 w-full rounded-md bg-brand text-[14px] font-semibold text-primary-foreground hover:bg-brand/90"><Sparkles size={17} /> Generate {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"}</Button>
       </main>
     </>
@@ -717,7 +736,7 @@ function Index() {
              </Button>;
           })}
         </div>
-          <p className="mt-3 text-[11px] text-ink-2">{activePreset.name === "Safed Shaan" ? "Sample catalogue photos, not generated from your selected product." : "Illustrative demo samples, not edited product photos."}</p>
+          <p className="mt-3 text-[11px] text-ink-2">{presetShots[activePreset.name] ? "Sample catalogue photos, not generated from your selected product." : "Illustrative demo samples, not edited product photos."}</p>
         <Button type="button" disabled={selectedShots.length === 0} onClick={() => setScreen("save")} className="mt-6 h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">Proceed with {selectedShots.length} {selectedShots.length === 1 ? "photo" : "photos"} <ArrowRight size={17} /></Button>
          <Button type="button" variant="ghost" onClick={() => { setActiveShot(0); setScreen("shotSelection"); }} className="mt-2 w-full text-brand">Change photos</Button>
       </main>
@@ -808,7 +827,7 @@ function Index() {
           <h2 className="text-[14px] font-semibold text-ink">{currentStyle.name} catalogue</h2>
           <p className="mt-1 text-[11px] text-ink-2">One look for {selectedBulkProducts.length} selected products</p>
           <div className="mt-3 grid grid-cols-3 gap-2">
-             {(currentStyle.name === "Safed Shaan" ? safedShaanShots : inferProduct(defaultProduct.id).profile.shotPlan.map((label) => ({ label, image: currentStyle.image }))).map(({ label, image }) => <figure key={label} className="overflow-hidden rounded-md border border-line"><img src={image} alt={`${label} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{label}</figcaption></figure>)}
+             {(presetShots[currentStyle.name] ?? inferProduct(defaultProduct.id).profile.shotPlan.map((label) => ({ label, image: currentStyle.image }))).map(({ label, image }) => <figure key={label} className="overflow-hidden rounded-md border border-line"><img src={image} alt={`${label} sample`} className="aspect-[3/4] w-full object-cover" /><figcaption className="truncate px-1.5 py-1 text-[10px] text-ink">{label}</figcaption></figure>)}
           </div>
           <p className="mt-2 text-[11px] text-ink-2">Illustrative previews · not edited product photos.</p>
         </section>
