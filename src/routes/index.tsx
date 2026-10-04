@@ -964,10 +964,119 @@ function Index() {
     </>
   );
 
+  const renderBulkModes = () => {
+    const modes = [
+      { id: "one-each" as const, title: "One each", desc: "Pick a different look for every product", icon: LayoutGrid },
+      { id: "same-look" as const, title: "Same look", desc: "Apply one preset to every selected product", icon: WandSparkles },
+      { id: "mix-looks" as const, title: "Mix looks", desc: "Combine several looks across all products", icon: Sparkles },
+    ];
+    return (
+      <>
+        {renderHeader("How should we style them?", "Create many · 2 of 4", () => setScreen("bulk"))}
+        <main className="space-y-3 px-5 pb-28">
+          <p className="text-[13px] text-ink-2">{selectedBulkProducts.length} {selectedBulkProducts.length === 1 ? "product" : "products"} selected</p>
+          {modes.map((mode) => (
+            <Button
+              key={mode.id}
+              type="button"
+              variant="ghost"
+              aria-pressed={bulkMode === mode.id}
+              onClick={() => setBulkMode(mode.id)}
+              className={`flex h-auto w-full items-center gap-3 rounded-md border p-4 text-left ${bulkMode === mode.id ? "border-brand bg-brand-soft" : "border-line bg-background"}`}
+            >
+              <span className={`grid size-11 shrink-0 place-items-center rounded-md ${bulkMode === mode.id ? "bg-brand text-primary-foreground" : "bg-brand-soft text-brand"}`}>
+                <mode.icon size={20} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[14px] font-semibold text-ink">{mode.title}</span>
+                <span className="mt-0.5 block text-[12px] text-ink-2">{mode.desc}</span>
+              </span>
+              {bulkMode === mode.id && <Check size={18} className="shrink-0 text-brand" />}
+            </Button>
+          ))}
+          <Button type="button" onClick={() => setScreen(bulkMode === "same-look" ? "bulkPresets" : "bulkAssign")} className="mt-2 h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground">
+            Next: {bulkMode === "same-look" ? "choose one look" : "assign looks"} <ArrowRight size={18} />
+          </Button>
+        </main>
+      </>
+    );
+  };
+
+  const renderBulkAssign = () => {
+    const isMix = bulkMode === "mix-looks";
+    return (
+      <>
+        {renderHeader(isMix ? "Mix looks" : "Assign looks", "Create many · 3 of 4", () => setScreen("bulkModes"))}
+        <main className="space-y-4 pb-28">
+          {isMix ? (
+            <section className="bg-background px-5 py-4">
+              <h2 className="text-[14px] font-semibold text-ink">Pick the looks to mix</h2>
+              <p className="mt-1 text-[11px] text-ink-2">Every selected product gets each look you tick.</p>
+              <div className="mt-3 grid grid-cols-3 gap-x-2 gap-y-4">
+                {styles.map((style) => {
+                  const on = bulkMulti.includes(style.name);
+                  return (
+                    <Button key={style.name} type="button" variant="ghost" aria-pressed={on} onClick={() => setBulkMulti((current) => current.includes(style.name) ? current.filter((name) => name !== style.name) : [...current, style.name])} className="h-auto min-w-0 flex-col gap-1 p-0 text-center">
+                      <span className={`relative block aspect-square w-full overflow-hidden rounded-md ring-2 ${on ? "ring-brand" : "ring-transparent"}`}>
+                        <img src={style.image} alt="" className="size-full object-cover" />
+                        {on && <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={12} /></span>}
+                        {style.premium && <Crown size={14} className="absolute left-1 top-1 rounded-full bg-background p-0.5 text-warning" />}
+                      </span>
+                      <span className="w-full whitespace-normal text-[10px] text-ink">{style.name}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-[12px] font-medium text-brand" role="status">{selectedBulkProducts.length} products × {bulkMulti.length} looks = {selectedBulkProducts.length * bulkMulti.length} photos</p>
+            </section>
+          ) : (
+            <section className="space-y-2.5 px-5">
+              <div>
+                <h2 className="text-[14px] font-semibold text-ink">Choose a look for each product</h2>
+                <p className="mt-1 text-[11px] text-ink-2">Tap a look to assign it.</p>
+              </div>
+              {selectedBulkProducts.map((product) => {
+                const assigned = bulkAssignments[product.name] ?? "Safed Shaan";
+                return (
+                  <section key={product.name} className="rounded-md bg-glass p-3 ring-1 ring-line">
+                    <div className="flex items-center gap-2.5">
+                      <img src={product.image} alt={product.name} className="size-10 rounded-md object-cover" />
+                      <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink">{product.name}</span>
+                      <span className="shrink-0 rounded-sm bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand">{assigned}</span>
+                    </div>
+                    <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                      {styles.map((style) => {
+                        const on = assigned === style.name;
+                        return (
+                          <Button key={style.name} type="button" variant="ghost" aria-pressed={on} aria-label={`Assign ${style.name} to ${product.name}`} onClick={() => setBulkAssignments((current) => ({ ...current, [product.name]: style.name }))} className="h-auto w-16 shrink-0 flex-col gap-1 p-0 text-center">
+                            <span className={`relative block aspect-square w-full overflow-hidden rounded-md ring-2 ${on ? "ring-brand" : "ring-transparent"}`}>
+                              <img src={style.image} alt="" className="size-full object-cover" />
+                              {on && <span className="absolute inset-0 grid place-items-center bg-brand/35"><span className="grid size-6 place-items-center rounded-full bg-brand text-primary-foreground"><Check size={14} /></span></span>}
+                            </span>
+                            <span className="w-full truncate text-[9px] text-ink">{style.name}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </section>
+          )}
+          <div className="px-5">
+            <Button type="button" onClick={() => void createBulkPhotos()} disabled={isMix ? bulkMulti.length === 0 : selectedBulkProducts.length === 0} className="h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">
+              <Sparkles size={17} /> Generate {isMix ? selectedBulkProducts.length * bulkMulti.length : selectedBulkProducts.length} {isMix && selectedBulkProducts.length * bulkMulti.length !== 1 ? "photos" : "photo"}
+            </Button>
+          </div>
+        </main>
+      </>
+    );
+  };
+
   const renderBulkPresets = () => {
     const currentStyle = styles.find((style) => style.name === bulkStyle) ?? styles[0];
     return <>
-      {renderHeader("Choose a preset", "Create many · 2 of 3", () => setScreen("bulk"))}
+      {renderHeader("Choose a preset", "Create many · 3 of 4", () => setScreen("bulkModes"))}
       <main className="space-y-4 pb-28">
         <section className="bg-background px-5 py-4">
           <h2 className="text-[14px] font-semibold text-ink">{currentStyle.name} catalogue</h2>
@@ -1002,7 +1111,7 @@ function Index() {
 
   const renderBulkResults = () => (
     <>
-      {renderHeader("Your photos are ready", "Create many · 3 of 3", () => setScreen("bulkPresets"))}
+      {renderHeader("Your photos are ready", "Create many · 4 of 4", () => setScreen(bulkMode === "same-look" ? "bulkPresets" : "bulkAssign"))}
       <main className="space-y-5 px-5 pb-28">
         <p className="text-[13px] text-ink-2">{bulkResults.length} before-and-after {bulkResults.length === 1 ? "pair" : "pairs"}</p>
         {bulkResults.map(({ product, style, image }) => (
