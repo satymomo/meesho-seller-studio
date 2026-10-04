@@ -76,6 +76,8 @@ import { inferProduct } from "@/lib/category-inference";
 type Screen = "home" | "studio" | "understanding" | "creation" | "shotSelection" | "loading" | "export" | "save" | "bulk" | "bulkModes" | "bulkAssign" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
 type Preset = { name: string; note: string; image: string; premium: boolean; family: string; filter: string };
+type PlanName = "Trial" | "Starter" | "Growth" | "Pro";
+const planLimits: Record<PlanName, number> = { Trial: 1, Starter: 5, Growth: 20, Pro: 80 };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
 const defaultProduct: Product = { id: "kurti-embroidered", name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
@@ -288,6 +290,8 @@ function Index() {
   const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
   const [selectedStyle, setSelectedStyle] = useState("Safed Shaan");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [activePlan, setActivePlan] = useState<PlanName | null>(null);
+  const premiumUnlocked = activePlan !== null && activePlan !== "Trial";
   const [listening, setListening] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -423,7 +427,7 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (activePreset.premium) {
+    if (activePreset.premium && !premiumUnlocked) {
       setUpgradeStyle(activePreset.name);
       setUpgradeOpen(true);
       return;
@@ -493,6 +497,10 @@ function Index() {
   };
 
   const toggleBulk = (name: string) => {
+    if (!bulkSelection.includes(name) && activePlan && bulkSelection.length >= planLimits[activePlan]) {
+      showToast(`${activePlan} plan allows ${planLimits[activePlan]} catalogue${planLimits[activePlan] > 1 ? "s" : ""} at a time`);
+      return;
+    }
     setBulkSelection((current) =>
       current.includes(name) ? current.filter((item) => item !== name) : [...current, name],
     );
@@ -501,9 +509,13 @@ function Index() {
   const createBulkPhotos = async () => {
     if (bulkPairs.length === 0) return;
     const premium = bulkPairs.find(({ style }) => style.premium);
-    if (premium) {
+    if (premium && !premiumUnlocked) {
       setUpgradeStyle(premium.style.name);
       setUpgradeOpen(true);
+      return;
+    }
+    if (activePlan && bulkPairs.length > planLimits[activePlan]) {
+      showToast(`${activePlan} plan allows ${planLimits[activePlan]} catalogue${planLimits[activePlan] > 1 ? "s" : ""} at a time — you picked ${bulkPairs.length}`);
       return;
     }
     setBulkResults([]);
@@ -1139,27 +1151,29 @@ function Index() {
   const renderPricing = () => {
     const plans = [
       {
-        name: "Trial",
+        name: "Trial" as PlanName,
         price: "₹1",
         cadence: "one-time",
         spec: "4 Images · 1 Catalogue",
         rate: null as string | null,
         features: [
           "4 images for one catalogue",
+          "Free looks only — premium locked",
           "Try the full flow once",
-          "No monthly bill — pay once",
+          "No subscription — pay once",
         ],
         action: "Try once for ₹1",
         tone: "bg-warning text-ink",
       },
       {
-        name: "Starter",
+        name: "Starter" as PlanName,
         price: "₹49",
-        cadence: "/month",
+        cadence: "one-time",
         spec: "20 Images · 5 Catalogues",
         rate: "₹9.80 /catalogue",
         features: [
           "20 images across 5 catalogues",
+          "All premium looks unlocked",
           "Works out to ₹9.80 per catalogue",
           "Keep previews free — pay only for finals",
         ],
@@ -1167,13 +1181,14 @@ function Index() {
         tone: "bg-brand text-primary-foreground",
       },
       {
-        name: "Growth",
+        name: "Growth" as PlanName,
         price: "₹149",
-        cadence: "/month",
+        cadence: "one-time",
         spec: "80 Images · 20 Catalogues",
         rate: "₹7.45 /catalogue",
         features: [
           "80 images across 20 catalogues",
+          "All premium looks unlocked",
           "Works out to ₹7.45 per catalogue",
           "Best for sellers adding stock weekly",
         ],
@@ -1181,13 +1196,14 @@ function Index() {
         tone: "bg-brand text-primary-foreground",
       },
       {
-        name: "Pro",
+        name: "Pro" as PlanName,
         price: "₹549",
-        cadence: "/month",
+        cadence: "one-time",
         spec: "320 Images · 80 Catalogues",
         rate: "₹6.86 /catalogue",
         features: [
           "320 images across 80 catalogues",
+          "All premium looks unlocked",
           "Works out to ₹6.86 per catalogue",
           "Best for catalog-wide refreshes",
         ],
@@ -1231,25 +1247,14 @@ function Index() {
                 </ul>
                 <Button
                   type="button"
-                  onClick={() => showToast(`${plan.name} plan is a preview only`)}
-                  className="mt-4 w-full rounded-full bg-brand-soft text-brand hover:bg-brand-soft/80"
+                  onClick={() => { setActivePlan(plan.name); showToast(`${plan.name} plan is now activated · ${planLimits[plan.name]} catalogue${planLimits[plan.name] > 1 ? "s" : ""} at a time`); }}
+                  className={`mt-4 w-full rounded-full ${activePlan === plan.name ? "bg-brand text-primary-foreground hover:bg-brand/90" : "bg-brand-soft text-brand hover:bg-brand-soft/80"}`}
                 >
-                  {plan.action}
+                  {activePlan === plan.name ? <><Check size={16} /> Activated</> : plan.action}
                 </Button>
               </div>
             </section>
           ))}
-          <section className="flex items-start gap-3 rounded-2xl bg-warning-soft p-4 ring-1 ring-line">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-warning text-ink">
-              <Plus size={18} />
-            </span>
-            <div>
-              <div className="text-[13px] font-bold text-ink">Top-ups anytime</div>
-              <p className="mt-1 text-[12px] leading-relaxed text-ink-2">
-                Top-ups available anytime for extra products or generations — no need to change your plan.
-              </p>
-            </div>
-          </section>
           <p className="text-center text-[11px] text-ink-2">Illustrative plans for this preview. No payment is collected.</p>
         </main>
       </>
@@ -1283,7 +1288,7 @@ function Index() {
                 <Button type="button" variant="ghost" size="icon" aria-label="Close upgrade prompt" onClick={() => setUpgradeOpen(false)}><X size={18} /></Button>
               </div>
               <h2 id="upgrade-title" className="mt-4 text-[20px] font-semibold text-ink">Consider upgrading</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{upgradeStyle} is a premium preset. Explore a plan to use premium looks, or choose one of the free presets.</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{upgradeStyle} is a premium preset{activePlan === "Trial" ? " and isn't included in the Trial plan" : ""}. Choose Starter, Growth or Pro to unlock premium looks, or pick a free preset.</p>
               <Button type="button" onClick={() => { setUpgradeOpen(false); setScreen("pricing"); }} className="mt-5 h-11 w-full rounded-md bg-brand text-primary-foreground hover:bg-brand/90">See plans <ArrowRight size={17} /></Button>
               <Button type="button" variant="ghost" onClick={() => setUpgradeOpen(false)} className="mt-1 h-11 w-full text-brand">Keep browsing</Button>
             </div>
