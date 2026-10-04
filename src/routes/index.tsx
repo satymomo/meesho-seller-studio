@@ -80,6 +80,84 @@ type PlanName = "Trial" | "Starter" | "Growth" | "Pro";
 const planLimits: Record<PlanName, number> = { Trial: 1, Starter: 5, Growth: 20, Pro: 80 };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
+const RelationDiagram = ({ mode, products }: { mode: "one-each" | "same-look" | "mix-looks"; products: number }) => {
+  const count = Math.min(Math.max(products, 2), 4);
+  const lookCount = mode === "same-look" ? 1 : mode === "one-each" ? count : Math.min(3, Math.max(2, count));
+  const top = 9;
+  const bottom = 43;
+  const spread = (n: number) =>
+    n > 1 ? Array.from({ length: n }, (_, i) => top + (i * (bottom - top)) / (n - 1)) : [(top + bottom) / 2];
+  const rows = spread(count);
+  const lookRows = spread(lookCount);
+  const sq = Math.max(9, Math.min(16, (bottom - top) / Math.max(count - 1, 1) - 4));
+  const chipH = Math.max(8, Math.min(14, (bottom - top) / Math.max(lookCount - 1, 1) - 3));
+  const looks = [
+    { fill: "var(--color-brand)", stroke: "", opacity: 1 },
+    { fill: "var(--color-warning)", stroke: "", opacity: 1 },
+    { fill: "var(--color-brand-soft)", stroke: "var(--color-brand)", opacity: 1 },
+    { fill: "var(--color-brand)", stroke: "", opacity: 0.5 },
+  ];
+  const tag = mode === "one-each" ? "1 : 1" : mode === "same-look" ? "many : 1" : "many : many";
+  return (
+    <span className="mt-3 flex w-full items-center gap-2.5 rounded-md border border-line bg-background/80 px-3 py-2">
+      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] text-brand">{tag}</span>
+      <span className="block min-w-0 flex-1">
+        <svg viewBox="0 0 260 52" width="260" height="52" style={{ display: "block", width: "100%", height: "auto" }} aria-hidden="true">
+          {mode === "one-each" &&
+            rows.map((y, i) => (
+              <line key={`c${i}`} x1="22" y1={y} x2="223" y2={lookRows[i] ?? 26} stroke="var(--color-brand)" strokeWidth="1.5" strokeOpacity="0.55" />
+            ))}
+          {mode === "same-look" &&
+            rows.map((y, i) => (
+              <line key={`c${i}`} x1="22" y1={y} x2="223" y2="26" stroke="var(--color-brand)" strokeWidth="1.5" strokeOpacity="0.55" />
+            ))}
+          {mode === "mix-looks" &&
+            rows.flatMap((y, i) =>
+              lookRows.map((cy, j) => (
+                <line key={`c${i}${j}`} x1="22" y1={y} x2="223" y2={cy} stroke="var(--color-brand)" strokeWidth="1.1" strokeOpacity="0.35" />
+              )),
+            )}
+          {rows.map((y, i) => (
+            <rect
+              key={`p${i}`}
+              x="4"
+              y={y - sq / 2}
+              width={sq}
+              height={sq}
+              rx={Math.min(5, sq / 3)}
+              fill="none"
+              stroke="var(--color-ink-2)"
+              strokeOpacity="0.5"
+              strokeWidth="1.4"
+            />
+          ))}
+          {mode === "same-look" ? (
+            <rect x="224" y={26 - 12} width="32" height="24" rx="6" fill="var(--color-brand)" />
+          ) : (
+            looks.slice(0, lookCount).map((look, i) => {
+              const y = lookRows[i] ?? 26;
+              return (
+                <rect
+                  key={`l${i}`}
+                  x="224"
+                  y={y - chipH / 2}
+                  width="32"
+                  height={chipH}
+                  rx={Math.min(4, chipH / 2)}
+                  fill={look.fill}
+                  fillOpacity={look.opacity}
+                  stroke={look.stroke || undefined}
+                  strokeWidth={look.stroke ? 1.4 : undefined}
+                />
+              );
+            })
+          )}
+        </svg>
+      </span>
+    </span>
+  );
+};
+
 const defaultProduct: Product = { id: "kurti-embroidered", name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
 const products: Product[] = [
   defaultProduct,
@@ -993,16 +1071,19 @@ function Index() {
               variant="ghost"
               aria-pressed={bulkMode === mode.id}
               onClick={() => setBulkMode(mode.id)}
-              className={`flex h-auto w-full items-center gap-3 rounded-md border p-4 text-left ${bulkMode === mode.id ? "border-brand bg-brand-soft" : "border-line bg-background"}`}
+              className={`flex h-auto w-full flex-col rounded-md border p-4 text-left ${bulkMode === mode.id ? "border-brand bg-brand-soft" : "border-line bg-background"}`}
             >
-              <span className={`grid size-11 shrink-0 place-items-center rounded-md ${bulkMode === mode.id ? "bg-brand text-primary-foreground" : "bg-brand-soft text-brand"}`}>
-                <mode.icon size={20} />
+              <span className="flex w-full items-center gap-3">
+                <span className={`grid size-11 shrink-0 place-items-center rounded-md ${bulkMode === mode.id ? "bg-brand text-primary-foreground" : "bg-brand-soft text-brand"}`}>
+                  <mode.icon size={20} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[14px] font-semibold text-ink">{mode.title}</span>
+                  <span className="mt-0.5 block text-[12px] text-ink-2">{mode.desc}</span>
+                </span>
+                {bulkMode === mode.id && <Check size={18} className="shrink-0 text-brand" />}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[14px] font-semibold text-ink">{mode.title}</span>
-                <span className="mt-0.5 block text-[12px] text-ink-2">{mode.desc}</span>
-              </span>
-              {bulkMode === mode.id && <Check size={18} className="shrink-0 text-brand" />}
+              <RelationDiagram mode={mode.id} products={selectedBulkProducts.length} />
             </Button>
           ))}
           <Button type="button" onClick={() => setScreen(bulkMode === "same-look" ? "bulkPresets" : "bulkAssign")} className="mt-2 h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground">
