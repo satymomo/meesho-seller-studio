@@ -112,19 +112,22 @@ const RelationDiagram = ({ mode }: { mode: "one-each" | "same-look" | "mix-looks
         {mode === "same-look" ? (
           <rect x="166" y="19" width="30" height="22" rx="5" fill="var(--color-brand)" />
         ) : (
-          looks.map((look, i) => (
-            <rect
-              key={`l${i}`}
-              x="166"
-              y={rows[i] - 6}
-              width="30"
-              height="12"
-              rx="4"
-              fill={look.fill}
-              stroke={look.stroke || undefined}
-              strokeWidth={look.stroke ? 1.2 : undefined}
-            />
-          ))
+          looks.map((look, i) => {
+            const y = rows[i] ?? 30;
+            return (
+              <rect
+                key={`l${i}`}
+                x="166"
+                y={y - 6}
+                width="30"
+                height="12"
+                rx="4"
+                fill={look.fill}
+                stroke={look.stroke || undefined}
+                strokeWidth={look.stroke ? 1.2 : undefined}
+              />
+            );
+          })
         )}
       </svg>
     </span>
