@@ -76,6 +76,8 @@ import { inferProduct } from "@/lib/category-inference";
 type Screen = "home" | "studio" | "understanding" | "creation" | "shotSelection" | "loading" | "export" | "save" | "bulk" | "bulkModes" | "bulkAssign" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
 type Preset = { name: string; note: string; image: string; premium: boolean; family: string; filter: string };
+type PlanName = "Trial" | "Starter" | "Growth" | "Pro";
+const planLimits: Record<PlanName, number> = { Trial: 1, Starter: 5, Growth: 20, Pro: 80 };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
 const defaultProduct: Product = { id: "kurti-embroidered", name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
@@ -288,6 +290,8 @@ function Index() {
   const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
   const [selectedStyle, setSelectedStyle] = useState("Safed Shaan");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [activePlan, setActivePlan] = useState<PlanName | null>(null);
+  const premiumUnlocked = activePlan !== null && activePlan !== "Trial";
   const [listening, setListening] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -423,7 +427,7 @@ function Index() {
   };
 
   const generatePhoto = () => {
-    if (activePreset.premium) {
+    if (activePreset.premium && !premiumUnlocked) {
       setUpgradeStyle(activePreset.name);
       setUpgradeOpen(true);
       return;
@@ -493,6 +497,10 @@ function Index() {
   };
 
   const toggleBulk = (name: string) => {
+    if (!bulkSelection.includes(name) && activePlan && bulkSelection.length >= planLimits[activePlan]) {
+      showToast(`${activePlan} plan allows ${planLimits[activePlan]} catalogue${planLimits[activePlan] > 1 ? "s" : ""} at a time`);
+      return;
+    }
     setBulkSelection((current) =>
       current.includes(name) ? current.filter((item) => item !== name) : [...current, name],
     );
@@ -501,9 +509,13 @@ function Index() {
   const createBulkPhotos = async () => {
     if (bulkPairs.length === 0) return;
     const premium = bulkPairs.find(({ style }) => style.premium);
-    if (premium) {
+    if (premium && !premiumUnlocked) {
       setUpgradeStyle(premium.style.name);
       setUpgradeOpen(true);
+      return;
+    }
+    if (activePlan && bulkPairs.length > planLimits[activePlan]) {
+      showToast(`${activePlan} plan allows ${planLimits[activePlan]} catalogue${planLimits[activePlan] > 1 ? "s" : ""} at a time — you picked ${bulkPairs.length}`);
       return;
     }
     setBulkResults([]);
