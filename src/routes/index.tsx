@@ -1065,7 +1065,7 @@ function Index() {
           )}
           <div className="px-5">
             <Button type="button" onClick={() => void createBulkPhotos()} disabled={isMix ? bulkMulti.length === 0 : selectedBulkProducts.length === 0} className="h-12 w-full rounded-md bg-brand text-primary-foreground disabled:opacity-40">
-              <Sparkles size={17} /> Generate {isMix ? selectedBulkProducts.length * bulkMulti.length : selectedBulkProducts.length} {isMix && selectedBulkProducts.length * bulkMulti.length !== 1 ? "photos" : "photo"}
+              <Sparkles size={17} /> Generate {isMix ? selectedBulkProducts.length * bulkMulti.length : selectedBulkProducts.length} {selectedBulkProducts.length * (isMix ? Math.max(bulkMulti.length, 1) : 1) === 1 ? "photo" : "photos"}
             </Button>
           </div>
         </main>
