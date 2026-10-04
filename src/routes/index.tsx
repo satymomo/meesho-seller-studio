@@ -584,7 +584,6 @@ function Index() {
           </Button>
           <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
 
-          <div className="mt-5 border-l-2 border-warning bg-warning-soft px-3 py-2.5 text-[12px] font-medium text-ink">Help your products appear better than your peers with a complete photo set.</div>
           <div className="mt-7 rounded-md border border-line bg-brand-soft/50 p-4">
             <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">How it works</div>
             <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5">
