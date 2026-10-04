@@ -42,3 +42,4 @@
 - [x] Replace 3D Jadoo's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Restore one-each, same-look and mix-looks modes in Create many.
 - Restored bulk creation modes (one-each / same-look / mix-looks) with per-product look assignment, plus relation infographics in the mode cards; phone-verified.
+- [x] Add an English/Hindi switch near the top of the first screen and translate its seller-facing content.

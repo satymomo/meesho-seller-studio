@@ -364,6 +364,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [screen, setScreen] = useState<Screen>("home");
+  const [language, setLanguage] = useState<"en" | "hi">("en");
+  const hindi = language === "hi";
   const [onlineDemo, setOnlineDemo] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product>(defaultProduct);
   const [selectedStyle, setSelectedStyle] = useState("Safed Shaan");
@@ -636,66 +638,71 @@ function Index() {
           <span className="grid size-9 place-items-center rounded-md bg-brand text-primary-foreground"><ShoppingBag size={20} /></span>
           <span className="text-[22px] font-bold leading-none">meesho</span>
         </div>
-        <span className="text-[11px] font-medium text-ink-2">Sharma Fashion Store</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="max-w-[105px] truncate text-[10px] font-medium text-ink-2 sm:max-w-none">Sharma Fashion Store</span>
+          <Button type="button" variant="ghost" aria-label={hindi ? "Switch to English" : "हिंदी में बदलें"} onClick={() => setLanguage(hindi ? "en" : "hi")} className="h-9 shrink-0 gap-1 rounded-md border border-line bg-background px-2 text-[11px] font-semibold text-brand hover:bg-brand-soft" title={hindi ? "Switch to English" : "Switch to Hindi"}>
+            <span className={hindi ? "text-ink-2" : "text-brand"}>EN</span><span className="text-line">|</span><span className={hindi ? "text-brand" : "text-ink-2"}>हिंदी</span>
+          </Button>
+        </div>
       </header>
       <main className="bg-background pb-24">
         <div className="px-5 pb-5 pt-6">
-          <span className="inline-flex items-center gap-1.5 rounded-sm bg-warning px-2.5 py-1 text-[11px] font-bold text-ink"><Sparkles size={13} /> NEW FOR SELLERS</span>
+          <span className="inline-flex items-center gap-1.5 rounded-sm bg-warning px-2.5 py-1 text-[11px] font-bold text-ink"><Sparkles size={13} /> {hindi ? "सेलर्स के लिए नया" : "NEW FOR SELLERS"}</span>
           <h1 className="mt-4 text-[32px] font-bold leading-[1.12] text-ink">Meesho<br />Seller Studio</h1>
-          <p className="mt-3 max-w-[310px] text-[14px] leading-relaxed text-ink-2">Make your product photos ready to share. Choose a photo, try a look, and see the difference.</p>
+          <p className="mt-3 max-w-[310px] text-[14px] leading-relaxed text-ink-2">{hindi ? "अपने प्रोडक्ट की फ़ोटो शेयर करने के लिए तैयार करें। फ़ोटो चुनें, लुक आज़माएँ और फ़र्क देखें।" : "Make your product photos ready to share. Choose a photo, try a look, and see the difference."}</p>
         </div>
         <div className="relative h-[190px] overflow-hidden bg-brand-soft sm:h-[230px]">
 
           <div className="absolute inset-y-4 left-5 w-[46%] overflow-hidden rounded-md border border-line bg-background shadow-sm">
             <img src={originalPhoto.url} alt="Original embroidered kurti product photo" className="size-full object-contain" />
-            <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">Your photo</span>
+            <span className="absolute bottom-2 left-2 rounded-sm bg-background px-2 py-1 text-[10px] font-semibold text-ink">{hindi ? "आपकी फ़ोटो" : "Your photo"}</span>
           </div>
           <div className="absolute inset-y-4 right-5 w-[46%] overflow-hidden rounded-md border-2 border-brand bg-background shadow-md">
              <img src={whiteFront.url} alt="Embroidered kurti in a catalogue look" className="size-full object-cover" />
-            <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">Studio look</span>
+             <span className="absolute bottom-2 left-2 rounded-sm bg-brand px-2 py-1 text-[10px] font-semibold text-primary-foreground">{hindi ? "स्टूडियो लुक" : "Studio look"}</span>
           </div>
           <span className="absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand text-primary-foreground shadow-md"><ArrowRight size={17} /></span>
         </div>
         <div className="px-5 pt-6">
           <Button type="button" onClick={() => setScreen("studio")} className="h-13 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground hover:bg-brand/90">
-            Start with a photo <ArrowRight size={18} />
+             {hindi ? "फ़ोटो से शुरू करें" : "Start with a photo"} <ArrowRight size={18} />
           </Button>
-          <p className="mt-2 text-center text-[11px] text-ink-2">Try it with a sample photo or your own</p>
+          <p className="mt-2 text-center text-[11px] text-ink-2">{hindi ? "सैंपल फ़ोटो या अपनी फ़ोटो से आज़माएँ" : "Try it with a sample photo or your own"}</p>
 
           <div className="mt-7 rounded-md border border-line bg-brand-soft/50 p-4">
-            <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">How it works</div>
+             <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">{hindi ? "यह कैसे काम करता है" : "How it works"}</div>
             <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-1.5">
               <div className="flex flex-col items-center text-center">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><ImagePlus size={18} /></span>
-                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Choose photo</span>
-                <span className="mt-1 text-[10px] leading-snug text-ink-2">From your phone</span>
+                 <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">{hindi ? "फ़ोटो चुनें" : "Choose photo"}</span>
+                 <span className="mt-1 text-[10px] leading-snug text-ink-2">{hindi ? "अपने फ़ोन से" : "From your phone"}</span>
               </div>
               <ArrowRight className="mt-3 shrink-0 text-brand/60" size={15} />
               <div className="flex flex-col items-center text-center">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><Sparkles size={18} /></span>
-                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Try a look</span>
-                <span className="mt-1 text-[10px] leading-snug text-ink-2">Tap a preset</span>
+                 <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">{hindi ? "लुक आज़माएँ" : "Try a look"}</span>
+                 <span className="mt-1 text-[10px] leading-snug text-ink-2">{hindi ? "स्टाइल चुनें" : "Tap a preset"}</span>
               </div>
               <ArrowRight className="mt-3 shrink-0 text-brand/60" size={15} />
               <div className="flex flex-col items-center text-center">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-background text-brand shadow-sm"><Share2 size={18} /></span>
-                <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">Save & share</span>
-                <span className="mt-1 text-[10px] leading-snug text-ink-2">Download or post</span>
+                 <span className="mt-2 text-[11px] font-semibold leading-tight text-ink">{hindi ? "सेव और शेयर" : "Save & share"}</span>
+                 <span className="mt-1 text-[10px] leading-snug text-ink-2">{hindi ? "डाउनलोड या पोस्ट करें" : "Download or post"}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-5">
-            <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Create many <ChevronRight size={15} /></Button>
-            <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">Plans & pricing <ChevronRight size={15} /></Button>
+             <Button type="button" variant="ghost" onClick={() => setScreen("bulk")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">{hindi ? "कई फ़ोटो बनाएँ" : "Create many"} <ChevronRight size={15} /></Button>
+             <Button type="button" variant="ghost" onClick={() => setScreen("pricing")} className="h-auto p-0 text-[12px] font-medium text-brand hover:bg-transparent">{hindi ? "प्लान और कीमतें" : "Plans & pricing"} <ChevronRight size={15} /></Button>
           </div>
 
           <div className="mt-6 flex items-center justify-between gap-3 rounded-md bg-cool px-3.5 py-3">
             <div className="min-w-0">
-              <label htmlFor="demo-mode" className="text-[12px] font-semibold text-ink">Demo mode: {onlineDemo ? "Online" : "Offline"}</label>
-              <p className="mt-0.5 text-[10px] leading-snug text-ink-2">{onlineDemo ? "Catalogue preview stays local; no live creation." : "Shows local preset samples without online generation."}</p>
+               <label htmlFor="demo-mode" className="text-[12px] font-semibold text-ink">{hindi ? "डेमो मोड:" : "Demo mode:"} {onlineDemo ? (hindi ? "ऑनलाइन" : "Online") : (hindi ? "ऑफ़लाइन" : "Offline")}</label>
+               <p className="mt-0.5 text-[10px] leading-snug text-ink-2">{onlineDemo ? (hindi ? "कैटलॉग प्रीव्यू लोकल है; अभी नई फ़ोटो नहीं बनती।" : "Catalogue preview stays local; no live creation.") : (hindi ? "बिना ऑनलाइन बनाए, लोकल सैंपल दिखते हैं।" : "Shows local preset samples without online generation.")}</p>
             </div>
-            <Button id="demo-mode" type="button" role="switch" aria-label="Online demo mode" aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
+             <Button id="demo-mode" type="button" role="switch" aria-label={hindi ? "ऑनलाइन डेमो मोड" : "Online demo mode"} aria-checked={onlineDemo} onClick={() => setOnlineDemo((value) => !value)} className={`h-6 w-11 shrink-0 rounded-full p-0 transition-colors ${onlineDemo ? "bg-brand hover:bg-brand/90" : "bg-input hover:bg-line"}`}>
               <span className={`block size-4 rounded-full bg-background shadow-sm transition-transform ${onlineDemo ? "translate-x-2.5" : "-translate-x-2.5"}`} />
             </Button>
           </div>
