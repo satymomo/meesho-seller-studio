@@ -40,3 +40,4 @@
 - [x] Replace Chalte Chalte's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Rename Kaali Raat to Chandni and replace its gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
 - [x] Replace 3D Jadoo's gallery, review, and downloadable shots with the six supplied front, side, close-up, back, sleeve, and dimensions photos.
+- [x] Restore one-each, same-look and mix-looks modes in Create many.
