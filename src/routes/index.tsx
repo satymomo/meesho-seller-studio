@@ -81,7 +81,7 @@ const planLimits: Record<PlanName, number> = { Trial: 1, Starter: 5, Growth: 20,
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
 const RelationDiagram = ({ mode }: { mode: "one-each" | "same-look" | "mix-looks" }) => {
-  const rows = [11, 30, 49];
+  const rows = [10, 26, 42];
   const looks = [
     { fill: "var(--color-brand)", stroke: "" },
     { fill: "var(--color-warning)", stroke: "" },
@@ -89,47 +89,60 @@ const RelationDiagram = ({ mode }: { mode: "one-each" | "same-look" | "mix-looks
   ];
   const tag = mode === "one-each" ? "1 : 1" : mode === "same-look" ? "many : 1" : "many : many";
   return (
-    <span className="mt-3 flex w-full items-center gap-3 rounded-md border border-line bg-background/80 px-3 py-1.5">
-      <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-brand">{tag}</span>
-      <svg viewBox="0 0 200 60" className="h-[42px] w-full" aria-hidden="true">
-        {mode === "one-each" &&
-          rows.map((y, i) => (
-            <line key={`c${i}`} x1="21" y1={y} x2="166" y2={y} stroke="var(--color-brand)" strokeWidth="1.3" strokeOpacity="0.5" />
+    <span className="mt-3 flex w-full items-center gap-2.5 rounded-md border border-line bg-background/80 px-3 py-2">
+      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] text-brand">{tag}</span>
+      <span className="block min-w-0 flex-1">
+        <svg viewBox="0 0 260 52" className="block h-auto w-full" aria-hidden="true">
+          {mode === "one-each" &&
+            rows.map((y, i) => (
+              <line key={`c${i}`} x1="22" y1={y} x2="223" y2={y} stroke="var(--color-brand)" strokeWidth="1.5" strokeOpacity="0.55" />
+            ))}
+          {mode === "same-look" &&
+            rows.map((y, i) => (
+              <line key={`c${i}`} x1="22" y1={y} x2="223" y2="26" stroke="var(--color-brand)" strokeWidth="1.5" strokeOpacity="0.55" />
+            ))}
+          {mode === "mix-looks" &&
+            rows.flatMap((y, i) =>
+              rows.map((cy, j) => (
+                <line key={`c${i}${j}`} x1="22" y1={y} x2="223" y2={cy} stroke="var(--color-brand)" strokeWidth="1.1" strokeOpacity="0.35" />
+              )),
+            )}
+          {rows.map((y, i) => (
+            <rect
+              key={`p${i}`}
+              x="4"
+              y={y - 8}
+              width="16"
+              height="16"
+              rx="5"
+              fill="none"
+              stroke="var(--color-ink-2)"
+              strokeOpacity="0.5"
+              strokeWidth="1.4"
+            />
           ))}
-        {mode === "same-look" &&
-          rows.map((y, i) => (
-            <line key={`c${i}`} x1="21" y1={y} x2="166" y2="30" stroke="var(--color-brand)" strokeWidth="1.3" strokeOpacity="0.5" />
-          ))}
-        {mode === "mix-looks" &&
-          rows.flatMap((y, i) =>
-            rows.map((cy, j) => (
-              <line key={`c${i}${j}`} x1="21" y1={y} x2="166" y2={cy} stroke="var(--color-brand)" strokeWidth="1" strokeOpacity="0.3" />
-            )),
+          {mode === "same-look" ? (
+            <rect x="224" y="13" width="32" height="26" rx="6" fill="var(--color-brand)" />
+          ) : (
+            looks.map((look, i) => {
+              const y = rows[i] ?? 26;
+              return (
+                <rect
+                  key={`l${i}`}
+                  x="224"
+                  y={y - 7}
+                  width="32"
+                  height="14"
+                  rx="4"
+                  fill={look.fill}
+                  stroke={look.stroke || undefined}
+                  strokeWidth={look.stroke ? 1.4 : undefined}
+                />
+              );
+            })
           )}
-        {rows.map((y, i) => (
-          <rect key={`p${i}`} x="4" y={y - 7} width="14" height="14" rx="4" fill="none" stroke="var(--color-ink-2)" strokeOpacity="0.45" strokeWidth="1.2" />
-        ))}
-        {mode === "same-look" ? (
-          <rect x="166" y="19" width="30" height="22" rx="5" fill="var(--color-brand)" />
-        ) : (
-          looks.map((look, i) => {
-            const y = rows[i] ?? 30;
-            return (
-              <rect
-                key={`l${i}`}
-                x="166"
-                y={y - 6}
-                width="30"
-                height="12"
-                rx="4"
-                fill={look.fill}
-                stroke={look.stroke || undefined}
-                strokeWidth={look.stroke ? 1.2 : undefined}
-              />
-            );
-          })
-        )}
-      </svg>
+        </svg>
+      </span>
     </span>
   );
 };
