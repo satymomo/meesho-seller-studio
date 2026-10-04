@@ -1262,6 +1262,8 @@ function Index() {
         {screen === "export" && renderExport()}
         {screen === "save" && renderSave()}
         {screen === "bulk" && renderBulk()}
+        {screen === "bulkModes" && renderBulkModes()}
+        {screen === "bulkAssign" && renderBulkAssign()}
         {screen === "bulkPresets" && renderBulkPresets()}
         {screen === "bulkLoading" && renderBulkLoading()}
         {screen === "bulkResults" && renderBulkResults()}
