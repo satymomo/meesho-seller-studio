@@ -73,7 +73,7 @@ import blackDimensions from "@/assets/black_dimn.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { inferProduct } from "@/lib/category-inference";
 
-type Screen = "home" | "studio" | "understanding" | "creation" | "shotSelection" | "loading" | "export" | "save" | "bulk" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
+type Screen = "home" | "studio" | "understanding" | "creation" | "shotSelection" | "loading" | "export" | "save" | "bulk" | "bulkModes" | "bulkAssign" | "bulkPresets" | "bulkLoading" | "bulkResults" | "pricing";
 type Product = { id: string; name: string; shortName: string; price: string; image: string };
 type Preset = { name: string; note: string; image: string; premium: boolean; family: string; filter: string };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
@@ -296,6 +296,9 @@ function Index() {
   const [uploadedName, setUploadedName] = useState("");
   const [bulkSelection, setBulkSelection] = useState<string[]>([defaultProduct.name, "Maroon Straight Kurti"]);
   const [bulkStyle, setBulkStyle] = useState("Safed Shaan");
+  const [bulkMode, setBulkMode] = useState<"one-each" | "same-look" | "mix-looks">("same-look");
+  const [bulkAssignments, setBulkAssignments] = useState<Record<string, string>>({});
+  const [bulkMulti, setBulkMulti] = useState<string[]>(["Safed Shaan", "Shaadi Shringar"]);
   const [bulkResults, setBulkResults] = useState<BulkResult[]>([]);
   const [bulkProgress, setBulkProgress] = useState(0);
   const [bulkError, setBulkError] = useState("");
@@ -320,6 +323,13 @@ function Index() {
   const displayFilter = activePreset.filter || "none";
   const selectedBulkProducts = products.filter((product) => bulkSelection.includes(product.name));
   const bulkPairs = selectedBulkProducts.flatMap((product) => {
+    if (bulkMode === "one-each") {
+      const style = styles.find((item) => item.name === (bulkAssignments[product.name] ?? "Safed Shaan"));
+      return style ? [{ product, style }] : [];
+    }
+    if (bulkMode === "mix-looks") {
+      return styles.filter((style) => bulkMulti.includes(style.name)).map((style) => ({ product, style }));
+    }
     const style = styles.find((item) => item.name === bulkStyle);
     return style ? [{ product, style }] : [];
   });
@@ -899,7 +909,7 @@ function Index() {
 
   const renderBulk = () => (
     <>
-      {renderHeader("Select products", "Create many · 1 of 3", () => setScreen("home"))}
+      {renderHeader("Select products", "Create many · 1 of 4", () => setScreen("home"))}
       <main className="space-y-5 px-5 pb-28">
         <div className="border-b border-line bg-background pb-4 pt-2">
           <div className="flex items-center gap-3">
@@ -945,7 +955,7 @@ function Index() {
         <Button
           type="button"
           disabled={bulkSelection.length === 0}
-          onClick={() => setScreen("bulkPresets")}
+          onClick={() => setScreen("bulkModes")}
           className="flex h-12 w-[calc(100%-72px)] items-center justify-center gap-2 rounded-md bg-brand text-[15px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next: choose looks <ArrowRight size={18} />
