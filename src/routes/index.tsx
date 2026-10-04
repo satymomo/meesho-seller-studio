@@ -1217,7 +1217,10 @@ function Index() {
                 <span className="text-[11px] font-semibold opacity-90">{plan.cadence}</span>
               </div>
               <div className="px-4 py-4">
-                <div className="text-[13px] font-semibold text-ink">{plan.spec}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] font-semibold text-ink">{plan.spec}</span>
+                  {plan.rate && <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-bold text-brand">{plan.rate}</span>}
+                </div>
                 <ul className="mt-3 space-y-2 border-b border-line pb-4">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-[12px] text-ink">
