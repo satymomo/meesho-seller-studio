@@ -80,6 +80,57 @@ type PlanName = "Trial" | "Starter" | "Growth" | "Pro";
 const planLimits: Record<PlanName, number> = { Trial: 1, Starter: 5, Growth: 20, Pro: 80 };
 type BulkResult = { product: Product; style: (typeof styles)[number]; image: string };
 
+const RelationDiagram = ({ mode }: { mode: "one-each" | "same-look" | "mix-looks" }) => {
+  const rows = [11, 30, 49];
+  const looks = [
+    { fill: "var(--color-brand)", stroke: "" },
+    { fill: "var(--color-warning)", stroke: "" },
+    { fill: "var(--color-brand-soft)", stroke: "var(--color-brand)" },
+  ];
+  const tag = mode === "one-each" ? "1 : 1" : mode === "same-look" ? "many : 1" : "many : many";
+  return (
+    <span className="mt-3 flex w-full items-center gap-3 rounded-md border border-line bg-background/80 px-3 py-1.5">
+      <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-brand">{tag}</span>
+      <svg viewBox="0 0 200 60" className="h-[42px] w-full" aria-hidden="true">
+        {mode === "one-each" &&
+          rows.map((y, i) => (
+            <line key={`c${i}`} x1="21" y1={y} x2="166" y2={y} stroke="var(--color-brand)" strokeWidth="1.3" strokeOpacity="0.5" />
+          ))}
+        {mode === "same-look" &&
+          rows.map((y, i) => (
+            <line key={`c${i}`} x1="21" y1={y} x2="166" y2="30" stroke="var(--color-brand)" strokeWidth="1.3" strokeOpacity="0.5" />
+          ))}
+        {mode === "mix-looks" &&
+          rows.flatMap((y, i) =>
+            rows.map((cy, j) => (
+              <line key={`c${i}${j}`} x1="21" y1={y} x2="166" y2={cy} stroke="var(--color-brand)" strokeWidth="1" strokeOpacity="0.3" />
+            )),
+          )}
+        {rows.map((y, i) => (
+          <rect key={`p${i}`} x="4" y={y - 7} width="14" height="14" rx="4" fill="none" stroke="var(--color-ink-2)" strokeOpacity="0.45" strokeWidth="1.2" />
+        ))}
+        {mode === "same-look" ? (
+          <rect x="166" y="19" width="30" height="22" rx="5" fill="var(--color-brand)" />
+        ) : (
+          looks.map((look, i) => (
+            <rect
+              key={`l${i}`}
+              x="166"
+              y={rows[i] - 6}
+              width="30"
+              height="12"
+              rx="4"
+              fill={look.fill}
+              stroke={look.stroke || undefined}
+              strokeWidth={look.stroke ? 1.2 : undefined}
+            />
+          ))
+        )}
+      </svg>
+    </span>
+  );
+};
+
 const defaultProduct: Product = { id: "kurti-embroidered", name: "Blue Embroidered Kurti", shortName: "Blue embroidery", price: "Sample photo", image: originalPhoto.url };
 const products: Product[] = [
   defaultProduct,
@@ -993,16 +1044,19 @@ function Index() {
               variant="ghost"
               aria-pressed={bulkMode === mode.id}
               onClick={() => setBulkMode(mode.id)}
-              className={`flex h-auto w-full items-center gap-3 rounded-md border p-4 text-left ${bulkMode === mode.id ? "border-brand bg-brand-soft" : "border-line bg-background"}`}
+              className={`flex h-auto w-full flex-col rounded-md border p-4 text-left ${bulkMode === mode.id ? "border-brand bg-brand-soft" : "border-line bg-background"}`}
             >
-              <span className={`grid size-11 shrink-0 place-items-center rounded-md ${bulkMode === mode.id ? "bg-brand text-primary-foreground" : "bg-brand-soft text-brand"}`}>
-                <mode.icon size={20} />
+              <span className="flex w-full items-center gap-3">
+                <span className={`grid size-11 shrink-0 place-items-center rounded-md ${bulkMode === mode.id ? "bg-brand text-primary-foreground" : "bg-brand-soft text-brand"}`}>
+                  <mode.icon size={20} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[14px] font-semibold text-ink">{mode.title}</span>
+                  <span className="mt-0.5 block text-[12px] text-ink-2">{mode.desc}</span>
+                </span>
+                {bulkMode === mode.id && <Check size={18} className="shrink-0 text-brand" />}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[14px] font-semibold text-ink">{mode.title}</span>
-                <span className="mt-0.5 block text-[12px] text-ink-2">{mode.desc}</span>
-              </span>
-              {bulkMode === mode.id && <Check size={18} className="shrink-0 text-brand" />}
+              <RelationDiagram mode={mode.id} />
             </Button>
           ))}
           <Button type="button" onClick={() => setScreen(bulkMode === "same-look" ? "bulkPresets" : "bulkAssign")} className="mt-2 h-12 w-full rounded-md bg-brand text-[15px] font-semibold text-primary-foreground">
