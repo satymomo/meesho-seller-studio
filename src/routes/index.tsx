@@ -92,7 +92,7 @@ const RelationDiagram = ({ mode }: { mode: "one-each" | "same-look" | "mix-looks
     <span className="mt-3 flex w-full items-center gap-2.5 rounded-md border border-line bg-background/80 px-3 py-2">
       <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] text-brand">{tag}</span>
       <span className="block min-w-0 flex-1">
-        <svg viewBox="0 0 260 52" className="block h-auto w-full" aria-hidden="true">
+        <svg viewBox="0 0 260 52" width="260" height="52" style={{ display: "block", width: "100%", height: "auto" }} aria-hidden="true">
           {mode === "one-each" &&
             rows.map((y, i) => (
               <line key={`c${i}`} x1="22" y1={y} x2="223" y2={y} stroke="var(--color-brand)" strokeWidth="1.5" strokeOpacity="0.55" />
