@@ -13,6 +13,40 @@ Seller Studio explores a guided way for a Meesho seller to start with a real pro
 3. Choose a preset, tick the shots you want and tap **Generate**.
 4. Review the before-and-after catalogue selection, then download or share the selected photos.
 
+## Screenshots
+
+Each screen of the guided flow, in order. Images are demo samples included with the prototype.
+
+<p align="center">
+  <img src="docs/screenshots/01-home.webp" alt="Home screen" width="260" /><br>
+  <b>1. Home</b> — the seller's starting point: start with a photo, switch English/Hindi, toggle demo mode.<br><br>
+
+  <img src="docs/screenshots/02-choose-photo.webp" alt="Choose a photo screen" width="260" /><br>
+  <b>2. Choose a photo</b> — pick a sample product (kurti, shoes, handbag, cookware) or upload a real product photo.<br><br>
+
+  <img src="docs/screenshots/03-presets.webp" alt="Preset browsing screen" width="260" /><br>
+  <b>3. Presets</b> — browse catalogue looks; each card previews the full photo set before you commit.<br><br>
+
+  <img src="docs/screenshots/04-gallery.webp" alt="Preset catalogue gallery" width="260" /><br>
+  <b>4. Catalogue gallery</b> — swipe through every shot in a look (front, side, close-up, back, sleeve, dimensions) and tick the ones you want.<br><br>
+
+  <img src="docs/screenshots/05-select-shots.webp" alt="Select shots screen" width="260" /><br>
+  <b>5. Select shots</b> — confirm the selected photos and tap Generate for the whole catalogue set.<br><br>
+
+  <img src="docs/screenshots/06-review.webp" alt="Review catalogue screen" width="260" /><br>
+  <b>6. Review catalogue</b> — before/after comparison of the original product photo against each generated shot.<br><br>
+
+  <img src="docs/screenshots/07-save.webp" alt="Save and export screen" width="260" /><br>
+  <b>7. Save</b> — add to the Meesho catalogue, download HD photos, or share.<br><br>
+
+  <img src="docs/screenshots/08-bulk-modes.webp" alt="Bulk creation modes screen" width="260" /><br>
+  <b>8. Create many</b> — style multiple products at once: one look per product, one look across products, or mixed looks.<br><br>
+
+  <img src="docs/screenshots/09-pricing.webp" alt="Pricing plans screen" width="260" /><br>
+  <b>9. Plans</b> — illustrative one-time packs from Trial ₹1 to Pro ₹549 with per-catalogue limits.
+</p>
+
+
 You can also try **Create many** for one look per product, one look across several products, or multiple looks across several products. The floating voice assistant demonstrates a scripted Hindi/Hinglish request that navigates the screens automatically. The first screen includes an English/Hindi switch for its introductory content and a demo-mode switch.
 
 ## What the prototype shows
